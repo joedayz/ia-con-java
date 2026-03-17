@@ -1,3 +1,7 @@
+# Environment (no subir claves)
+.env
+.env.local
+
 target/
 pom.xml.tag
 pom.xml.releaseBackup

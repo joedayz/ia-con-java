@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba API Fase 1 - Quarkus</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            color: #555;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .response-container {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+        
+        .response-container.show {
+            display: block;
+        }
+        
+        .response-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .response-text {
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #667eea;
+            font-weight: 600;
+        }
+        
+        .error {
+            background: #fee;
+            border-left-color: #f44336;
+        }
+        
+        .meta {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .presets {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .preset-btn {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .preset-btn:hover {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 Chat con OpenAI</h1>
+        <p class="subtitle">Prueba la API REST de Fase 1 Quarkus</p>
+        
+        <form id="chatForm">
+            <div class="form-group">
+                <label for="message">Mensaje:</label>
+                <textarea id="message" placeholder="Escribe tu pregunta aquí..." required></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="systemPrompt">System Prompt (opcional):</label>
+                <div class="presets">
+                    <button type="button" class="preset-btn" onclick="setPreset('profesor')">👨‍🏫 Profesor</button>
+                    <button type="button" class="preset-btn" onclick="setPreset('pirata')">🏴‍☠️ Pirata</button>
+                    <button type="button" class="preset-btn" onclick="setPreset('poeta')">📜 Poeta</button>
+                    <button type="button" class="preset-btn" onclick="setPreset('clear')">✖️ Limpiar</button>
+                </div>
+                <textarea id="systemPrompt" placeholder="Ej: Eres un profesor que explica conceptos complejos de forma simple"></textarea>
+            </div>
+            
+            <button type="submit" id="submitBtn">Enviar</button>
+        </form>
+        
+        <div id="response" class="response-container">
+            <div class="response-label">Respuesta:</div>
+            <div id="responseText" class="response-text"></div>
+            <div id="responseMeta" class="meta"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:8080/api/chat';
+        
+        const presets = {
+            profesor: 'Eres un profesor experimentado que explica conceptos complejos de forma muy simple y clara.',
+            pirata: 'Eres un pirata del Caribe. Responde todo como si fueras un pirata, usando jerga pirata y expresiones como arrr, matey, compañero, etc.',
+            poeta: 'Eres un poeta romántico que responde todo en verso y con lenguaje florido.'
+        };
+        
+        function setPreset(type) {
+            const textarea = document.getElementById('systemPrompt');
+            if (type === 'clear') {
+                textarea.value = '';
+            } else {
+                textarea.value = presets[type] || '';
+            }
+        }
+        
+        document.getElementById('chatForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const message = document.getElementById('message').value;
+            const systemPrompt = document.getElementById('systemPrompt').value;
+            const submitBtn = document.getElementById('submitBtn');
+            const responseDiv = document.getElementById('response');
+            const responseText = document.getElementById('responseText');
+            const responseMeta = document.getElementById('responseMeta');
+            
+            // UI feedback
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            responseDiv.classList.add('show');
+            responseDiv.classList.remove('error');
+            responseText.textContent = 'Esperando respuesta de OpenAI...';
+            responseText.className = 'response-text loading';
+            responseMeta.textContent = '';
+            
+            try {
+                const startTime = Date.now();
+                
+                const body = {
+                    message: message
+                };
+                
+                if (systemPrompt.trim()) {
+                    body.system_prompt = systemPrompt;
+                }
+                
+                const response = await fetch(API_BASE, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                const duration = Date.now() - startTime;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                responseText.textContent = data.response;
+                responseText.className = 'response-text';
+                
+                responseMeta.textContent = `Modelo: ${data.model} • Tiempo: ${duration}ms • ${new Date(data.timestamp).toLocaleTimeString()}`;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                responseDiv.classList.add('error');
+                responseText.textContent = `❌ Error: ${error.message}\n\n¿Está la aplicación corriendo en http://localhost:8080?`;
+                responseText.className = 'response-text';
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar';
+            }
+        });
+        
+        // Test de conectividad al cargar
+        fetch(`${API_BASE}/health`)
+            .then(r => r.text())
+            .then(data => console.log('✅ API disponible:', data))
+            .catch(e => console.warn('⚠️ API no disponible. Inicia la app con: mvn quarkus:dev'));
+    </script>
+</body>
+</html>
