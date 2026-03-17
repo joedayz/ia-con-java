@@ -1,6 +1,5 @@
 package com.joedayz.ia.fase1.quarkus.service;
 
-import com.joedayz.ia.common.config.EnvConfig;
 import com.joedayz.ia.fase1.quarkus.config.OpenAIConfig;
 import com.joedayz.ia.fase1.quarkus.model.ChatRequest;
 import com.joedayz.ia.fase1.quarkus.model.ChatResponse;
@@ -13,6 +12,10 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.core.MediaType;
 import org.jboss.logging.Logger;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -58,28 +61,29 @@ public class OpenAIService {
             // Parsear timeout (ej: "30s" -> 30 segundos)
             long timeoutSeconds = parseTimeout(config.timeout());
             
-            Client client = ClientBuilder.newBuilder()
+            try (Client client = ClientBuilder.newBuilder()
                 .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
                 .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
-                .build();
+                .build()) {
 
-            String url = config.base().endsWith("/") 
-                ? config.base() + "chat/completions" 
-                : config.base() + "/chat/completions";
+                String url = config.base().endsWith("/")
+                    ? config.base() + "chat/completions"
+                    : config.base() + "/chat/completions";
 
-            ChatResponse response = client
-                .target(url)
-                .request(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + apiKey)
-                .header("Content-Type", "application/json")
-                .post(Entity.json(request), ChatResponse.class);
+                ChatResponse response = client
+                    .target(url)
+                    .request(MediaType.APPLICATION_JSON)
+                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Content-Type", "application/json")
+                    .post(Entity.json(request), ChatResponse.class);
 
-            String content = response.getContent();
-            Integer totalTokens = response.usage() != null ? response.usage().totalTokens() : null;
-            int tokensUsed = totalTokens != null ? totalTokens : 0;
-            LOG.debugf("Respuesta recibida: %d tokens usados", tokensUsed);
-            
-            return content;
+                String content = response.getContent();
+                Integer totalTokens = response.usage() != null ? response.usage().totalTokens() : null;
+                int tokensUsed = totalTokens != null ? totalTokens : 0;
+                LOG.debugf("Respuesta recibida: %d tokens usados", tokensUsed);
+
+                return content;
+            }
 
         } catch (Exception e) {
             LOG.error("Error llamando a la API de OpenAI", e);
@@ -93,8 +97,62 @@ public class OpenAIService {
             return configured.trim();
         }
 
-        String fromDotEnv = EnvConfig.get("OPENAI_API_KEY");
+        String fromEnvironment = System.getenv("OPENAI_API_KEY");
+        if (fromEnvironment != null && !fromEnvironment.isBlank()) {
+            return fromEnvironment.trim();
+        }
+
+        String fromDotEnv = readFromDotEnv("OPENAI_API_KEY");
         return fromDotEnv != null ? fromDotEnv.trim() : null;
+    }
+
+    private String readFromDotEnv(String key) {
+        Path cwd = Paths.get("").toAbsolutePath();
+        Path envInCwd = cwd.resolve(".env");
+        Path envInParent = cwd.getParent() != null ? cwd.getParent().resolve(".env") : null;
+
+        String fromCwd = readKeyFromEnvFile(envInCwd, key);
+        if (fromCwd != null) {
+            return fromCwd;
+        }
+
+        return envInParent != null ? readKeyFromEnvFile(envInParent, key) : null;
+    }
+
+    private String readKeyFromEnvFile(Path envFile, String key) {
+        if (envFile == null || !Files.exists(envFile)) {
+            return null;
+        }
+
+        try {
+            for (String line : Files.readAllLines(envFile)) {
+                String trimmed = line.trim();
+                if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                    continue;
+                }
+
+                int separator = trimmed.indexOf('=');
+                if (separator <= 0) {
+                    continue;
+                }
+
+                String name = trimmed.substring(0, separator).trim();
+                if (!key.equals(name)) {
+                    continue;
+                }
+
+                String value = trimmed.substring(separator + 1).trim();
+                if ((value.startsWith("\"") && value.endsWith("\""))
+                    || (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.substring(1, value.length() - 1);
+                }
+                return value;
+            }
+        } catch (IOException e) {
+            LOG.debugf("No se pudo leer %s: %s", envFile, e.getMessage());
+        }
+
+        return null;
     }
 
     private void validateConfig(String apiKey) {
