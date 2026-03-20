@@ -2,6 +2,9 @@
 .env
 .env.local
 
+# Carpeta del profesor (planes de clase, notas privadas)
+profesor/
+
 target/
 pom.xml.tag
 pom.xml.releaseBackup

@@ -6,7 +6,7 @@
 
     <groupId>com.joedayz</groupId>
     <artifactId>ia-con-java</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>IA con Java (parent)</name>
     <description>Curso IA con Java - Un proyecto Maven por fase</description>
@@ -14,7 +14,11 @@
     <modules>
         <module>common</module>
         <module>fase1</module>
+        <module>fase1-start</module>
         <module>fase1-quarkus</module>
+        <module>fase1-quarkus-start</module>
+        <module>fase1-ollama-start</module>
+        <module>fase1-ollama</module>
         <module>fase2</module>
         <module>fase3</module>
         <module>fase4</module>

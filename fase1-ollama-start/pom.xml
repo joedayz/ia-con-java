@@ -1,21 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.joedayz</groupId>
         <artifactId>ia-con-java</artifactId>
         <version>1.0.0</version>
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>fase2</artifactId>
-    <packaging>jar</packaging>
-    <name>Fase 2 - Prompt engineering</name>
+    <artifactId>fase1-ollama-start</artifactId>
+    <name>Fase 1 - Ollama Start (Modelos Locales)</name>
+    <description>Versión starter para usar modelos locales con Ollama</description>
 
     <dependencies>
+        <!-- Dependencia del módulo común (EnvConfig) -->
         <dependency>
             <groupId>com.joedayz</groupId>
             <artifactId>common</artifactId>
@@ -30,7 +31,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.joedayz.ia.fase2.PromptEngineering</mainClass>
+                    <mainClass>com.joedayz.ia.fase1.ollama.PrimeraLlamadaOllama</mainClass>
                 </configuration>
             </plugin>
         </plugins>
