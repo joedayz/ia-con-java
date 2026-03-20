@@ -31,28 +31,37 @@ public final class EnvConfig {
 
     /** API Key de OpenAI (o proveedor compatible). Obligatoria para las demos. */
     public static String getOpenAiApiKey() {
-        String key = DOTENV.get("OPENAI_API_KEY");
+        String key = get("OPENAI_API_KEY");
         if (key == null || key.isBlank()) {
             throw new IllegalStateException(
-                "Falta OPENAI_API_KEY. En la raíz del repo copia .env.example a .env y configura tu clave.");
+                "Falta OPENAI_API_KEY. Configúrala como variable de entorno o en .env");
         }
         return key.trim();
     }
 
     /** URL base opcional para APIs compatibles con OpenAI (ej. Azure, proxy). */
     public static String getOpenAiApiBase() {
-        String base = DOTENV.get("OPENAI_API_BASE");
+        String base = get("OPENAI_API_BASE");
         return (base != null && !base.isBlank()) ? base.trim() : "https://api.openai.com/v1";
     }
 
-    /** Obtiene cualquier variable; devuelve null si no existe. */
+    /** 
+     * Obtiene cualquier variable; devuelve null si no existe.
+     * Prioridad: 1) System.getenv(), 2) archivo .env 
+     */
     public static String get(String name) {
+        // Primero intenta System.getenv (variables exportadas con source ~/.api-keys)
+        String systemValue = System.getenv(name);
+        if (systemValue != null && !systemValue.isBlank()) {
+            return systemValue.trim();
+        }
+        // Si no existe en system, busca en archivo .env
         return DOTENV.get(name);
     }
 
     /** Obtiene variable con valor por defecto. */
     public static String get(String name, String defaultValue) {
-        String v = DOTENV.get(name);
+        String v = get(name);
         return (v != null && !v.isBlank()) ? v.trim() : defaultValue;
     }
 }
