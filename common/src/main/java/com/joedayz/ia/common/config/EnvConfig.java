@@ -64,4 +64,26 @@ public final class EnvConfig {
         String v = get(name);
         return (v != null && !v.isBlank()) ? v.trim() : defaultValue;
     }
+
+    /** API Key de Anthropic (Claude). Opcional. */
+    public static String getAnthropicApiKey() {
+        String key = get("ANTHROPIC_API_KEY");
+        if (key == null || key.isBlank()) {
+            throw new IllegalStateException(
+                "Falta ANTHROPIC_API_KEY. Configúrala como variable de entorno o en .env");
+        }
+        return key.trim();
+    }
+
+    /** URL base de Anthropic API. */
+    public static String getAnthropicApiBase() {
+        String base = get("ANTHROPIC_API_BASE");
+        return (base != null && !base.isBlank()) ? base.trim() : "https://api.anthropic.com/v1";
+    }
+
+    /** Verifica si una API key específica está disponible. */
+    public static boolean hasKey(String keyName) {
+        String value = get(keyName);
+        return value != null && !value.isBlank();
+    }
 }
