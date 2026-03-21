@@ -6,6 +6,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/fase1-springboot-start/pom.xml" />
+        <option value="$PROJECT_DIR$/fase1-springboot/pom.xml" />
       </list>
     </option>
   </component>
