@@ -86,4 +86,20 @@ public final class EnvConfig {
         String value = get(keyName);
         return value != null && !value.isBlank();
     }
+
+    /** API Key de Google Gemini. Opcional. */
+    public static String getGeminiApiKey() {
+        String key = get("GEMINI_API_KEY");
+        if (key == null || key.isBlank()) {
+            throw new IllegalStateException(
+                "Falta GEMINI_API_KEY. Configúrala como variable de entorno o en .env");
+        }
+        return key.trim();
+    }
+
+    /** URL base de Gemini API. */
+    public static String getGeminiApiBase() {
+        String base = get("GEMINI_API_BASE");
+        return (base != null && !base.isBlank()) ? base.trim() : "https://generativelanguage.googleapis.com/v1";
+    }
 }
