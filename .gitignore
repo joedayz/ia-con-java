@@ -5,6 +5,8 @@
 # Carpeta del profesor (planes de clase, notas privadas)
 profesor/
 
+.idea/
+
 target/
 pom.xml.tag
 pom.xml.releaseBackup

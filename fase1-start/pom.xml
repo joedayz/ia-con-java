@@ -15,6 +15,19 @@
     <name>Fase 1 - Start (Multi-Provider)</name>
     <description>Versión starter para construir paso a paso con soporte OpenAI y Anthropic</description>
 
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <artifactId>libraries-bom</artifactId>
+                <groupId>com.google.cloud</groupId>
+                <scope>import</scope>
+                <type>pom</type>
+                <version>26.29.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <dependencies>
         <!-- Dependencia del módulo común (EnvConfig) -->
         <dependency>
@@ -31,7 +44,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.joedayz.ia.fase1.start.PrimeraLlamadaIA</mainClass>
+                    <mainClass>com.joedayz.ia.fase1.start.Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

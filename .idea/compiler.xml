@@ -7,7 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="fase1-quarkus" />
+        <module name="fase1-ollama" />
         <module name="common" />
+        <module name="fase1-start" />
+        <module name="fase1-quarkus-start" />
+        <module name="fase1-ollama-start" />
         <module name="fase4" />
         <module name="fase3" />
         <module name="fase2" />
