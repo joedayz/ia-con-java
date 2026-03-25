@@ -43,7 +43,7 @@ $hasApiKeys = $false
 # Primero verificar variables de entorno
 if ($env:OPENAI_API_KEY -or $env:ANTHROPIC_API_KEY -or $env:GEMINI_API_KEY) {
     $hasApiKeys = $true
-    Write-ColorOutput "✓ API keys detectadas en variables de entorno" -Color Green
+    Write-ColorOutput "[OK] API keys detectadas en variables de entorno" -Color Green
     Write-Host ""
 }
 
@@ -58,7 +58,7 @@ if (-not $hasApiKeys) {
 
 # Si no hay ninguna configuración, mostrar error
 if (-not $hasApiKeys) {
-    Write-ColorOutput "❌ Error: No se encontraron API keys configuradas" -Color Red
+    Write-ColorOutput "[ERROR] No se encontraron API keys configuradas" -Color Red
     Write-Host ""
     Write-ColorOutput "Opciones de configuración:" -Color Yellow
     Write-Host ""
@@ -90,7 +90,7 @@ if (-not $hasApiKeys) {
 
 # Verificar Maven
 if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
-    Write-ColorOutput "❌ Error: Maven no está instalado" -Color Red
+    Write-ColorOutput "[ERROR] Maven no esta instalado" -Color Red
     Write-Host "Descarga Maven en: https://maven.apache.org/download.cgi"
     exit 1
 }
@@ -115,7 +115,7 @@ function Select-Provider {
         "4" { return "" }
         "" { return "" }
         default {
-            Write-ColorOutput "❌ Opción inválida, usando configuración por defecto" -Color Red
+            Write-ColorOutput "[ERROR] Opcion invalida, usando configuracion por defecto" -Color Red
             return ""
         }
     }
@@ -164,7 +164,7 @@ function Invoke-Lab {
     }
     
     Write-Host ""
-    Write-ColorOutput "✓ Lab completado" -Color Green
+    Write-ColorOutput "[OK] Lab completado" -Color Green
     Write-Host ""
 }
 
@@ -187,7 +187,7 @@ if ($LabNumber -gt 0) {
             Invoke-Lab "Demo" "Zero-Shot vs Few-Shot" "ComparacionZeroShotVsFewShot"
         }
         default {
-            Write-ColorOutput "❌ Opción inválida" -Color Red
+            Write-ColorOutput "[ERROR] Opcion invalida" -Color Red
             exit 1
         }
     }
@@ -217,11 +217,11 @@ while ($true) {
             Invoke-Lab "Demo" "Zero-Shot vs Few-Shot" "ComparacionZeroShotVsFewShot"
         }
         "0" {
-            Write-ColorOutput "👋 ¡Hasta pronto!" -Color Green
+            Write-ColorOutput "Hasta pronto!" -Color Green
             exit 0
         }
         default {
-            Write-ColorOutput "❌ Opción inválida" -Color Red
+            Write-ColorOutput "[ERROR] Opcion invalida" -Color Red
             Write-Host ""
         }
     }
