@@ -7,11 +7,11 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Detectar directorio raiz del proyecto
+# Detectar directorio raíz del proyecto
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 
-# Si estamos en fase2, subir al directorio raiz
+# Si estamos en fase2, subir al directorio raíz
 if ((Split-Path -Leaf $ScriptDir) -eq "fase2") {
     Set-Location $ProjectRoot
 }
@@ -37,7 +37,7 @@ Write-ColorOutput "  Fase 2 - Prompt Engineering" -Color Blue
 Write-ColorOutput "========================================" -Color Blue
 Write-Host ""
 
-# Verificar que al menos una API key esta configurada (env o .env)
+# Verificar que al menos una API key está configurada (env o .env)
 $hasApiKeys = $false
 
 # Primero verificar variables de entorno
@@ -56,17 +56,17 @@ if (-not $hasApiKeys) {
     }
 }
 
-# Si no hay ninguna configuracion, mostrar error
+# Si no hay ninguna configuración, mostrar error
 if (-not $hasApiKeys) {
     Write-ColorOutput "[ERROR] No se encontraron API keys configuradas" -Color Red
     Write-Host ""
-    Write-ColorOutput "Opciones de configuracion:" -Color Yellow
+    Write-ColorOutput "Opciones de configuración:" -Color Yellow
     Write-Host ""
-    Write-Host "Opcion 1 (Recomendado): Variables de entorno"
+    Write-Host "Opción 1 (Recomendado): Variables de entorno"
     Write-Host "  1. Crear archivo en tu perfil de PowerShell:"
     Write-Host "     notepad `$PROFILE"
     Write-Host ""
-    Write-Host "  2. Agregar estas lineas:"
+    Write-Host "  2. Agregar estas líneas:"
     Write-Host '     $env:OPENAI_API_KEY = "sk-..."'
     Write-Host '     $env:ANTHROPIC_API_KEY = "sk-ant-..."'
     Write-Host '     $env:GEMINI_API_KEY = "AIza..."'
@@ -74,12 +74,12 @@ if (-not $hasApiKeys) {
     Write-Host "  3. Recargar perfil:"
     Write-Host "     . `$PROFILE"
     Write-Host ""
-    Write-Host "Opcion 2: Variables de sesion (temporal)"
+    Write-Host "Opción 2: Variables de sesión (temporal)"
     Write-Host '  $env:OPENAI_API_KEY = "sk-..."'
     Write-Host '  $env:ANTHROPIC_API_KEY = "sk-ant-..."'
     Write-Host '  $env:GEMINI_API_KEY = "AIza..."'
     Write-Host ""
-    Write-Host "Opcion 3: Archivo .env en la raiz del proyecto"
+    Write-Host "Opción 3: Archivo .env en la raíz del proyecto"
     Write-Host "  1. Copiar plantilla:"
     Write-Host "     Copy-Item .env.example .env"
     Write-Host ""
@@ -95,14 +95,14 @@ if (-not (Get-Command mvn -ErrorAction SilentlyContinue)) {
     exit 1
 }
 
-# Funcion para seleccionar proveedor
+# Función para seleccionar proveedor
 function Select-Provider {
     Write-ColorOutput "Selecciona el proveedor de IA:" -Color Cyan
     Write-Host ""
     Write-Host "  1. OpenAI (GPT-3.5)"
     Write-Host "  2. Anthropic (Claude 3 Haiku)"
     Write-Host "  3. Google Gemini 2.5 Flash"
-    Write-Host "  4. Usar configuracion por defecto"
+    Write-Host "  4. Usar configuración por defecto"
     Write-Host ""
     
     $choice = Read-Host "Proveedor"
@@ -121,7 +121,7 @@ function Select-Provider {
     }
 }
 
-# Funcion para mostrar el menu
+# Función para mostrar el menú
 function Show-Menu {
     Write-ColorOutput "Selecciona un lab:" -Color Green
     Write-Host ""
@@ -129,13 +129,13 @@ function Show-Menu {
     Write-Host "  2. Lab 6: Clasificador de Sentimientos (Few-Shot)"
     Write-Host "  3. Bonus: Chain of Thought (Razonamiento paso a paso)"
     Write-Host "  4. Bonus: Salida Estructurada (JSON)"
-    Write-Host "  5. Demo: Comparacion Zero-Shot vs Few-Shot"
+    Write-Host "  5. Demo: Comparación Zero-Shot vs Few-Shot"
     Write-Host ""
     Write-Host "  0. Salir"
     Write-Host ""
 }
 
-# Funcion para ejecutar un lab
+# Función para ejecutar un lab
 function Invoke-Lab {
     param(
         [string]$LabName,
@@ -194,10 +194,10 @@ if ($LabNumber -gt 0) {
     exit 0
 }
 
-# Si no hay argumentos, mostrar menu interactivo
+# Si no hay argumentos, mostrar menú interactivo
 while ($true) {
     Show-Menu
-    $choice = Read-Host "Opcion"
+    $choice = Read-Host "Opción"
     Write-Host ""
     
     switch ($choice) {
