@@ -138,12 +138,14 @@ ejecutar_lab() {
     if [ -n "$provider" ]; then
         echo -e "${BLUE}Usando proveedor: $provider${NC}"
         echo ""
-        mvn -pl fase2 exec:java -Dexec.mainClass="com.joedayz.ia.fase2.$clase" \
-            -Dexec.args="--provider=$provider" -q
+        mvn -pl fase2 exec:java \
+            -Dexec.mainClass="com.joedayz.ia.fase2.$clase" \
+            -Dexec.args="--provider=$provider"
     else
         echo -e "${BLUE}Usando proveedor configurado en .env${NC}"
         echo ""
-        mvn -pl fase2 exec:java -Dexec.mainClass="com.joedayz.ia.fase2.$clase" -q
+        mvn -pl fase2 exec:java \
+            -Dexec.mainClass="com.joedayz.ia.fase2.$clase"
     fi
     
     echo ""

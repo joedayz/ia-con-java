@@ -152,13 +152,15 @@ function Invoke-Lab {
     if ($provider) {
         Write-ColorOutput "Usando proveedor: $provider" -Color Blue
         Write-Host ""
-        mvn -pl fase2 exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.$ClassName" `
-            "-Dexec.args=--provider=$provider" -q
+        mvn -pl fase2 exec:java `
+            "-Dexec.mainClass=com.joedayz.ia.fase2.$ClassName" `
+            "-Dexec.args=--provider=$provider"
     }
     else {
         Write-ColorOutput "Usando proveedor configurado en variables de entorno o .env" -Color Blue
         Write-Host ""
-        mvn -pl fase2 exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.$ClassName" -q
+        mvn -pl fase2 exec:java `
+            "-Dexec.mainClass=com.joedayz.ia.fase2.$ClassName"
     }
     
     Write-Host ""
