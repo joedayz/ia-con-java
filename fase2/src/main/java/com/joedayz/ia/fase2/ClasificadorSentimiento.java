@@ -130,6 +130,6 @@ public class ClasificadorSentimiento {
             Texto: "%s"
             Clasificación:""", texto);
         
-        return chat.chat(SYSTEM_PROMPT, userPrompt, 10, 0.0).trim();
+        return chat.chat(SYSTEM_PROMPT, userPrompt, 100, 0.0).trim();
     }
 }
