@@ -18,16 +18,46 @@ echo -e "${BLUE}  Fase 2 - Prompt Engineering${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
-# Verificar si existe el archivo .env
-if [ ! -f ".env" ]; then
-    echo -e "${RED}❌ Error: Archivo .env no encontrado${NC}"
+# Verificar que al menos una API key está configurada (env o .env)
+has_api_keys=false
+
+# Primero verificar variables de entorno (source ~/.api-keys)
+if [ -n "$OPENAI_API_KEY" ] || [ -n "$ANTHROPIC_API_KEY" ] || [ -n "$GEMINI_API_KEY" ]; then
+    has_api_keys=true
+    echo -e "${GREEN}✓ API keys detectadas en variables de entorno${NC}"
     echo ""
-    echo "Crea un archivo .env en la raíz del proyecto con:"
-    echo "OPENAI_API_KEY=tu-api-key-aqui"
-    echo "OPENAI_API_BASE=https://api.openai.com/v1"
-    echo "# O alternativamente:"
-    echo "# ANTHROPIC_API_KEY=tu-api-key-aqui"
-    echo "# GEMINI_API_KEY=tu-api-key-aqui"
+fi
+
+# Si no hay en env, verificar archivo .env
+if [ "$has_api_keys" = false ]; then
+    if [ -f ".env" ]; then
+        has_api_keys=true
+        echo -e "${GREEN}✓ Archivo .env encontrado${NC}"
+        echo ""
+    fi
+fi
+
+# Si no hay ninguna configuración, mostrar error
+if [ "$has_api_keys" = false ]; then
+    echo -e "${RED}❌ Error: No se encontraron API keys configuradas${NC}"
+    echo ""
+    echo -e "${YELLOW}Opciones de configuración:${NC}"
+    echo ""
+    echo "Opción 1 (Recomendado): Variables de entorno"
+    echo "  1. Crear archivo ~/.api-keys con:"
+    echo "     export OPENAI_API_KEY=\"sk-...\""
+    echo "     export ANTHROPIC_API_KEY=\"sk-ant-...\""
+    echo "     export GEMINI_API_KEY=\"AIza...\""
+    echo ""
+    echo "  2. Cargar en terminal:"
+    echo "     source ~/.api-keys"
+    echo ""
+    echo "Opción 2: Archivo .env en la raíz del proyecto"
+    echo "  1. Copiar plantilla:"
+    echo "     cp .env.example .env"
+    echo ""
+    echo "  2. Editar .env y agregar tus API keys"
+    echo ""
     exit 1
 fi
 

@@ -63,7 +63,46 @@ Todos los labs de Fase 2 soportan **tres proveedores de IA**:
 
 ### Configuración
 
-#### 1. Archivo `.env` en la raíz del proyecto
+#### 1. Variables de Entorno (Recomendado para instructores)
+
+**Para Mac/Linux (Bash/Zsh):**
+```bash
+# Crear archivo ~/.api-keys (fuera del proyecto)
+nano ~/.api-keys
+
+# Agregar tus API keys:
+export OPENAI_API_KEY="sk-proj-..."
+export ANTHROPIC_API_KEY="sk-ant-..."
+export GEMINI_API_KEY="AIza..."
+
+# Guardar y dar permisos restrictivos
+chmod 600 ~/.api-keys
+
+# Cargar en cada sesión de terminal
+source ~/.api-keys
+
+# Opcional: Auto-cargar en cada terminal nueva
+echo 'source ~/.api-keys' >> ~/.zshrc
+```
+
+**Para Windows (PowerShell):**
+```powershell
+# Editar perfil de PowerShell
+notepad $PROFILE
+
+# Agregar estas líneas:
+$env:OPENAI_API_KEY = "sk-proj-..."
+$env:ANTHROPIC_API_KEY = "sk-ant-..."
+$env:GEMINI_API_KEY = "AIza..."
+
+# Guardar y recargar
+. $PROFILE
+
+# O configurar temporalmente (solo sesión actual):
+$env:OPENAI_API_KEY = "sk-proj-..."
+```
+
+#### 2. Archivo `.env` en la raíz del proyecto (Para estudiantes)
 
 Configura al menos una de estas claves API:
 
@@ -79,7 +118,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 GEMINI_API_KEY=AIza...
 ```
 
-#### 2. Variable de entorno `AI_PROVIDER` (opcional)
+#### 3. Variable de entorno `AI_PROVIDER` (opcional)
 
 Para configurar un proveedor por defecto:
 
@@ -93,13 +132,13 @@ AI_PROVIDER=anthropic  # o 'openai' o 'gemini'
 Puedes especificar el proveedor al ejecutar cada lab:
 
 ```bash
-# Usar OpenAI
+# Mac/Linux - Usar OpenAI
 mvn -pl fase2 exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ClasificadorSentimiento \
     -Dexec.args="--provider=openai"
 
-# Usar Anthropic Claude
-mvn -pl fase2 exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ClasificadorSentimiento \
-    -Dexec.args="--provider=anthropic"
+# Windows PowerShell - Usar Anthropic
+mvn -pl fase2 exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ClasificadorSentimiento" `
+    "-Dexec.args=--provider=anthropic"
 
 # Usar Google Gemini
 mvn -pl fase2 exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ClasificadorSentimiento \
@@ -114,19 +153,42 @@ El sistema determina qué proveedor usar en este orden:
 2. **Variable `AI_PROVIDER` en .env**
 3. **Auto-detección** (busca en orden: OpenAI → Gemini → Anthropic)
 
-### Script Interactivo `test-fase2.sh`
+### Script Interactivo
 
-El script de pruebas incluye un selector de proveedor interactivo:
+Scripts disponibles para ambos sistemas operativos:
 
+**Mac/Linux:**
 ```bash
+# Menú interactivo con selector de proveedor
 ./test-fase2.sh
-# El script te preguntará:
-# Selecciona el proveedor de IA:
-#   1. OpenAI (GPT-3.5)
-#   2. Anthropic (Claude 3 Haiku)
-#   3. Google Gemini 2.5 Flash
-#   4. Usar configuración por defecto (.env)
+
+# O ejecutar lab específico directamente
+./test-fase2.sh 1  # Lab 5: Chatbot Interactivo
+./test-fase2.sh 2  # Lab 6: Clasificador Sentimientos
+./test-fase2.sh 3  # Bonus: Chain of Thought
+./test-fase2.sh 4  # Bonus: Salida Estructurada
+./test-fase2.sh 5  # Demo: Zero-Shot vs Few-Shot
 ```
+
+**Windows PowerShell:**
+```powershell
+# Primero permitir ejecución de scripts (una sola vez)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Menú interactivo con selector de proveedor
+.\test-fase2.ps1
+
+# O ejecutar lab específico directamente
+.\test-fase2.ps1 1  # Lab 5: Chatbot Interactivo
+.\test-fase2.ps1 2  # Lab 6: Clasificador Sentimientos
+.\test-fase2.ps1 3  # Bonus: Chain of Thought
+.\test-fase2.ps1 4  # Bonus: Salida Estructurada
+.\test-fase2.ps1 5  # Demo: Zero-Shot vs Few-Shot
+```
+
+El script detecta automáticamente si tienes las API keys en:
+1. **Variables de entorno** (prioridad 1) - `source ~/.api-keys` o `$PROFILE`
+2. **Archivo `.env`** (prioridad 2) - En la raíz del proyecto
 
 ### Diferencias entre Proveedores
 
