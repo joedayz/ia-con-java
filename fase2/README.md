@@ -412,7 +412,7 @@ public AnalisisSentimiento analizar(@RequestParam String texto) {
 ## 🔧 Comandos Útiles
 
 ```bash
-# Menú interactivo con selector de proveedor (RECOMENDADO)
+# Mac/Linux: Menú interactivo con selector de proveedor (RECOMENDADO)
 cd fase2
 ./test-fase2.sh
 
@@ -422,9 +422,24 @@ cd fase2
 ./test-fase2.sh 3  # Bonus: Chain of Thought
 ./test-fase2.sh 4  # Bonus: Salida Estructurada
 ./test-fase2.sh 5  # Demo: Zero-Shot vs Few-Shot
+```
 
-# Comandos Maven individuales (con/sin proveedor específico):
+```powershell
+# Windows PowerShell: Menú interactivo (RECOMENDADO)
+cd fase2
+.\test-fase2.ps1
 
+# O ejecutar directamente un lab específico:
+.\test-fase2.ps1 1  # Lab 5: Chatbot Interactivo
+.\test-fase2.ps1 2  # Lab 6: Clasificador Sentimientos
+.\test-fase2.ps1 3  # Bonus: Chain of Thought
+.\test-fase2.ps1 4  # Bonus: Salida Estructurada
+.\test-fase2.ps1 5  # Demo: Zero-Shot vs Few-Shot
+```
+
+**Comandos Maven individuales (multiplataforma):**
+
+```bash
 # Ejecutar el chatbot interactivo
 mvn -pl fase2 exec:java  # USA: configuración por defecto
 mvn -pl fase2 exec:java -Dexec.args="--provider=anthropic"  # USA: Claude

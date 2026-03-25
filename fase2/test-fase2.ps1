@@ -7,6 +7,15 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Detectar directorio raíz del proyecto
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$ProjectRoot = Split-Path -Parent $ScriptDir
+
+# Si estamos en fase2, subir al directorio raíz
+if ((Split-Path -Leaf $ScriptDir) -eq "fase2") {
+    Set-Location $ProjectRoot
+}
+
 # Colores
 function Write-ColorOutput {
     param(

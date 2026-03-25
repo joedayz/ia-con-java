@@ -5,6 +5,15 @@
 
 set -e
 
+# Detectar directorio raíz del proyecto
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+# Si estamos en fase2, subir al directorio raíz
+if [[ "$(basename "$SCRIPT_DIR")" == "fase2" ]]; then
+    cd "$PROJECT_ROOT"
+fi
+
 # Colores
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -69,15 +78,15 @@ fi
 
 # Función para seleccionar proveedor
 seleccionar_proveedor() {
-    echo -e "${CYAN}Selecciona el proveedor de IA:${NC}"
-    echo ""
-    echo "  1. OpenAI (GPT-3.5)"
-    echo "  2. Anthropic (Claude 3 Haiku)"
-    echo "  3. Google Gemini 2.5 Flash"
-    echo "  4. Usar configuración por defecto (.env)"
-    echo ""
+    echo -e "${CYAN}Selecciona el proveedor de IA:${NC}" >&2
+    echo "" >&2
+    echo "  1. OpenAI (GPT-3.5)" >&2
+    echo "  2. Anthropic (Claude 3 Haiku)" >&2
+    echo "  3. Google Gemini 2.5 Flash" >&2
+    echo "  4. Usar configuración por defecto (.env)" >&2
+    echo "" >&2
     read -p "Proveedor: " prov_opcion
-    echo ""
+    echo "" >&2
     
     case $prov_opcion in
         1)
@@ -93,7 +102,8 @@ seleccionar_proveedor() {
             echo ""
             ;;
         *)
-            echo -e "${RED}❌ Opción inválida, usando configuración por defecto${NC}"
+            echo -e "${RED}❌ Opción inválida, usando configuración por defecto${NC}" >&2
+            echo "" >&2
             echo ""
             ;;
     esac
