@@ -6,7 +6,10 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Fase 1 Ollama: Primera llamada a un modelo local con Ollama.
@@ -18,49 +21,48 @@ import java.util.List;
  */
 public class PrimeraLlamadaOllama {
 
-    // TODO: Definir constantes
-    // private static final String DEFAULT_BASE_URL = "http://localhost:11434";
-    // private static final String DEFAULT_MODEL = "mistral";
-    // private static final int DEFAULT_PORT = 11434;
+     private static final String DEFAULT_BASE_URL = "http://localhost:11434";
+     private static final String DEFAULT_MODEL = "mistral";
+     private static final int DEFAULT_PORT = 11434;
 
     public static void main(String[] args) throws Exception {
         System.out.println("=== Primera Llamada a Ollama (Modelo Local) ===\n");
         
-        // TODO: Paso 1 - Verificar que Ollama está corriendo
-        // String baseUrl = "http://localhost:11434";
-        // if (!isOllamaRunning(baseUrl)) {
-        //     System.err.println("❌ Error: Ollama no está corriendo.");
-        //     System.err.println("💡 Solución: Ejecuta 'ollama serve' en otra terminal");
-        //     System.exit(1);
-        // }
-        // System.out.println("✅ Ollama está corriendo en " + baseUrl);
+
+         String baseUrl = "http://localhost:11434";
+         if (!isOllamaRunning(baseUrl)) {
+             System.err.println("❌ Error: Ollama no está corriendo.");
+             System.err.println("💡 Solución: Ejecuta 'ollama serve' en otra terminal");
+             System.exit(1);
+         }
+         System.out.println("✅ Ollama está corriendo en " + baseUrl);
         
-        // TODO: Paso 2 - Listar modelos disponibles
-        // List<String> modelos = listarModelos(baseUrl);
-        // System.out.println("📦 Modelos instalados: " + modelos);
-        // if (modelos.isEmpty()) {
-        //     System.err.println("❌ No hay modelos instalados.");
-        //     System.err.println("💡 Solución: Ejecuta 'ollama pull mistral'");
-        //     System.exit(1);
-        // }
+
+         List<String> modelos = listarModelos(baseUrl);
+         System.out.println("📦 Modelos instalados: " + modelos);
+         if (modelos.isEmpty()) {
+             System.err.println("❌ No hay modelos instalados.");
+             System.err.println("💡 Solución: Ejecuta 'ollama pull mistral'");
+             System.exit(1);
+         }
         
-        // TODO: Paso 3 - Determinar qué modelo usar
-        // String modelo = determinarModelo(args, modelos);
-        // System.out.println("🤖 Usando modelo: " + modelo + "\n");
+
+         String modelo = determinarModelo(args, modelos);
+         System.out.println("🤖 Usando modelo: " + modelo + "\n");
         
-        // TODO: Paso 4 - Preparar el prompt
-        // String prompt = extraerPrompt(args);
-        // System.out.println("Pregunta: " + prompt);
+
+         String prompt = extraerPrompt(args);
+         System.out.println("Pregunta: " + prompt);
         
-        // TODO: Paso 5 - Enviar chat y medir tiempo
-        // long inicio = System.currentTimeMillis();
-        // String respuesta = enviarChat(baseUrl, modelo, prompt);
-        // long duracion = System.currentTimeMillis() - inicio;
+
+         long inicio = System.currentTimeMillis();
+         String respuesta = enviarChat(baseUrl, modelo, prompt);
+         long duracion = System.currentTimeMillis() - inicio;
         
-        // System.out.println("\nRespuesta: " + respuesta);
-        // System.out.println("\n⏱️  Tiempo: " + duracion + "ms");
+         System.out.println("\nRespuesta: " + respuesta);
+         System.out.println("\n⏱️  Tiempo: " + duracion + "ms");
         
-        System.out.println("\n🎓 TODO: Implementar los métodos marcados con TODO");
+
     }
 
     /**
@@ -69,27 +71,27 @@ public class PrimeraLlamadaOllama {
      * Hace una request a /api/version para verificar conectividad.
      */
     private static boolean isOllamaRunning(String baseUrl) {
-        // TODO: Implementar verificación
-        // try {
-        //     HttpClient client = HttpClient.newBuilder()
-        //         .connectTimeout(Duration.ofSeconds(2))
-        //         .build();
-        //     
-        //     HttpRequest request = HttpRequest.newBuilder()
-        //         .uri(URI.create(baseUrl + "/api/version"))
-        //         .timeout(Duration.ofSeconds(2))
-        //         .GET()
-        //         .build();
-        //     
-        //     HttpResponse<String> response = client.send(request,
-        //         HttpResponse.BodyHandlers.ofString());
-        //     
-        //     return response.statusCode() == 200;
-        // } catch (Exception e) {
-        //     return false;
-        // }
+
+         try {
+             HttpClient client = HttpClient.newBuilder()
+                 .connectTimeout(Duration.ofSeconds(2))
+                 .build();
+
+             HttpRequest request = HttpRequest.newBuilder()
+                 .uri(URI.create(baseUrl + "/api/version"))
+                 .timeout(Duration.ofSeconds(2))
+                 .GET()
+                 .build();
+
+             HttpResponse<String> response = client.send(request,
+                 HttpResponse.BodyHandlers.ofString());
+
+             return response.statusCode() == 200;
+         } catch (Exception e) {
+             return false;
+         }
         
-        return true; // TODO: Implementar
+
     }
 
     /**
@@ -99,32 +101,32 @@ public class PrimeraLlamadaOllama {
      * Response: {"models": [{"name": "mistral:latest"}, ...]}
      */
     private static List<String> listarModelos(String baseUrl) throws Exception {
-        // TODO: Implementar listado de modelos
-        // HttpClient client = HttpClient.newBuilder().build();
-        // 
-        // HttpRequest request = HttpRequest.newBuilder()
-        //     .uri(URI.create(baseUrl + "/api/tags"))
-        //     .GET()
-        //     .build();
-        // 
-        // HttpResponse<String> response = client.send(request,
-        //     HttpResponse.BodyHandlers.ofString());
-        // 
-        // if (response.statusCode() != 200) {
-        //     throw new RuntimeException("Error listando modelos: " + response.body());
-        // }
-        // 
-        // // Parsear JSON manualmente (buscar "name":"modelo")
-        // List<String> modelos = new ArrayList<>();
-        // String json = response.body();
-        // Pattern pattern = Pattern.compile("\"name\":\"([^\"]+)\"");
-        // Matcher matcher = pattern.matcher(json);
-        // while (matcher.find()) {
-        //     modelos.add(matcher.group(1));
-        // }
-        // return modelos;
+
+         HttpClient client = HttpClient.newBuilder().build();
+
+         HttpRequest request = HttpRequest.newBuilder()
+             .uri(URI.create(baseUrl + "/api/tags"))
+             .GET()
+             .build();
+
+         HttpResponse<String> response = client.send(request,
+             HttpResponse.BodyHandlers.ofString());
+
+         if (response.statusCode() != 200) {
+             throw new RuntimeException("Error listando modelos: " + response.body());
+         }
+
+         // Parsear JSON manualmente (buscar "name":"modelo")
+         List<String> modelos = new ArrayList<>();
+         String json = response.body();
+         Pattern pattern = Pattern.compile("\"name\":\"([^\"]+)\"");
+         Matcher matcher = pattern.matcher(json);
+         while (matcher.find()) {
+             modelos.add(matcher.group(1));
+         }
+         return modelos;
         
-        return List.of(); // TODO: Implementar
+
     }
 
     /**
@@ -136,51 +138,51 @@ public class PrimeraLlamadaOllama {
      * 3. Primer modelo disponible
      */
     private static String determinarModelo(String[] args, List<String> modelosDisponibles) {
-        // TODO: Implementar lógica de selección
+
         // 1. Buscar --model en args
-        // for (int i = 0; i < args.length - 1; i++) {
-        //     if ("--model".equals(args[i])) {
-        //         return args[i + 1];
-        //     }
-        // }
-        // 
-        // 2. Buscar variable de entorno
-        // String envModel = System.getenv("OLLAMA_MODEL");
-        // if (envModel != null && !envModel.isBlank()) {
-        //     return envModel;
-        // }
-        // 
+         for (int i = 0; i < args.length - 1; i++) {
+             if ("--model".equals(args[i])) {
+                 return args[i + 1];
+             }
+         }
+
+         //2. Buscar variable de entorno
+         String envModel = System.getenv("OLLAMA_MODEL");
+         if (envModel != null && !envModel.isBlank()) {
+             return envModel;
+         }
+        //
         // 3. Usar primer modelo disponible
-        // return modelosDisponibles.get(0);
+         return modelosDisponibles.get(0);
         
-        return "mistral"; // TODO: Implementar
+        //return "mistral";
     }
 
     /**
      * Extrae el prompt de los argumentos (excluyendo flags como --model).
      */
     private static String extraerPrompt(String[] args) {
-        // TODO: Implementar extracción de prompt
-        // StringBuilder prompt = new StringBuilder();
-        // boolean skipNext = false;
-        // 
-        // for (String arg : args) {
-        //     if (skipNext) {
-        //         skipNext = false;
-        //         continue;
-        //     }
-        //     if ("--model".equals(arg)) {
-        //         skipNext = true;
-        //         continue;
-        //     }
-        //     if (prompt.length() > 0) prompt.append(" ");
-        //     prompt.append(arg);
-        // }
-        // 
-        // String result = prompt.toString().trim();
-        // return result.isEmpty() ? "Di 'Hola desde Java usando Ollama'" : result;
+
+         StringBuilder prompt = new StringBuilder();
+         boolean skipNext = false;
+
+         for (String arg : args) {
+             if (skipNext) {
+                 skipNext = false;
+                 continue;
+             }
+             if ("--model".equals(arg)) {
+                 skipNext = true;
+                 continue;
+             }
+             if (prompt.length() > 0) prompt.append(" ");
+             prompt.append(arg);
+         }
+
+         String result = prompt.toString().trim();
+         return result.isEmpty() ? "Di 'Hola desde Java usando Ollama'" : result;
         
-        return "Di 'Hola desde Java usando Ollama'"; // TODO: Implementar
+
     }
 
     /**
@@ -199,46 +201,46 @@ public class PrimeraLlamadaOllama {
     private static String enviarChat(String baseUrl, String model, String userMessage) 
             throws Exception {
         
-        // TODO: Construir la URL
-        // String url = baseUrl + "/v1/chat/completions";
+
+         String url = baseUrl + "/v1/chat/completions";
         
-        // TODO: Construir el body JSON
-        // String body = """
-        //     {
-        //       "model": "%s",
-        //       "messages": [
-        //         {"role": "user", "content": "%s"}
-        //       ],
-        //       "stream": false
-        //     }
-        //     """.formatted(model, escapeJson(userMessage));
+
+         String body = """
+             {
+               "model": "%s",
+               "messages": [
+                 {"role": "user", "content": "%s"}
+               ],
+               "stream": false
+             }
+             """.formatted(model, escapeJson(userMessage));
         
-        // TODO: Crear HttpClient
-        // HttpClient client = HttpClient.newBuilder()
-        //     .connectTimeout(Duration.ofSeconds(10))
-        //     .build();
+
+         HttpClient client = HttpClient.newBuilder()
+             .connectTimeout(Duration.ofSeconds(10))
+             .build();
         
-        // TODO: Crear HttpRequest
-        // NOTA: NO se agrega header "Authorization" para Ollama
-        // HttpRequest request = HttpRequest.newBuilder()
-        //     .uri(URI.create(url))
-        //     .header("Content-Type", "application/json")
-        //     .timeout(Duration.ofMinutes(2)) // Modelos locales pueden ser lentos
-        //     .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
-        //     .build();
+
+         //NOTA: NO se agrega header "Authorization" para Ollama
+         HttpRequest request = HttpRequest.newBuilder()
+             .uri(URI.create(url))
+             .header("Content-Type", "application/json")
+             .timeout(Duration.ofMinutes(2)) // Modelos locales pueden ser lentos
+             .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+             .build();
         
-        // TODO: Enviar y validar
-        // HttpResponse<String> response = client.send(request,
-        //     HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-        //     
-        // if (response.statusCode() != 200) {
-        //     throw new RuntimeException("API error " + response.statusCode() + ": " + response.body());
-        // }
+
+         HttpResponse<String> response = client.send(request,
+             HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+
+         if (response.statusCode() != 200) {
+             throw new RuntimeException("API error " + response.statusCode() + ": " + response.body());
+         }
         
-        // TODO: Extraer contenido (igual que OpenAI)
-        // return extraerContenido(response.body());
+
+        return extraerContenido(response.body());
         
-        return "TODO: Implementar enviarChat"; // TODO: Implementar
+
     }
 
     /**
