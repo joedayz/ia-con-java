@@ -31,18 +31,18 @@ public class ChatbotConMemoria {
         System.out.println("║   Lab 7: Chatbot CON Memoria (Buffer)              ║");
         System.out.println("╚══════════════════════════════════════════════════════╝");
         System.out.println();
-        
-        // TODO: Inicializar ServicioIA
-        ServicioIA servicio = null; // Crear instancia aquí
+
+        ServicioIA servicio = new ServicioIA(); // Crear instancia aquí
         
         Scanner scanner = new Scanner(System.in);
 
-        // TODO: Crear el historial de mensajes
-        // Pista: usa List<Mensaje> historial = new ArrayList<>();
-        List<Mensaje> historial = null;
+        List<Mensaje> historial = new ArrayList<>();
 
-        // TODO: Agregar el system prompt inicial al historial
-        // Pista: historial.add(new Mensaje("system", "Eres un asistente amigable..."));
+        // System prompt inicial (define comportamiento del asistente)
+        historial.add(new Mensaje("system",
+                "Eres un asistente amigable y servicial. "
+                        + "Recuerda el contexto de la conversación y responde de forma natural. "
+                        + "Usa el nombre del usuario si te lo dice."));
 
         System.out.println("Comandos especiales:");
         System.out.println("  /historial - Ver todos los mensajes guardados");
@@ -56,7 +56,7 @@ public class ChatbotConMemoria {
 
             if (entrada.equalsIgnoreCase("salir") || entrada.equalsIgnoreCase("exit")) {
                 System.out.println("\n👋 Conversación finalizada.");
-                // TODO: Mostrar total de mensajes en historial
+                System.out.println("📊 Total de mensajes en historial: " + historial.size());
                 break;
             }
 
@@ -64,36 +64,47 @@ public class ChatbotConMemoria {
                 continue;
             }
 
-            // TODO: Implementar comando /historial
+
             if (entrada.equalsIgnoreCase("/historial")) {
-                // Llamar a mostrarHistorial(historial);
+                mostrarHistorial(historial);
                 continue;
             }
 
-            // TODO: Implementar comando /limpiar
+
             if (entrada.equalsIgnoreCase("/limpiar")) {
-                // 1. Limpiar el historial
-                // 2. Agregar nuevamente el system prompt
-                // 3. Informar al usuario
+                historial.clear();
+                historial.add(new Mensaje("system",
+                        "Eres un asistente amigable y servicial. "
+                                + "Recuerda el contexto de la conversación."));
+                System.out.println("🧹 Historial limpiado. Empezando conversación nueva.\n");
                 continue;
             }
 
             try {
-                // TODO: PASO 1 - Agregar el mensaje del usuario al historial
-                // Pista: historial.add(Mensaje.usuario(entrada));
+                // 1. Agregar mensaje del usuario al historial
+                historial.add(Mensaje.usuario(entrada));
 
-                // TODO: PASO 2 - Enviar el historial completo al LLM
-                // Pista: usa el método enviarConHistorial() que está abajo
+                // 2. Enviar el historial al LLM
+                // Nota: chatConHistorial espera el historial completo + el nuevo mensaje
+                // En este caso, ya agregamos el mensaje al historial, así que pasamos lista vacía
+                List<Mensaje> paraEnviar = new ArrayList<>(historial);
 
-                // TODO: PASO 3 - Agregar la respuesta del asistente al historial
-                // Pista: historial.add(Mensaje.asistente(respuesta));
+                // Llamada al servicio (envía el historial completo)
+                String respuesta = enviarConHistorial(servicio, paraEnviar);
 
-                // TODO: PASO 4 - Mostrar la respuesta
-                // System.out.println("🤖 Bot: " + respuesta);
+                // 3. Agregar respuesta del asistente al historial
+                historial.add(Mensaje.asistente(respuesta));
+
+                // 4. Mostrar respuesta
+                System.out.println("🤖 Bot: " + respuesta);
+                System.out.println("   [Historial: " + historial.size() + " mensajes]");
 
             } catch (Exception e) {
                 System.err.println("❌ Error: " + e.getMessage());
-                // TODO: Si hubo error, remover el último mensaje del usuario
+                // Remover el último mensaje del usuario si falló
+                if (historial.size() > 1 && historial.get(historial.size() - 1).rol().equals("user")) {
+                    historial.remove(historial.size() - 1);
+                }
             }
         }
 
@@ -101,7 +112,7 @@ public class ChatbotConMemoria {
     }
 
     /**
-     * TODO: Implementa este método para enviar el historial completo.
+     *
      * 
      * PISTAS:
      * 1. Obtén el último mensaje (debe ser del usuario)
@@ -110,12 +121,21 @@ public class ChatbotConMemoria {
      * 4. Retorna la respuesta
      */
     private static String enviarConHistorial(ServicioIA servicio, List<Mensaje> historial) {
-        // TODO: Implementar aquí
-        return ""; // Reemplazar con la respuesta real
+        // Extraer el último mensaje de usuario
+        String ultimoMensaje = "";
+        List<Mensaje> historialPrevio = historial;
+        if (!historial.isEmpty()) {
+            Mensaje ultimo = historial.get(historial.size() - 1);
+            if ("user".equals(ultimo.rol())) {
+                historialPrevio = historial.subList(0, historial.size() - 1);
+                ultimoMensaje = ultimo.contenido();
+            }
+        }
+        return servicio.chatConHistorial(historialPrevio, ultimoMensaje);
     }
 
     /**
-     * TODO: Implementa este método para mostrar el historial completo.
+     *
      * 
      * FORMATO SUGERIDO:
      * [1] ⚙️ SYSTEM
@@ -130,11 +150,28 @@ public class ChatbotConMemoria {
         System.out.println("📋 HISTORIAL DE LA CONVERSACIÓN");
         System.out.println("═".repeat(60));
 
-        // TODO: Recorrer el historial y mostrar cada mensaje
-        // Pistas:
-        // - Usar un for con índice
-        // - Para cada mensaje, mostrar: número, emoji, rol, contenido
-        // - Emojis: system=⚙️, user=💬, assistant=🤖
+        if (historial.isEmpty()) {
+            System.out.println("(vacío)");
+        } else {
+            for (int i = 0; i < historial.size(); i++) {
+                Mensaje msg = historial.get(i);
+                String emoji = switch (msg.rol()) {
+                    case "system" -> "⚙️";
+                    case "user" -> "💬";
+                    case "assistant" -> "🤖";
+                    default -> "❓";
+                };
+
+                System.out.printf("%n[%d] %s %s%n", i + 1, emoji, msg.rol().toUpperCase());
+
+                // Limitar contenido largo
+                String contenido = msg.contenido();
+                if (contenido.length() > 100) {
+                    contenido = contenido.substring(0, 97) + "...";
+                }
+                System.out.println("    " + contenido);
+            }
+        }
 
         System.out.println("═".repeat(60) + "\n");
     }
