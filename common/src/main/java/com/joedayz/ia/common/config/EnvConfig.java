@@ -47,16 +47,17 @@ public final class EnvConfig {
 
     /** 
      * Obtiene cualquier variable; devuelve null si no existe.
-     * Prioridad: 1) System.getenv(), 2) archivo .env 
+     * Prioridad: 1) archivo .env (si existe), 2) System.getenv()
      */
     public static String get(String name) {
-        // Primero intenta System.getenv (variables exportadas con source ~/.api-keys)
-        String systemValue = System.getenv(name);
-        if (systemValue != null && !systemValue.isBlank()) {
-            return systemValue.trim();
+        // Primero intenta archivo .env (si existe)
+        String envFileValue = DOTENV.get(name);
+        if (envFileValue != null && !envFileValue.isBlank()) {
+            return envFileValue.trim();
         }
-        // Si no existe en system, busca en archivo .env
-        return DOTENV.get(name);
+        // Si no existe en .env, busca en variables de entorno del sistema
+        String systemValue = System.getenv(name);
+        return (systemValue != null && !systemValue.isBlank()) ? systemValue.trim() : null;
     }
 
     /** Obtiene variable con valor por defecto. */
