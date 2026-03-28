@@ -222,44 +222,88 @@ public class ServicioIA {
     }
 
     private static String extraerContenido(String json) {
-        // Intentar formato Anthropic primero: "content":[{"text":"..."}]
-        String anthropicMarker = "\"text\":\"";
-        int anthropicStart = json.indexOf(anthropicMarker);
-        if (anthropicStart != -1) {
-            anthropicStart += anthropicMarker.length();
-            int end = anthropicStart;
-            while (end < json.length()) {
-                char c = json.charAt(end);
-                if (c == '\\') end += 2;
-                else if (c == '"') break;
-                else end++;
+        // Intentar formato Anthropic primero: "content":[{"text":"..."}] o "content":[{"type":"text","text":"..."}]
+        int contentArrayStart = json.indexOf("\"content\":[");
+        if (contentArrayStart != -1) {
+            String anthropicMarker = "\"text\":\"";
+            int anthropicStart = json.indexOf(anthropicMarker, contentArrayStart);
+            if (anthropicStart != -1) {
+                anthropicStart += anthropicMarker.length();
+                int end = anthropicStart;
+                while (end < json.length()) {
+                    char c = json.charAt(end);
+                    if (c == '\\') {
+                        end += 2; // Skip escaped character
+                    } else if (c == '"') {
+                        break;
+                    } else {
+                        end++;
+                    }
+                }
+                if (end > anthropicStart) {
+                    String content = json.substring(anthropicStart, end);
+                    return unescapeJson(content);
+                }
             }
-            String content = json.substring(anthropicStart, end);
-            return unescapeJson(content);
         }
         
-        // Formato OpenAI: "content":"..."
-        String marker = "\"content\":\"";
-        int start = json.indexOf(marker);
-        if (start == -1) return json;
-        start += marker.length();
+        // Formato OpenAI: buscar "content": (con posibles espacios) seguido de "..." 
+        // Manejar tanto formato compacto ("content":"...") como pretty-printed ("content": "...")
+        int contentKeyStart = json.indexOf("\"content\"");
+        if (contentKeyStart == -1) {
+            return json; // Fallback: retornar todo
+        }
+        
+        // Buscar el : después de "content"
+        int colonPos = json.indexOf(':', contentKeyStart + 9);
+        if (colonPos == -1) {
+            return json;
+        }
+        
+        // Saltar espacios en blanco y saltos de línea después del :
+        int start = colonPos + 1;
+        while (start < json.length() && Character.isWhitespace(json.charAt(start))) {
+            start++;
+        }
+        
+        // Verificar que empieza con comilla
+        if (start >= json.length() || json.charAt(start) != '"') {
+            return json;
+        }
+        
+        // Saltar la comilla inicial
+        start++;
+        
+        // Buscar el final de la cadena
         int end = start;
         while (end < json.length()) {
             char c = json.charAt(end);
-            if (c == '\\') end += 2;
-            else if (c == '"') break;
-            else end++;
+            if (c == '\\') {
+                end += 2; // Skip escaped character
+            } else if (c == '"') {
+                break;
+            } else {
+                end++;
+            }
         }
+        
+        if (end <= start) {
+            return json;
+        }
+        
         String content = json.substring(start, end);
         return unescapeJson(content);
     }
     
     private static String unescapeJson(String s) {
-        return s.replace("\\n", "\n")
-                .replace("\\\"", "\"")
-                .replace("\\\\", "\\")
+        if (s == null) return "";
+        // Orden correcto: primero reemplazar escapes complejos, luego simples
+        return s.replace("\\\\", "\u0000") // Placeholder temporal para \\
+                .replace("\\n", "\n")
+                .replace("\\r", "\r")
                 .replace("\\t", "\t")
-                .replace("\\r", "\r");
+                .replace("\\\"", "\"")
+                .replace("\u0000", "\\"); // Restaurar backslash simple
     }
 
     public record Mensaje(String rol, String contenido) {
