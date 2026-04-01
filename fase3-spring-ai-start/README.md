@@ -157,6 +157,12 @@ chmod +x test-api.sh
 ./test-api.sh
 ```
 
+En PowerShell:
+
+```powershell
+./test-api.ps1
+```
+
 ## 🧭 Lab 9: Búsqueda semántica con `SimpleVectorStore`
 
 ### Objetivo

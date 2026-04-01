@@ -82,6 +82,18 @@ java -jar target/quarkus-app/quarkus-run.jar
 
 ## 🔌 Uso de la API
 
+Puedes ejecutar pruebas automáticas con:
+
+```bash
+./test-api.sh
+```
+
+En PowerShell:
+
+```powershell
+./test-api.ps1
+```
+
 ### 1. Health Check
 
 Verifica que la aplicación esté funcionando:

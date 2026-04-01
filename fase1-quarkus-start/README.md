@@ -67,6 +67,12 @@ curl -X POST http://localhost:8080/api/chat \
   -d '{"message":"Explica qué es un LLM","provider":"openai"}'
 ```
 
+En PowerShell:
+
+```powershell
+./test-api.ps1
+```
+
 ## 📚 Conceptos Clave
 - **Records**: clases inmutables para DTOs
 - **@ConfigMapping**: configuración type-safe

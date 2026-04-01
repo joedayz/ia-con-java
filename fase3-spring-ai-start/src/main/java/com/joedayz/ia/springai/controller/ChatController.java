@@ -27,7 +27,7 @@ public class ChatController {
     }
 
     /**
-     * TODO LAB 7: Endpoint simple de chat (sesión única).
+     * ✅ SOLUCIÓN LAB 7: Endpoint simple de chat (sesión única).
      * 
      * PISTAS:
      * 1. Extraer mensaje de request.getMessage()
@@ -40,12 +40,18 @@ public class ChatController {
      */
     @PostMapping
     public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
-        // TODO: Implementar endpoint simple
-        throw new UnsupportedOperationException("TODO: Implementar endpoint /api/chat");
+        String mensaje = request.getMessage();
+
+        if (mensaje == null || mensaje.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(new ChatResponse("Error: El mensaje no puede estar vacío"));
+        }
+        String respuesta = chatService.chat(mensaje);
+        return ResponseEntity.ok(new ChatResponse(respuesta, "default"));
     }
 
     /**
-     * TODO RETO: Endpoint de chat multi-sesión.
+     * ✅ SOLUCIÓN RETO: Endpoint de chat multi-sesión.
      * 
      * Cada sessionId mantiene su propia conversación independiente.
      * 
@@ -68,8 +74,17 @@ public class ChatController {
     public ResponseEntity<ChatResponse> chatWithSession(
             @PathVariable String sessionId,
             @RequestBody ChatRequest request) {
-        // TODO: Implementar endpoint con sessionId
-        throw new UnsupportedOperationException("TODO: Implementar endpoint /api/chat/{sessionId}");
+        String mensaje = request.getMessage();
+        if (sessionId == null || sessionId.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(new ChatResponse("Error: sessionId no puede estar vacío"));
+        }
+        if (mensaje == null || mensaje.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(new ChatResponse("Error: El mensaje no puede estar vacío"));
+        }
+        String respuesta = chatService.chat(sessionId, mensaje);
+        return ResponseEntity.ok(new ChatResponse(respuesta, sessionId));
     }
 
     /**
@@ -83,6 +98,21 @@ public class ChatController {
         return ResponseEntity.ok(Map.of(
             "message", "Sesión limpiada",
             "sessionId", sessionId
+        ));
+    }
+
+    /**
+     * Endpoint de status/health check.
+     * Útil para monitoring y debugging.
+     *
+     * Ejemplo:
+     * curl http://localhost:8080/api/status
+     */
+    @GetMapping("/status")
+    public ResponseEntity<Map<String, String>> getStatus() {
+        return ResponseEntity.ok(Map.of(
+                "status", "running",
+                "service", chatService.getStatus()
         ));
     }
 }

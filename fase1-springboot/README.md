@@ -83,3 +83,9 @@ openai.api.timeout=30s
 ## Pruebas
 
 Ver `test-api.sh` para ejemplos de pruebas con curl.
+
+En PowerShell también puedes usar:
+
+```powershell
+./test-api.ps1
+```

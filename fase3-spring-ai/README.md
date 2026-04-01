@@ -169,6 +169,12 @@ chmod +x test-api.sh
 ./test-api.sh
 ```
 
+En PowerShell:
+
+```powershell
+./test-api.ps1
+```
+
 ## 🗄️ Base de datos (Lab 8)
 
 Con el perfil `persistent` activo:
@@ -231,7 +237,8 @@ fase3-spring-ai/
 │   └── application-vertex.yml            # Perfil Vertex
 ├── pom.xml
 ├── README.md
-└── test-api.sh                           # Script de pruebas
+├── test-api.sh                           # Script de pruebas
+└── test-api.ps1                          # Script de pruebas PowerShell
 ```
 
 ## 🎓 Conceptos de Spring AI aplicados

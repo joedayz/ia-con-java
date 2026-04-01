@@ -74,6 +74,12 @@ curl -X POST http://localhost:8080/api/chat \
   -d '{"message": "Hola", "provider": "openai"}'
 ```
 
+En PowerShell:
+
+```powershell
+./test-api.ps1
+```
+
 ## 📚 Conceptos que Aprenderás
 
 1. **Spring Boot**: Framework de aplicaciones Java empresariales

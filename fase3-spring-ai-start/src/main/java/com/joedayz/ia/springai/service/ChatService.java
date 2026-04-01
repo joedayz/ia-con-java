@@ -7,10 +7,17 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
 
 /**
- * Servicio principal del chatbot con memoria conversacional.
- * 
- * Lab 7: Chat simple con memoria
- * Lab 8: Chat multi-sesión con memoria persistente
+ * ✅ SOLUCIÓN COMPLETA: Servicio principal del chatbot con memoria conversacional.
+ *
+ * Este servicio utiliza Spring AI para:
+ * 1. Gestionar conversaciones con memoria (InMemory o Jdbc)
+ * 2. Soportar múltiples sesiones simultáneas
+ * 3. Integrar con diferentes proveedores de IA (OpenAI/Anthropic/Gemini)
+ *
+ * Conceptos clave:
+ * - ChatClient: Cliente fluido para interactuar con el LLM
+ * - MessageChatMemoryAdvisor: Gestiona automáticamente la memoria
+ * - ChatMemory: Almacena el historial (InMemory o Jdbc)
  */
 @Service
 public class ChatService {
@@ -18,77 +25,88 @@ public class ChatService {
     private final ChatClient chatClient;
     private final ChatMemory chatMemory;
 
+    private static final int DEFAULT_WINDOW_SIZE = 20; // Últimos 20 mensajes
+
     /**
-     * TODO LAB 7: Constructor - inicializar ChatClient con memoria.
-     * 
-     * PISTAS:
-     * 1. Guardar chatMemory en campo de instancia
-     * 2. Crear ChatClient usando ChatClient.builder(chatModel)
-     * 3. Agregar defaultAdvisors(new MessageChatMemoryAdvisor(chatMemory))
-     * 4. Llamar a .build()
-     * 
-     * @param chatModel modelo de chat inyectado (OpenAI/Anthropic/Gemini)
-     * @param chatMemory memoria de chat (InMemory o Jdbc según configuración)
+     * ✅ SOLUCIÓN LAB 7: Constructor que inicializa ChatClient con memoria.
+     *
+     * El ChatClient se configura con:
+     * 1. El modelo de chat (OpenAI/Anthropic/Gemini según configuración)
+     * 2. MessageChatMemoryAdvisor para gestionar la memoria automáticamente
+     *
+     * @param chatModel modelo de chat inyectado por Spring Boot
+     * @param chatMemory memoria de chat (InMemory o Jdbc según perfil)
      */
     public ChatService(ChatModel chatModel, ChatMemory chatMemory) {
-        // TODO: Implementar inicialización de ChatClient
         this.chatMemory = chatMemory;
-        this.chatClient = null; // Cambiar esto
+
+        // Configurar ChatClient con advisor de memoria por defecto
+        this.chatClient = ChatClient.builder(chatModel)
+                .build();
+
+        System.out.println("✅ ChatService inicializado correctamente");
+        System.out.println("   📝 Memoria: " + chatMemory.getClass().getSimpleName());
+        System.out.println("   🤖 Modelo: " + chatModel.getClass().getSimpleName());
     }
 
     /**
-     * TODO LAB 7: Chat simple con sesión por defecto.
-     * 
+     * ✅ SOLUCIÓN LAB 7: Chat simple con sesión por defecto.
+     *
      * Usa una única sesión "default" para todos los mensajes.
-     * 
-     * PISTAS:
-     * 1. Llamar a chat(sessionId, mensaje) con "default" como sessionId
-     * 
+     * Útil para chatbots simples de un solo usuario.
+     *
      * @param mensaje pregunta del usuario
      * @return respuesta del asistente
      */
     public String chat(String mensaje) {
-        // TODO: Implementar usando chat("default", mensaje)
-        throw new UnsupportedOperationException("TODO: Implementar método chat simple");
+        return chat("default", mensaje);
     }
 
     /**
-     * TODO LAB 8 / RETO: Chat con sesión específica (multi-usuario).
-     * 
-     * Cada sessionId mantiene su propio historial de conversación.
-     * Útil para aplicaciones con múltiples usuarios.
-     * 
-     * PISTAS:
-     * 1. Usar chatClient.prompt()
-     * 2. Agregar .advisors(new MessageChatMemoryAdvisor(chatMemory, sessionId, 20))
-     *    - sessionId: identificador único de la sesión
-     *    - 20: número máximo de mensajes a recordar (window size)
-     * 3. Agregar .user(mensaje)
-     * 4. Llamar a .call().content()
-     * 
-     * @param sessionId identificador de la sesión (ej: "user-123", "session-abc")
+     * ✅ SOLUCIÓN LAB 8 / RETO: Chat con sesión específica (multi-usuario).
+     *
+     * Cada sessionId mantiene su propio historial de conversación independiente.
+     * Esto permite tener múltiples usuarios/conversaciones simultáneas.
+     *
+     * El MessageChatMemoryAdvisor se encarga de:
+     * 1. Recuperar el historial previo de chatMemory
+     * 2. Agregarlo al contexto antes de enviar al LLM
+     * 3. Guardar el nuevo mensaje y respuesta en chatMemory
+     *
+     * @param sessionId identificador único de la sesión (ej: "user-123", "session-abc")
      * @param mensaje pregunta del usuario
      * @return respuesta del asistente
      */
     public String chat(String sessionId, String mensaje) {
-        // TODO: Implementar chat con sessionId específica
-        throw new UnsupportedOperationException("TODO: Implementar método chat con sessionId");
+        return chatClient.prompt()
+                // En 1.1.x el advisor se construye por conversacion.
+                .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
+                        .conversationId(sessionId)
+                        .build())
+                .user(mensaje)
+                .call()
+                .content();
     }
 
     /**
      * Limpia el historial de una sesión específica.
-     * 
+     * Útil para "empezar de nuevo" o implementar comando /reset.
+     *
      * @param sessionId identificador de la sesión a limpiar
      */
     public void clearSession(String sessionId) {
         chatMemory.clear(sessionId);
+        System.out.println("🧹 Sesión limpiada: " + sessionId);
     }
 
     /**
-     * Limpia todas las sesiones (útil para testing).
+     * Obtiene información sobre el estado actual del servicio.
+     * Útil para debugging y monitoring.
      */
-    public void clearAllSessions() {
-        // Nota: InMemoryChatMemory no tiene método clearAll()
-        // Se puede extender o implementar según necesidad
+    public String getStatus() {
+        return String.format(
+                "ChatService [memoria=%s, modelo=configurado]",
+                chatMemory.getClass().getSimpleName()
+        );
     }
 }
