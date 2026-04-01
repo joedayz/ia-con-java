@@ -43,5 +43,20 @@ logging:
     org.springframework.ai: INFO
     com.joedayz: INFO
 
+# Configuración de Swagger / OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha
+    displayRequestDuration: true
+    filter: true
+    syntaxHighlight:
+      activated: true
+
 server:
   port: 8080

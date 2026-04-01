@@ -51,7 +51,37 @@ Edita `src/main/resources/application.yml` y descomenta el bloque del proveedor 
 
 Por defecto está configurado OpenAI.
 
-## 📝 Lab 7: Memoria en RAM
+## � Swagger UI - Documentación Interactiva
+
+¡NUEVO! Este proyecto incluye **Swagger UI** para que puedas:
+- ✅ Ver todos los endpoints disponibles de forma visual
+- ✅ Probar la API directamente desde el navegador
+- ✅ Ver ejemplos de requests y responses
+- ✅ Entender mejor la arquitectura REST
+
+### Acceder a Swagger UI:
+
+1. **Iniciar la aplicación:**
+```bash
+mvn spring-boot:run
+```
+
+2. **Abrir en el navegador:**
+```
+http://localhost:8080/swagger-ui.html
+```
+
+3. **Endpoints disponibles:**
+   - 💬 **Chat:** `/api/chat` (simple y multi-sesión)
+   - 🔍 **Búsqueda Semántica:** `/api/buscar`
+   - 🧠 **RAG:** `/api/rag`
+
+### Guía completa:
+Ver [SWAGGER-GUIDE.md](SWAGGER-GUIDE.md) para tutorial paso a paso con ejemplos.
+
+---
+
+## �📝 Lab 7: Memoria en RAM
 
 ### Objetivo
 Implementar un chatbot con memoria conversacional básica usando `InMemoryChatMemory`.

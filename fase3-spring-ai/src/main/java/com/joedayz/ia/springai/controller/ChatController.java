@@ -3,6 +3,13 @@ package com.joedayz.ia.springai.controller;
 import com.joedayz.ia.springai.dto.ChatRequest;
 import com.joedayz.ia.springai.dto.ChatResponse;
 import com.joedayz.ia.springai.service.ChatService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +26,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/chat")
+@Tag(name = "💬 Chat", description = "Endpoints de chatbot con memoria conversacional")
 public class ChatController {
 
     private final ChatService chatService;
@@ -39,7 +47,25 @@ public class ChatController {
      *   -d '{"message": "Hola, me llamo Carlos"}'
      */
     @PostMapping
-    public ResponseEntity<ChatResponse> chat(@RequestBody ChatRequest request) {
+    @Operation(
+        summary = "Chat simple con sesión única",
+        description = "Envía un mensaje al chatbot. Usa memoria conversacional en la sesión 'default'. El contexto se mantiene entre llamadas.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Respuesta exitosa del chatbot"),
+            @ApiResponse(responseCode = "400", description = "Mensaje vacío o inválido")
+        }
+    )
+    public ResponseEntity<ChatResponse> chat(
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "Mensaje del usuario",
+                required = true,
+                content = @Content(examples = {
+                    @ExampleObject(name = "Saludo", value = "{\"message\": \"Hola, me llamo Carlos\"}"),
+                    @ExampleObject(name = "Pregunta", value = "{\"message\": \"¿Cómo te llamas?\"}"),
+                    @ExampleObject(name = "Seguimiento", value = "{\"message\": \"¿Recuerdas mi nombre?\"}")
+                })
+            )
+            @RequestBody ChatRequest request) {
         String mensaje = request.getMessage();
         
         if (mensaje == null || mensaje.isBlank()) {
@@ -74,8 +100,25 @@ public class ChatController {
      *   -d '{"message": "Hola, me llamo Ana"}'
      */
     @PostMapping("/{sessionId}")
+    @Operation(
+        summary = "Chat multi-sesión (RETO)",
+        description = "Envía un mensaje usando un ID de sesión específico. Cada sesión mantiene su propio historial conversacional independiente. Ideal para aplicaciones multi-usuario.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Respuesta exitosa del chatbot"),
+            @ApiResponse(responseCode = "400", description = "SessionId o mensaje inválido")
+        }
+    )
     public ResponseEntity<ChatResponse> chatWithSession(
+            @Parameter(description = "ID único de sesión (ej: user-123, conversacion-abc)", example = "user-123")
             @PathVariable String sessionId,
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                description = "Mensaje del usuario",
+                required = true,
+                content = @Content(examples = {
+                    @ExampleObject(name = "Usuario 1", value = "{\"message\": \"Hola, me llamo Carlos\"}"),
+                    @ExampleObject(name = "Usuario 2", value = "{\"message\": \"Hola, me llamo Ana\"}")
+                })
+            )
             @RequestBody ChatRequest request) {
         
         String mensaje = request.getMessage();

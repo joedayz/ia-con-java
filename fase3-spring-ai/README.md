@@ -90,7 +90,35 @@ mvn spring-boot:run -Dspring-boot.run.profiles=anthropic,persistent
 mvn spring-boot:run -Dspring-boot.run.profiles=vertex,persistent
 ```
 
-### 3. Probar los endpoints
+### 3. Acceder a Swagger UI 📚
+
+**¡NUEVO!** Documentación interactiva de la API con Swagger UI:
+
+```
+🌐 Swagger UI:  http://localhost:8080/swagger-ui.html
+📄 OpenAPI JSON: http://localhost:8080/v3/api-docs
+```
+
+**Ventajas de usar Swagger UI:**
+- ✅ **Documentación visual** de todos los endpoints
+- ✅ **Probar la API directamente** desde el navegador
+- ✅ **Ver ejemplos** de requests y responses
+- ✅ **Entender los parámetros** sin leer código
+- ✅ **Exportar la especificación OpenAPI** para clientes
+
+**Endpoints disponibles en Swagger:**
+- 💬 **Chat:** `/api/chat` (simple y multi-sesión)
+- 🔍 **Búsqueda Semántica:** `/api/buscar` (demo, PDF, búsqueda)
+- 🧠 **RAG:** `/api/rag` (retrieval + generación)
+
+**Flujo recomendado para estudiantes:**
+1. Abrir http://localhost:8080/swagger-ui.html
+2. Probar POST `/api/chat` → Enviar "Hola, me llamo Carlos"
+3. Probar POST `/api/buscar/demo` → Indexar documentos
+4. Probar GET `/api/buscar?query=similitud coseno&topK=3`
+5. Probar POST `/api/rag` → Pregunta con contexto
+
+### 4. Probar los endpoints (alternativa: curl)
 
 **Chat simple (Lab 7):**
 ```bash
