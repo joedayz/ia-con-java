@@ -14,6 +14,8 @@ ia-con-java/
 ├── fase1-quarkus/          # Proyecto Fase 1 - Versión con Quarkus (REST API)
 ├── fase2/                   # Proyecto Fase 2 - Prompt engineering
 ├── fase3/                   # Proyecto Fase 3 - Servicio de IA (demo)
+├── fase3-spring-ai/         # Proyecto Fase 3 - Spring AI (SOLUCIÓN)
+├── fase3-spring-ai-start/   # Proyecto Fase 3 - Spring AI (START para clase)
 └── fase4/                   # Proyecto Fase 4 - RAG simple
 ```
 
@@ -56,6 +58,8 @@ Ejecuta siempre desde la **raíz del repositorio** para que se encuentre el `.en
 | **Fase 1 (Quarkus con mensaje)** | Envía un mensaje al endpoint REST (equivalente al "con mensaje" de Java puro) | `curl "http://localhost:8080/api/chat?message=Explica%20qu%C3%A9%20es%20Java"` |
 | **Fase 2** | Prompt engineering (consola interactiva) | `mvn -pl fase2 exec:java` |
 | **Fase 3** | Demo del servicio de IA compartido | `mvn -pl fase3 exec:java` |
+| **Fase 3 Spring AI (solution)** | Chatbot con memoria (implementación completa) | `mvn -pl fase3-spring-ai spring-boot:run` |
+| **Fase 3 Spring AI (start)** | Base de clase paso a paso | `mvn -pl fase3-spring-ai-start spring-boot:run` |
 | **Fase 4** | RAG simple (consola interactiva) | `mvn -pl fase4 exec:java` |
 
 ### Fase 1: Dos versiones disponibles
@@ -85,6 +89,52 @@ curl "http://localhost:8080/api/chat?message=Explica%20qu%C3%A9%20es%20Java"
 
 Ver [fase1-quarkus/README.md](fase1-quarkus/README.md) para más detalles.
 
+### Fase 3 Spring AI (solution vs start)
+
+`fase3-spring-ai` es la **solución completa** y `fase3-spring-ai-start` es la **versión de clase** para construir paso a paso.
+
+```bash
+# SOLUCIÓN
+mvn -pl fase3-spring-ai spring-boot:run
+
+# START (clase)
+mvn -pl fase3-spring-ai-start spring-boot:run
+```
+
+Perfiles útiles (según módulo y configuración):
+
+```bash
+mvn -pl fase3-spring-ai spring-boot:run -Dspring-boot.run.profiles=anthropic
+mvn -pl fase3-spring-ai spring-boot:run -Dspring-boot.run.profiles=vertex
+mvn -pl fase3-spring-ai spring-boot:run -Dspring-boot.run.profiles=openai,persistent
+```
+
+Prueba rápida (cuando la app esté arriba):
+
+```bash
+curl -X POST http://localhost:8080/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hola, me llamo Carlos"}'
+
+# Lab 9: indexar documentos teóricos (embeddings + vector store)
+curl -X POST http://localhost:8080/api/buscar/demo
+
+# Lab 10: buscar documentos similares
+curl "http://localhost:8080/api/buscar?query=similitud%20coseno&topK=4"
+
+# Reto: cargar PDF con TikaDocumentReader y buscar en él
+curl -X POST http://localhost:8080/api/buscar/pdf \
+  -H "Content-Type: application/json" \
+  -d '{"path":"/Users/josediaz/Projects/JoeDayz/ia-con-java/docs/01-AI_Developer_Blueprint.pdf","sourceId":"ai-blueprint"}'
+
+# RAG básico: recuperar fragmentos, meterlos al prompt y generar respuesta
+curl -X POST http://localhost:8080/api/rag \
+  -H "Content-Type: application/json" \
+  -d '{"question":"Explica la similitud coseno con base en el material indexado","topK":4}'
+```
+
+Más detalle en `fase3-spring-ai/README.md` y `fase3-spring-ai-start/README.md`.
+
 ### Compilar todo
 
 ```bash
@@ -107,6 +157,8 @@ Cada fase tiene su propio `pom.xml` y su clase principal configurada en el plugi
 - **fase1**: HttpClient, primera petición a `chat/completions`.
 - **fase2**: System prompt y consola para preguntas/respuestas.
 - **fase3**: Uso de `ServicioIA` desde código (demo del módulo common).
+- **fase3-spring-ai**: Solución completa de Fase 3 con Spring AI (memoria RAM, persistente y multi-sesión).
+- **fase3-spring-ai-start**: Versión de clase con TODOs para construir Fase 3 paso a paso.
 - **fase4**: RAG con un documento de contexto en el prompt (sin vector store).
 
 Si tu curso define más fases, añade un nuevo módulo (carpeta + `pom.xml`) y listado en `<modules>` del parent.

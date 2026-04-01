@@ -1,0 +1,18 @@
+# Directorios de base de datos H2
+data/
+*.mv.db
+*.trace.db
+
+# Maven
+target/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# OS
+.DS_Store

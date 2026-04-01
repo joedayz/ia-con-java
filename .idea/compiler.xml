@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="fase3-start" />
         <module name="fase1-ollama" />
+        <module name="fase3-spring-ai-start" />
         <module name="fase1-quarkus-start" />
         <module name="fase1-ollama-start" />
         <module name="fase4" />
@@ -16,6 +17,7 @@
         <module name="fase1" />
         <module name="fase1-quarkus" />
         <module name="fase1-springboot" />
+        <module name="fase3-spring-ai" />
         <module name="common" />
         <module name="fase1-start" />
         <module name="fase1-springboot-start" />
@@ -27,6 +29,8 @@
       <module name="fase1-quarkus" options="-parameters" />
       <module name="fase1-springboot" options="-parameters" />
       <module name="fase1-springboot-start" options="-parameters" />
+      <module name="fase3-spring-ai" options="-parameters" />
+      <module name="fase3-spring-ai-start" options="-parameters" />
     </option>
   </component>
 </project>

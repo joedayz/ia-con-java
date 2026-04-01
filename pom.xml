@@ -22,6 +22,8 @@
         <module>fase2</module>
         <module>fase3</module>
         <module>fase3-start</module>
+        <module>fase3-spring-ai</module>
+        <module>fase3-spring-ai-start</module>
         <module>fase4</module>
     </modules>
 

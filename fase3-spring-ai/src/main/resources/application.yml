@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: fase3-spring-ai-chatbot
+  profiles:
+    default: openai
+  
+  # Configuración de H2 Database para memoria persistente
+  datasource:
+    url: jdbc:h2:file:./data/chatbot-memory
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    database-platform: org.hibernate.dialect.H2Dialect
+
+app:
+  chat:
+    # Se sobreescribe por perfil en application-{perfil}.yml
+    provider: ${APP_CHAT_PROVIDER:openai}
+
+# Configuración de actuator para health checks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logs para debug
+logging:
+  level:
+    org.springframework.ai: INFO
+    com.joedayz: INFO
+
+server:
+  port: 8080
