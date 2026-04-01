@@ -109,6 +109,36 @@ public class SemanticSearchService {
         return result;
     }
 
+    /**
+     * Verifica el estado del vector store.
+     * Retorna información sobre documentos indexados.
+     */
+    public Map<String, Object> getStatus() {
+        if (embeddingModel == null) {
+            return Map.of(
+                "vectorStoreReady", false,
+                "reason", "No hay EmbeddingModel disponible. Usa perfil openai o vertex.",
+                "documentsLoaded", 0
+            );
+        }
+        
+        if (vectorStore == null) {
+            return Map.of(
+                "vectorStoreReady", true,
+                "documentsLoaded", 0,
+                "demoDocsLoaded", false,
+                "tip", "Ejecuta POST /api/buscar/demo o POST /api/buscar/pdf para indexar documentos"
+            );
+        }
+
+        return Map.of(
+            "vectorStoreReady", true,
+            "documentsLoaded", "unknown", // SimpleVectorStore no expone count
+            "demoDocsLoaded", demoDocumentosCargados,
+            "tip", "SimpleVectorStore está en memoria RAM. Se pierde al reiniciar."
+        );
+    }
+
     private synchronized VectorStore requireVectorStore() {
         if (embeddingModel == null) {
             throw new IllegalStateException(

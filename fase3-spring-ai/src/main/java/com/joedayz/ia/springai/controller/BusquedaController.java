@@ -35,6 +35,18 @@ public class BusquedaController {
         this.semanticSearchService = semanticSearchService;
     }
 
+    @GetMapping("/status")
+    @Operation(
+        summary = "Estado del vector store",
+        description = "Verifica si hay documentos indexados en memoria. Útil para diagnosticar si necesitas recargar documentos después de reiniciar.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Estado del vector store")
+        }
+    )
+    public ResponseEntity<Map<String, Object>> getStatus() {
+        return ResponseEntity.ok(semanticSearchService.getStatus());
+    }
+
     @PostMapping("/demo")
     @Operation(
         summary = "Cargar documentos teóricos de demostración",

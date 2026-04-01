@@ -18,7 +18,7 @@ public class RagService {
 
     public RagResponse answer(RagRequest request) {
         // TODO LAB RAG:
-        // - Validar question
+        // - Validar query
         // - Recuperar contexto semantico
         // - Inyectarlo en el prompt
         // - Pedir al modelo que cite [1], [2], [3]

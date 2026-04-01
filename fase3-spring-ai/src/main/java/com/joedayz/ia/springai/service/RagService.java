@@ -31,12 +31,12 @@ public class RagService {
     }
 
     public RagResponse answer(RagRequest request) {
-        if (request == null || request.getQuestion() == null || request.getQuestion().isBlank()) {
-            throw new IllegalArgumentException("question es obligatoria");
+        if (request == null || request.getQuery() == null || request.getQuery().isBlank()) {
+            throw new IllegalArgumentException("query es obligatorio");
         }
 
         int topK = normalizeTopK(request.getTopK());
-        String question = request.getQuestion().trim();
+        String question = request.getQuery().trim();
         List<Document> contextDocs = semanticSearchService.buscarDocumentos(question, topK);
 
         if (contextDocs.isEmpty()) {

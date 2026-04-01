@@ -4,23 +4,23 @@ package com.joedayz.ia.springai.dto;
  * DTO del endpoint RAG (START).
  */
 public class RagRequest {
-    private String question;
+    private String query;
     private Integer topK;
 
     public RagRequest() {
     }
 
-    public RagRequest(String question, Integer topK) {
-        this.question = question;
+    public RagRequest(String query, Integer topK) {
+        this.query = query;
         this.topK = topK;
     }
 
-    public String getQuestion() {
-        return question;
+    public String getQuery() {
+        return query;
     }
 
-    public void setQuestion(String question) {
-        this.question = question;
+    public void setQuery(String query) {
+        this.query = query;
     }
 
     public Integer getTopK() {
