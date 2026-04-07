@@ -1,0 +1,59 @@
+set shell := ["zsh", "-cu"]
+
+api_keys_file := "/Users/josediaz/.api-keys"
+default_message := "How to analyze time-series data with Python and MongoDB? Explain the steps"
+
+# Muestra ayuda.
+default:
+    @just --list
+
+# Verifica prerequisitos locales (Docker + keys).
+check-prereqs:
+    if command -v docker >/dev/null 2>&1; then \
+      if ! docker compose version >/dev/null 2>&1; then echo "Tu Docker no incluye 'docker compose'. Actualiza Docker Desktop."; exit 1; fi; \
+      if ! docker info >/dev/null 2>&1; then echo "Docker Desktop parece apagado. Abre Docker Desktop y vuelve a intentar."; exit 1; fi; \
+    elif command -v podman >/dev/null 2>&1; then \
+      if ! podman compose version >/dev/null 2>&1; then echo "No se encontro 'podman compose'. Instala podman-compose o actualiza Podman."; exit 1; fi; \
+      if ! podman info >/dev/null 2>&1; then echo "Podman no esta listo. En macOS intenta: podman machine init && podman machine start"; exit 1; fi; \
+    else \
+      echo "No se encontro Docker ni Podman en PATH. Instala Docker Desktop (recomendado para alumnos) o Podman."; exit 127; \
+    fi
+    if ! test -f {{api_keys_file}}; then echo "No existe {{api_keys_file}}. Crea el archivo con OPENAI_API_KEY."; exit 1; fi
+
+# Levanta MongoDB en Docker.
+mongo-up: check-prereqs
+    if command -v docker >/dev/null 2>&1; then \
+      echo "Usando Docker"; \
+      docker compose up -d mongodb; \
+    else \
+      echo "Usando Podman"; \
+      podman compose up -d mongodb; \
+    fi
+
+# Detiene MongoDB en Docker.
+mongo-down: check-prereqs
+    if command -v docker >/dev/null 2>&1; then docker compose down; else podman compose down; fi
+
+# Reinicia MongoDB eliminando volumenes (util al cambiar de imagen).
+mongo-reset: check-prereqs
+    if command -v docker >/dev/null 2>&1; then docker compose down -v; else podman compose down -v; fi
+    if command -v docker >/dev/null 2>&1; then docker compose up -d mongodb; else podman compose up -d mongodb; fi
+
+# Muestra logs de MongoDB.
+mongo-logs: check-prereqs
+    if command -v docker >/dev/null 2>&1; then docker compose logs -f mongodb; else podman compose logs -f mongodb; fi
+
+# Ejecuta la app cargando keys desde /Users/josediaz/.api-keys.
+run: mongo-up
+    source {{api_keys_file}}
+    ./mvnw spring-boot:run
+
+# Carga documentos de ejemplo en el vector store.
+load-docs:
+    if ! test -d docs; then echo "No existe la carpeta ./docs. Crea docs/ y agrega archivos (.md, .txt, .json, etc)."; exit 1; fi
+    curl -sS "http://localhost:8080/api/docs/load" | cat
+
+# Hace una pregunta al endpoint RAG.
+ask message="{{default_message}}":
+    curl -sS --get --data-urlencode "message={{message}}" "http://localhost:8080/faq" | cat
+
