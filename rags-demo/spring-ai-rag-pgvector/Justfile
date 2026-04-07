@@ -1,0 +1,79 @@
+set shell := ["zsh", "-uc"]
+
+api_keys_file := env_var_or_default("API_KEYS_FILE", "/Users/josediaz/.api-keys")
+db_container := env_var_or_default("PGVECTOR_CONTAINER", "pgvector-rag-demo")
+brew_postgres_service := env_var_or_default("BREW_POSTGRES_SERVICE", "postgresql@16")
+
+help:
+    @just --list
+
+check-keys:
+    @test -f "{{api_keys_file}}" || (echo "No existe {{api_keys_file}}" && exit 1)
+    @echo "Usando archivo de claves: {{api_keys_file}}"
+
+db-check:
+    if command -v pg_isready >/dev/null 2>&1; then \
+      pg_isready -h "${PGVECTOR_DB_HOST:-127.0.0.1}" -p "${PGVECTOR_DB_PORT:-5432}" -d "${PGVECTOR_DB_NAME:-rag_demo}" -U "${PGVECTOR_DB_USER:-postgres}"; \
+    else \
+      nc -z "${PGVECTOR_DB_HOST:-127.0.0.1}" "${PGVECTOR_DB_PORT:-5432}" || (echo "PostgreSQL no responde en ${PGVECTOR_DB_HOST:-127.0.0.1}:${PGVECTOR_DB_PORT:-5432}" && exit 1); \
+    fi
+
+db-up:
+    engine="${CONTAINER_ENGINE:-}"; \
+    if [ -z "$engine" ]; then \
+      if command -v podman >/dev/null 2>&1; then \
+        engine="podman"; \
+      elif command -v docker >/dev/null 2>&1; then \
+        engine="docker"; \
+      fi; \
+    fi; \
+    if [ -n "$engine" ] && command -v "$engine" >/dev/null 2>&1; then \
+      echo "Usando contenedor con $engine..."; \
+      "$engine" rm -f "{{db_container}}" >/dev/null 2>&1 || true; \
+      "$engine" run -d --name "{{db_container}}" \
+        -e POSTGRES_DB="${PGVECTOR_DB_NAME:-rag_demo}" \
+        -e POSTGRES_USER="${PGVECTOR_DB_USER:-postgres}" \
+        -e POSTGRES_PASSWORD="${PGVECTOR_DB_PASSWORD:-postgres}" \
+        -p "${PGVECTOR_DB_PORT:-5432}:5432" \
+        pgvector/pgvector:pg16; \
+      "$engine" exec "{{db_container}}" sh -c 'until pg_isready -U "${POSTGRES_USER}" -d "${POSTGRES_DB}"; do sleep 1; done'; \
+    else \
+      echo "No se encontro Podman/Docker. Intentando PostgreSQL local."; \
+      just db-up-local; \
+    fi
+
+db-up-local:
+    if just db-check >/dev/null 2>&1; then \
+      echo "PostgreSQL local ya esta disponible."; \
+    elif command -v brew >/dev/null 2>&1; then \
+      echo "Iniciando PostgreSQL con Homebrew ({{brew_postgres_service}})..."; \
+      brew services start "{{brew_postgres_service}}"; \
+      sleep 2; \
+      just db-check; \
+    else \
+      echo "No hay Podman/Docker ni Homebrew. Inicia PostgreSQL manualmente en 127.0.0.1:5432."; \
+      exit 1; \
+    fi
+
+db-init:
+    PGPASSWORD="${PGVECTOR_DB_PASSWORD:-postgres}" psql \
+      -h "${PGVECTOR_DB_HOST:-127.0.0.1}" \
+      -p "${PGVECTOR_DB_PORT:-5432}" \
+      -U "${PGVECTOR_DB_USER:-postgres}" \
+      -d "${PGVECTOR_DB_NAME:-rag_demo}" \
+      -f db/init/01_pgvector.sql
+
+build:
+    ./gradlew clean build
+
+run: check-keys db-check
+    set -a
+    source "{{api_keys_file}}"
+    set +a
+    ./gradlew bootRun
+
+query message="Resume los puntos principales del documento":
+    curl -sS -X POST "http://localhost:8080/ai/rag" \
+      -H "Content-Type: application/json" \
+      -d "{\"message\":\"{{message}}\"}"
+
