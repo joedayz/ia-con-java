@@ -139,6 +139,76 @@ public class SemanticSearchService {
         );
     }
 
+    /**
+     * Expone el VectorStore para uso desde QuestionAnswerAdvisor (Lab 12).
+     */
+    public synchronized VectorStore getVectorStore() {
+        return requireVectorStore();
+    }
+
+    /**
+     * Carga un archivo Markdown, lo divide por secciones y lo indexa.
+     */
+    public int cargarMarkdown(String path, String sourceId) {
+        VectorStore store = requireVectorStore();
+
+        File file = new File(path);
+        if (!file.exists()) {
+            throw new IllegalArgumentException("No se encontró el archivo: " + path);
+        }
+
+        String contenido;
+        try {
+            contenido = java.nio.file.Files.readString(file.toPath());
+        } catch (java.io.IOException e) {
+            throw new IllegalArgumentException("No se pudo leer el archivo: " + path, e);
+        }
+
+        if (contenido.isBlank()) {
+            return 0;
+        }
+
+        String source = (sourceId == null || sourceId.isBlank()) ? file.getName() : sourceId;
+        List<Document> docs = splitMarkdownIntoChunks(contenido, source, path);
+
+        if (docs.isEmpty()) {
+            return 0;
+        }
+
+        store.add(docs);
+        return docs.size();
+    }
+
+    private List<Document> splitMarkdownIntoChunks(String contenido, String source, String path) {
+        // Dividir por encabezados ## o ###
+        String[] secciones = contenido.split("(?=^#{1,3} )", java.util.regex.Pattern.MULTILINE);
+        List<Document> docs = new ArrayList<>();
+
+        for (String seccion : secciones) {
+            String texto = seccion.strip();
+            if (texto.length() < 30) {
+                continue; // Saltar secciones muy cortas
+            }
+            // Truncar secciones muy largas para no exceder límites del modelo de embeddings
+            if (texto.length() > 2000) {
+                texto = texto.substring(0, 2000);
+            }
+            // Extraer título de la sección
+            String titulo = "sin-titulo";
+            int newline = texto.indexOf('\n');
+            if (newline > 0) {
+                titulo = texto.substring(0, newline).replaceAll("^#+\\s*", "").strip();
+            }
+            docs.add(new Document(texto, Map.of(
+                    "fuente", source,
+                    "seccion", titulo,
+                    "filePath", path,
+                    "tipo", "markdown"
+            )));
+        }
+        return docs;
+    }
+
     private synchronized VectorStore requireVectorStore() {
         if (embeddingModel == null) {
             throw new IllegalStateException(

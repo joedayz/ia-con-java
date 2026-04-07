@@ -1,0 +1,61 @@
+set shell := ["bash", "-cu"]
+
+default:
+    @just --list
+
+# Instala Elasticsearch y Kibana localmente con elastic/start-local.
+setup-elastic:
+    ./scripts/setup-elastic-local.sh
+
+# Arranca Elasticsearch y Kibana si ya fueron instalados por start-local.
+start-elastic:
+    @STACK_DIR="${ES_LOCAL_DIR:-$PWD/elastic-start-local}"; \
+    if [[ -x "$STACK_DIR/start.sh" ]]; then \
+      "$STACK_DIR/start.sh"; \
+    else \
+      echo "No se encontro $STACK_DIR/start.sh. Ejecuta: just setup-elastic"; \
+      exit 1; \
+    fi
+
+# Detiene Elasticsearch y Kibana sin borrar datos.
+stop-elastic:
+    @STACK_DIR="${ES_LOCAL_DIR:-$PWD/elastic-start-local}"; \
+    if [[ -x "$STACK_DIR/stop.sh" ]]; then \
+      "$STACK_DIR/stop.sh"; \
+    else \
+      echo "No se encontro $STACK_DIR/stop.sh. Nada para detener."; \
+    fi
+
+# Imprime exports para el shell actual: eval "$(just env-export)"
+env-export:
+    @source ./scripts/use-elastic-local-env.sh >/dev/null; \
+    printf 'export ES_SERVER_URL=%q\n' "$ES_SERVER_URL"; \
+    printf 'export ES_USERNAME=%q\n' "$ES_USERNAME"; \
+    printf 'export ES_PASSWORD=%q\n' "$ES_PASSWORD"
+
+# Verifica conectividad contra Elasticsearch local.
+health-es:
+    @source ./scripts/use-elastic-local-env.sh >/dev/null; \
+    curl -sS -u "$ES_USERNAME:$ES_PASSWORD" "$ES_SERVER_URL"
+
+# Ejecuta la app en el mismo shell de la receta con variables de ES cargadas.
+run-app:
+    @if [[ -z "${OPENAI_API_KEY:-}" && -f "$HOME/.api-keys" ]]; then source "$HOME/.api-keys"; fi; \
+    : "${OPENAI_API_KEY:?Define OPENAI_API_KEY o crea $HOME/.api-keys con OPENAI_API_KEY=...}"; \
+    source ./scripts/use-elastic-local-env.sh >/dev/null; \
+    mvn spring-boot:run
+
+# Ingiere un PDF por ruta absoluta.
+ingest-pdf path:
+    @source ./scripts/use-elastic-local-env.sh >/dev/null; \
+    curl -X POST "http://localhost:8080/rag/ingestPdf" \
+      -H "Content-Type: text/plain" \
+      --data '{{path}}'
+
+# Consulta el endpoint RAG.
+query question:
+    @source ./scripts/use-elastic-local-env.sh >/dev/null; \
+    curl -X POST "http://localhost:8080/rag/query" \
+      -H "Content-Type: text/plain" \
+      --data '{{question}}'
+

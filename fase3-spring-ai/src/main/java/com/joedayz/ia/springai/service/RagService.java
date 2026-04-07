@@ -3,10 +3,14 @@ package com.joedayz.ia.springai.service;
 import com.joedayz.ia.springai.dto.RagRequest;
 import com.joedayz.ia.springai.dto.RagResponse;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.vectorstore.SearchRequest;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,6 +59,68 @@ public class RagService {
                 .content();
 
         return new RagResponse(question, answer, topK, true, toCitations(contextDocs));
+    }
+
+    /**
+     * Lab 12: RAG con QuestionAnswerAdvisor de Spring AI.
+     * El advisor hace automáticamente: busqueda semántica → inyección de contexto → generación.
+     * Mucho más limpio que el approach manual del Lab 11.
+     */
+    public RagResponse answerWithAdvisor(RagRequest request) {
+        if (request == null || request.getQuery() == null || request.getQuery().isBlank()) {
+            throw new IllegalArgumentException("query es obligatorio");
+        }
+
+        int topK = normalizeTopK(request.getTopK());
+        String question = request.getQuery().trim();
+
+        // QuestionAnswerAdvisor automáticamente:
+        // 1. Busca documentos similares en el VectorStore
+        // 2. Los inyecta como contexto en el prompt
+        // 3. El LLM genera una respuesta basada en ese contexto
+        String answer = chatClient.prompt()
+                .advisors(QuestionAnswerAdvisor.builder(semanticSearchService.getVectorStore())
+                        .searchRequest(SearchRequest.builder().topK(topK).build())
+                        .build())
+                .user(question)
+                .call()
+                .content();
+
+        // También recuperamos los docs para mostrar las citas en la respuesta
+        List<Document> contextDocs = semanticSearchService.buscarDocumentos(question, topK);
+
+        return new RagResponse(question, answer, topK, true, toCitations(contextDocs));
+    }
+
+    /**
+     * Reto: Cargar archivos Markdown de un directorio para el asistente de documentación.
+     */
+    public Map<String, Object> cargarDocumentosMarkdown(String directoryPath) {
+        File dir = new File(directoryPath);
+        if (!dir.exists() || !dir.isDirectory()) {
+            throw new IllegalArgumentException("No se encontró el directorio: " + directoryPath);
+        }
+
+        File[] mdFiles = dir.listFiles((d, name) -> name.endsWith(".md"));
+        if (mdFiles == null || mdFiles.length == 0) {
+            return Map.of("message", "No se encontraron archivos .md en: " + directoryPath,
+                    "archivos", 0, "chunks", 0);
+        }
+
+        int totalChunks = 0;
+        List<String> archivos = new ArrayList<>();
+        for (File mdFile : mdFiles) {
+            int chunks = semanticSearchService.cargarMarkdown(
+                    mdFile.getAbsolutePath(), mdFile.getName());
+            totalChunks += chunks;
+            archivos.add(mdFile.getName() + " (" + chunks + " chunks)");
+        }
+
+        return Map.of(
+                "message", "Documentos Markdown indexados",
+                "archivos", archivos,
+                "totalArchivos", mdFiles.length,
+                "totalChunks", totalChunks);
     }
 
     private int normalizeTopK(Integer requestedTopK) {

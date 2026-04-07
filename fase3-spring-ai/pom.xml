@@ -71,6 +71,13 @@
             <version>${spring-ai.version}</version>
         </dependency>
 
+        <!-- Spring AI Advisors - QuestionAnswerAdvisor para RAG (Lab 12) -->
+        <dependency>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-advisors-vector-store</artifactId>
+            <version>${spring-ai.version}</version>
+        </dependency>
+
         <!-- Forzar versión compatible de commons-lang3 -->
         <dependency>
             <groupId>org.apache.commons</groupId>

@@ -1,6 +1,6 @@
 # Fase 3 Spring AI - Chatbot con Memoria (SOLUCIÓN)
 
-## ✅ Solución completa de Labs 7, 8, 9, 10 y Reto
+## ✅ Solución completa de Labs 7, 8, 9, 10, 11, 12 y Retos
 
 Este proyecto contiene la **implementación completa** de los siguientes labs:
 
@@ -8,8 +8,9 @@ Este proyecto contiene la **implementación completa** de los siguientes labs:
 - **Lab 8:** ✅ Chatbot con memoria persistente (`JdbcChatMemory` + H2)
 - **Lab 9:** ✅ Búsqueda semántica en memoria (`SimpleVectorStore`)
 - **Lab 10:** ✅ Endpoint de búsqueda `GET /api/buscar`
-- **Lab RAG:** ✅ Endpoint `/api/rag` con retrieval + grounding + generación
-- **Reto:** ✅ Carga de PDF con `TikaDocumentReader` + búsqueda semántica
+- **Lab 11:** ✅ RAG Simple - Contexto manual en el prompt (`/api/rag/simple`)
+- **Lab 12:** ✅ RAG con `QuestionAnswerAdvisor` de Spring AI (`/api/rag/advisor`)
+- **Reto:** ✅ Asistente de documentación con archivos Markdown (`/api/rag/docs/*`)
 
 ## 🎯 Características implementadas
 
@@ -47,6 +48,30 @@ Este proyecto contiene la **implementación completa** de los siguientes labs:
 - Recupera fragmentos desde `SimpleVectorStore`
 - Inyecta el contexto en el prompt
 - Genera respuesta del LLM citando `[1]`, `[2]`, `[3]`
+
+### ✅ Lab 11: RAG Simple (contexto manual en el prompt)
+- Endpoint `POST /api/rag/simple`
+- Pipeline manual: búsqueda semántica → formateo de contexto [1],[2],[3] → inyección en prompt → generación
+- El desarrollador controla cada paso del proceso
+- Las citas se incluyen en la respuesta con los fragmentos de origen
+
+### ✅ Lab 12: RAG con QuestionAnswerAdvisor
+- Endpoint `POST /api/rag/advisor`
+- Usa `QuestionAnswerAdvisor` de Spring AI para RAG automático
+- El advisor maneja: búsqueda → inyección de contexto → generación
+- Mucho menos código que el approach manual del Lab 11
+- Dependencia: `spring-ai-advisors-vector-store`
+
+### ✅ Reto: Asistente de documentación con Markdown
+- Endpoint `POST /api/rag/docs/cargar` → carga todos los `.md` de un directorio
+- Endpoint `POST /api/rag/docs/preguntar` → preguntas sobre la documentación
+- Divide los Markdown por secciones (encabezados `##`) y los indexa como chunks
+- Incluye 5 archivos de ejemplo en `data/docs/`:
+  - `01-java-ai-overview.md` - Visión general de IA con Java
+  - `02-embeddings-guide.md` - Guía de embeddings y similitud coseno
+  - `03-vector-databases.md` - Comparación de bases vectoriales
+  - `04-rag-patterns.md` - Patrones de RAG (Simple vs Advisor)
+  - `05-spring-ai-reference.md` - Referencia rápida de Spring AI
 
 ## 🚀 Uso
 
@@ -109,14 +134,17 @@ mvn spring-boot:run -Dspring-boot.run.profiles=vertex,persistent
 **Endpoints disponibles en Swagger:**
 - 💬 **Chat:** `/api/chat` (simple y multi-sesión)
 - 🔍 **Búsqueda Semántica:** `/api/buscar` (demo, PDF, búsqueda)
-- 🧠 **RAG:** `/api/rag` (retrieval + generación)
+- 🧠 **RAG:** `/api/rag/simple` (Lab 11), `/api/rag/advisor` (Lab 12), `/api/rag/docs/*` (Reto)
 
 **Flujo recomendado para estudiantes:**
 1. Abrir http://localhost:8080/swagger-ui.html
 2. Probar POST `/api/chat` → Enviar "Hola, me llamo Carlos"
 3. Probar POST `/api/buscar/demo` → Indexar documentos
 4. Probar GET `/api/buscar?query=similitud coseno&topK=3`
-5. Probar POST `/api/rag` → Pregunta con contexto
+5. Probar POST `/api/rag/simple` → Lab 11: RAG manual con citas
+6. Probar POST `/api/rag/advisor` → Lab 12: RAG con QuestionAnswerAdvisor
+7. Probar POST `/api/rag/docs/cargar` → Reto: cargar archivos Markdown
+8. Probar POST `/api/rag/docs/preguntar` → Reto: preguntar sobre documentación
 
 ### 4. Probar los endpoints (alternativa: curl)
 
@@ -185,7 +213,42 @@ curl "http://localhost:8080/api/buscar?query=developer%20productivity&topK=5"
 ```bash
 curl -X POST http://localhost:8080/api/rag \
   -H "Content-Type: application/json" \
-  -d '{"question":"Explica que es la similitud coseno y como se relaciona con embeddings","topK":4}'
+  -d '{"query":"Explica que es la similitud coseno y como se relaciona con embeddings","topK":4}'
+```
+
+**Lab 11: RAG Simple (contexto manual en el prompt):**
+```bash
+curl -X POST http://localhost:8080/api/rag/simple \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Qué es SimpleVectorStore y para qué sirve?","topK":3}'
+```
+
+**Lab 12: RAG con QuestionAnswerAdvisor:**
+```bash
+curl -X POST http://localhost:8080/api/rag/advisor \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Cómo funcionan los embeddings?","topK":4}'
+```
+
+**Reto: Asistente de documentación con Markdown:**
+```bash
+# 1. Cargar los archivos MD del directorio
+curl -X POST http://localhost:8080/api/rag/docs/cargar \
+  -H "Content-Type: application/json" \
+  -d '{"path":"./data/docs"}'
+
+# 2. Preguntar sobre la documentación
+curl -X POST http://localhost:8080/api/rag/docs/preguntar \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Cuál es la diferencia entre RAG Simple y QuestionAnswerAdvisor?","topK":5}'
+
+curl -X POST http://localhost:8080/api/rag/docs/preguntar \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Qué proveedores de IA soporta Spring AI?","topK":4}'
+
+curl -X POST http://localhost:8080/api/rag/docs/preguntar \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Cuándo conviene usar PgVector vs SimpleVectorStore?","topK":3}'
 ```
 
 ### 4. Testing automatizado
@@ -250,19 +313,30 @@ fase3-spring-ai/
 │   ├── ChatbotApplication.java          # Main de Spring Boot
 │   ├── config/
 │   │   ├── ChatConfig.java              # ✅ InMemoryChatMemory (Lab 7)
-│   │   └── ...
+│   │   └── OpenApiConfig.java           # Swagger/OpenAPI
 │   ├── controller/
-│   │   └── ChatController.java          # ✅ Endpoints REST
+│   │   ├── ChatController.java          # ✅ Endpoints Chat (Labs 7-8)
+│   │   ├── BusquedaController.java      # ✅ Endpoints Búsqueda (Labs 9-10)
+│   │   └── RagController.java           # ✅ Endpoints RAG (Labs 11-12 + Reto)
 │   ├── service/
-│   │   └── ChatService.java             # ✅ Lógica de negocio
+│   │   ├── ChatService.java             # ✅ Lógica de chat + multi-sesión
+│   │   ├── SemanticSearchService.java   # ✅ Embeddings + vector store + MD
+│   │   └── RagService.java              # ✅ RAG simple + advisor + docs
 │   └── dto/
-│       ├── ChatRequest.java
-│       └── ChatResponse.java
+│       ├── ChatRequest.java / ChatResponse.java
+│       ├── BuscarResponse.java / CargarPdfRequest.java
+│       └── RagRequest.java / RagResponse.java
 ├── src/main/resources/
 │   ├── application.yml                   # Configuración base
 │   ├── application-openai.yml            # Perfil OpenAI
 │   ├── application-anthropic.yml         # Perfil Anthropic
 │   └── application-vertex.yml            # Perfil Vertex
+├── data/docs/                            # 📚 Archivos MD para el Reto
+│   ├── 01-java-ai-overview.md
+│   ├── 02-embeddings-guide.md
+│   ├── 03-vector-databases.md
+│   ├── 04-rag-patterns.md
+│   └── 05-spring-ai-reference.md
 ├── pom.xml
 ├── README.md
 ├── test-api.sh                           # Script de pruebas

@@ -181,7 +181,7 @@ print_section "📝 Test 5: RAG básico (retrieval + generation)"
 
 rag=$(curl -s -X POST "$BASE_URL/api/rag" \
   -H "Content-Type: application/json" \
-  -d '{"question":"Explica la relacion entre embeddings y similitud coseno","topK":4}')
+  -d '{"query":"Explica la relacion entre embeddings y similitud coseno","topK":4}')
 echo "🧠 RAG: $rag"
 
 if echo "$rag" | grep -qi '"answer"'; then
@@ -190,8 +190,76 @@ else
     print_test "El endpoint /api/rag responde con answer" 1
 fi
 
-# Test 7: Reto PDF (opcional)
-print_section "📝 Test 6: Reto PDF con Tika (opcional)"
+# Test 7: Lab 11 - RAG Simple (contexto en el prompt)
+print_section "📝 Test 6: Lab 11 - RAG Simple (/api/rag/simple)"
+
+rag_simple=$(curl -s -X POST "$BASE_URL/api/rag/simple" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Qué es SimpleVectorStore y para qué sirve?","topK":3}')
+echo "🧠 RAG Simple: $rag_simple"
+
+if echo "$rag_simple" | grep -qi '"answer"'; then
+    print_test "Lab 11: /api/rag/simple genera respuesta con citas" 0
+else
+    print_test "Lab 11: /api/rag/simple genera respuesta con citas" 1
+fi
+
+if echo "$rag_simple" | grep -qi '"citations"'; then
+    print_test "Lab 11: La respuesta incluye citations" 0
+else
+    print_test "Lab 11: La respuesta incluye citations" 1
+fi
+
+# Test 8: Lab 12 - RAG con QuestionAnswerAdvisor
+print_section "📝 Test 7: Lab 12 - RAG con QuestionAnswerAdvisor (/api/rag/advisor)"
+
+rag_advisor=$(curl -s -X POST "$BASE_URL/api/rag/advisor" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Cómo funcionan los embeddings?","topK":4}')
+echo "🧠 RAG Advisor: $rag_advisor"
+
+if echo "$rag_advisor" | grep -qi '"answer"'; then
+    print_test "Lab 12: /api/rag/advisor genera respuesta con QuestionAnswerAdvisor" 0
+else
+    print_test "Lab 12: /api/rag/advisor genera respuesta con QuestionAnswerAdvisor" 1
+fi
+
+# Test 9: Reto - Asistente de documentación con Markdown
+print_section "📝 Test 8: Reto - Asistente de documentación Markdown"
+
+DOCS_DIR="./data/docs"
+if [ -d "$DOCS_DIR" ]; then
+  # Cargar documentos MD
+  docs_response=$(curl -s -X POST "$BASE_URL/api/rag/docs/cargar" \
+    -H "Content-Type: application/json" \
+    -d "{\"path\":\"$DOCS_DIR\"}")
+  echo "📚 Carga Markdown: $docs_response"
+  print_test "Reto: Cargar archivos .md del directorio" $?
+
+  # Preguntar sobre la documentación
+  docs_pregunta=$(curl -s -X POST "$BASE_URL/api/rag/docs/preguntar" \
+    -H "Content-Type: application/json" \
+    -d '{"query":"¿Cuál es la diferencia entre RAG Simple y QuestionAnswerAdvisor?","topK":5}')
+  echo "🧠 Pregunta docs: $docs_pregunta"
+
+  if echo "$docs_pregunta" | grep -qi '"answer"'; then
+      print_test "Reto: El asistente de docs genera respuesta" 0
+  else
+      print_test "Reto: El asistente de docs genera respuesta" 1
+  fi
+
+  # Segunda pregunta
+  docs_pregunta2=$(curl -s -X POST "$BASE_URL/api/rag/docs/preguntar" \
+    -H "Content-Type: application/json" \
+    -d '{"query":"¿Qué proveedores de IA soporta Spring AI?","topK":4}')
+  echo "🧠 Pregunta docs 2: $docs_pregunta2"
+  print_test "Reto: Segunda pregunta sobre los docs" $?
+else
+  echo -e "${YELLOW}⚠${NC} Directorio $DOCS_DIR no encontrado (se omite test)"
+fi
+
+# Test 10: Reto PDF (opcional)
+print_section "📝 Test 9: Reto PDF con Tika (opcional)"
 
 PDF_PATH="/Users/josediaz/Projects/JoeDayz/ia-con-java/docs/01-AI_Developer_Blueprint.pdf"
 if [ -f "$PDF_PATH" ]; then
