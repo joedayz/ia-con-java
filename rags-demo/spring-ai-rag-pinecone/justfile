@@ -1,0 +1,243 @@
+set shell := ["zsh", "-cu"]
+
+default:
+    @just --list
+
+# Show available recipes.
+help:
+    @just --list
+
+# Quick compile check.
+compile:
+    mvn -q -DskipTests compile
+
+# Show which container runtime/compose command will be used.
+containers-runtime engine="auto":
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    engine="{{engine}}"
+    if [[ "$engine" == "podman" ]]; then
+      echo "podman compose"
+    elif [[ "$engine" == "docker" ]]; then
+      if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        echo "docker compose"
+      elif command -v docker-compose >/dev/null 2>&1; then
+        echo "docker-compose"
+      else
+        echo "Docker Compose is not available"
+        exit 1
+      fi
+    elif command -v podman >/dev/null 2>&1 && podman compose version >/dev/null 2>&1; then
+      echo "podman compose"
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+      echo "docker compose"
+    elif command -v docker-compose >/dev/null 2>&1; then
+      echo "docker-compose"
+    else
+      echo "No supported compose runtime found. Install Podman or Docker Compose, or pass engine=podman|docker."
+      exit 1
+    fi
+
+# Start compose services with Podman or Docker.
+containers-up engine="auto":
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    engine="{{engine}}"
+    if [[ "$engine" == "podman" ]]; then
+      podman compose -f docker-compose.yml up -d
+    elif [[ "$engine" == "docker" ]]; then
+      if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        docker compose -f docker-compose.yml up -d
+      elif command -v docker-compose >/dev/null 2>&1; then
+        docker-compose -f docker-compose.yml up -d
+      else
+        echo "Docker Compose is not available"
+        exit 1
+      fi
+    elif command -v podman >/dev/null 2>&1 && podman compose version >/dev/null 2>&1; then
+      podman compose -f docker-compose.yml up -d
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+      docker compose -f docker-compose.yml up -d
+    elif command -v docker-compose >/dev/null 2>&1; then
+      docker-compose -f docker-compose.yml up -d
+    else
+      echo "No supported compose runtime found. Install Podman or Docker Compose, or pass engine=podman|docker."
+      exit 1
+    fi
+
+# Stop compose services with Podman or Docker.
+containers-down engine="auto":
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    engine="{{engine}}"
+    if [[ "$engine" == "podman" ]]; then
+      podman compose -f docker-compose.yml down
+    elif [[ "$engine" == "docker" ]]; then
+      if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        docker compose -f docker-compose.yml down
+      elif command -v docker-compose >/dev/null 2>&1; then
+        docker-compose -f docker-compose.yml down
+      else
+        echo "Docker Compose is not available"
+        exit 1
+      fi
+    elif command -v podman >/dev/null 2>&1 && podman compose version >/dev/null 2>&1; then
+      podman compose -f docker-compose.yml down
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+      docker compose -f docker-compose.yml down
+    elif command -v docker-compose >/dev/null 2>&1; then
+      docker-compose -f docker-compose.yml down
+    else
+      echo "No supported compose runtime found. Install Podman or Docker Compose, or pass engine=podman|docker."
+      exit 1
+    fi
+
+# List compose-managed containers with Podman or Docker.
+containers-ps engine="auto":
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    engine="{{engine}}"
+    if [[ "$engine" == "podman" ]]; then
+      podman compose -f docker-compose.yml ps
+    elif [[ "$engine" == "docker" ]]; then
+      if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+        docker compose -f docker-compose.yml ps
+      elif command -v docker-compose >/dev/null 2>&1; then
+        docker-compose -f docker-compose.yml ps
+      else
+        echo "Docker Compose is not available"
+        exit 1
+      fi
+    elif command -v podman >/dev/null 2>&1 && podman compose version >/dev/null 2>&1; then
+      podman compose -f docker-compose.yml ps
+    elif command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+      docker compose -f docker-compose.yml ps
+    elif command -v docker-compose >/dev/null 2>&1; then
+      docker-compose -f docker-compose.yml ps
+    else
+      echo "No supported compose runtime found. Install Podman or Docker Compose, or pass engine=podman|docker."
+      exit 1
+    fi
+
+# Run app with default provider (OpenAI).
+run:
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn spring-boot:run -Dspring-boot.run.jvmArguments='-Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple'
+
+# Run app with Pinecone enabled.
+run-rag:
+    just check-rag-config
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn spring-boot:run -Dspring-boot.run.jvmArguments='-Dapp.vectorstore.type=pinecone'
+
+# Run app with Mistral profile.
+run-mistral:
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn spring-boot:run -Pmistral-ai -Dspring-boot.run.jvmArguments='-Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple'
+
+# Run app with Anthropic profile.
+run-anthropic:
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn spring-boot:run -Panthropic -Dspring-boot.run.profiles=anthropic -Dspring-boot.run.jvmArguments='-Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple'
+
+# Run app with Azure profile.
+run-azure:
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn spring-boot:run -Pazure-ai -Dspring-boot.run.profiles=azure-ai -Dspring-boot.run.jvmArguments='-Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple'
+
+# Run app with Ollama profile.
+run-ollama:
+    mvn spring-boot:run -Pollama-ai -Dspring-boot.run.jvmArguments='-Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple'
+
+# Run all tests.
+test:
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn test -Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple
+
+# Run only fast person controller tests.
+test-fast:
+    setopt allexport
+    [[ -f "$HOME/.api-keys" ]] && source "$HOME/.api-keys"
+    unsetopt allexport
+    mvn -Dtest=PersonControllerTest test -Dspring.ai.vectorstore.type=simple -Dapp.vectorstore.type=simple
+
+# Validate local LLM credential setup for a provider.
+check-config provider="openai":
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    provider="{{provider}}"
+    api_keys_file="$HOME/.api-keys"
+    has_key() {
+      local pattern="$1"
+      [[ -n "${2:-}" ]] && [[ -n "${(P)2:-}" ]] && return 0
+      [[ -f "$api_keys_file" ]] && grep -Eq "$pattern" "$api_keys_file"
+    }
+    case "$provider" in
+      openai)
+        has_key '^(export[[:space:]]+)?OPEN_AI_TOKEN\s*=\s*.+$' OPEN_AI_TOKEN || \
+        has_key '^(export[[:space:]]+)?OPENAI_API_KEY\s*=\s*.+$' OPENAI_API_KEY || \
+        { echo "Missing OpenAI key. Add OPEN_AI_TOKEN=... or OPENAI_API_KEY=... to $api_keys_file, or export one of them in the shell."; exit 1; }
+        ;;
+      mistral)
+        has_key '^(export[[:space:]]+)?MISTRAL_AI_TOKEN\s*=\s*.+$' MISTRAL_AI_TOKEN || \
+        { echo "Missing MISTRAL_AI_TOKEN in $api_keys_file or current shell."; exit 1; }
+        ;;
+      anthropic)
+        has_key '^(export[[:space:]]+)?ANTHROPIC_AI_TOKEN\s*=\s*.+$' ANTHROPIC_AI_TOKEN || \
+        has_key '^(export[[:space:]]+)?ANTHROPIC_API_KEY\s*=\s*.+$' ANTHROPIC_API_KEY || \
+        { echo "Missing Anthropic key. Add ANTHROPIC_AI_TOKEN=... or ANTHROPIC_API_KEY=... to $api_keys_file, or export one of them in the shell."; exit 1; }
+        ;;
+      azure)
+        has_key '^(export[[:space:]]+)?AZURE_OPENAI_API_KEY\s*=\s*.+$' AZURE_OPENAI_API_KEY || \
+        { echo "Missing AZURE_OPENAI_API_KEY in $api_keys_file or current shell."; exit 1; }
+        ;;
+      deepseek)
+        has_key '^(export[[:space:]]+)?DEEPSEEK_AI_TOKEN\s*=\s*.+$' DEEPSEEK_AI_TOKEN || \
+        { echo "Missing DEEPSEEK_AI_TOKEN in $api_keys_file or current shell."; exit 1; }
+        ;;
+      ollama)
+        echo "Ollama does not require an API key in ~/.api-keys"
+        ;;
+      *)
+        echo "Unknown provider: $provider"
+        exit 1
+        ;;
+    esac
+    echo "LLM config looks good for provider: $provider"
+
+# Validate Pinecone config in project properties.
+check-rag-config:
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    value=$(sed -nE 's/^[[:space:]]*app\.vectorstore\.pinecone\.api-key[[:space:]]*=[[:space:]]*(.*)$/\1/p' src/main/resources/application.properties | tail -n 1 | sed 's/[[:space:]]*$//')
+    [[ -n "$value" ]] || { echo "Set app.vectorstore.pinecone.api-key in src/main/resources/application.properties and run with 'just run-rag'"; exit 1; }
+    echo "RAG config looks good"
+
+# Validate stock API config in project properties.
+check-stock-config:
+    #!/usr/bin/env zsh
+    set -euo pipefail
+    value=$(sed -nE 's/^[[:space:]]*app\.stock\.api-key[[:space:]]*=[[:space:]]*(.*)$/\1/p' src/main/resources/application.properties | tail -n 1 | sed 's/[[:space:]]*$//')
+    [[ -n "$value" && "$value" != "none" ]] || { echo "Set app.stock.api-key in src/main/resources/application.properties"; exit 1; }
+    echo "Stock config looks good"
+
+# Smoke test basic LLM endpoint (app must be running).
+smoke-persons:
+    curl -fsS http://localhost:8080/persons | head -c 500 && echo
+
+# Smoke test stock/vector endpoint (app must be running).
+smoke-stocks:
+    curl -fsS http://localhost:8080/stocks/v2/most-growth-trend
+
