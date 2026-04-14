@@ -29,8 +29,8 @@ function Test-Endpoint {
         }
 
         if ($Body) {
-            $params.ContentType = "application/json"
-            $params.Body = $Body | ConvertTo-Json
+            $params.ContentType = "application/json; charset=utf-8"
+            $params.Body = [System.Text.Encoding]::UTF8.GetBytes(($Body | ConvertTo-Json))
         }
 
         $response = Invoke-WebRequest @params
@@ -94,5 +94,5 @@ Write-Host "💡 Tips:" -ForegroundColor Yellow
 Write-Host "   - Si la conexión falla, verifica que:" -ForegroundColor Gray
 Write-Host "     1. ollama serve esté ejecutándose" -ForegroundColor Gray
 Write-Host "     2. mvn spring-boot:run esté ejecutándose" -ForegroundColor Gray
-Write-Host "     3. El modelo esté instalado: ollama pull mistral" -ForegroundColor Gray
+Write-Host "     3. El modelo esté instalado: ollama pull llama3.2" -ForegroundColor Gray
 

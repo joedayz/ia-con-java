@@ -15,13 +15,13 @@ bash verificar-ollama.sh
 ollama --version
 
 # Verificar que está ejecutándose
-curl http://localhost:11434/api/version
+curl.exe http://localhost:11434/api/version
 ```
 
 Si falta algo:
 - **Ollama no instalado**: Descarga desde [ollama.ai](https://ollama.ai)
 - **Ollama no corriendo**: En otra terminal ejecuta `ollama serve`
-- **Sin modelos**: Ejecuta `ollama pull mistral`
+- **Sin modelos**: Ejecuta `ollama pull llama3.2`
 
 ### 2. Iniciar Ollama (si no está corriendo)
 
@@ -41,7 +41,7 @@ ollama serve
 
 #### Linux/Mac/Windows:
 ```bash
-ollama pull mistral
+ollama pull llama3.2
 # o si prefieres otro modelo:
 ollama pull neural-chat
 ollama list  # Ver modelos instalados
@@ -81,9 +81,14 @@ bash test-api.sh
 
 #### Manual con curl
 
-**Health Check (Linux/Mac/Windows):**
+**Health Check (Linux/Mac):**
 ```bash
 curl http://localhost:8080/api/chat/health
+```
+
+**Health Check (Windows PowerShell):**
+```powershell
+curl.exe http://localhost:8080/api/chat/health
 ```
 
 **GET Simple (Linux/Mac):**
@@ -93,7 +98,7 @@ curl "http://localhost:8080/api/chat?message=Hola"
 
 **GET Simple (Windows PowerShell):**
 ```powershell
-curl "http://localhost:8080/api/chat?message=Hola"
+curl.exe "http://localhost:8080/api/chat?message=Hola"
 ```
 
 **POST con System Prompt (Linux/Mac):**
@@ -105,27 +110,20 @@ curl -X POST http://localhost:8080/api/chat \
 
 **POST con System Prompt (Windows PowerShell):**
 
-**Opción 1 - Con Invoke-WebRequest (RECOMENDADO PARA POWERSHELL):**
+**Opción 1 - Con curl.exe y archivo temporal (RECOMENDADO):**
 ```powershell
 $json = '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
-Invoke-WebRequest -Uri "http://localhost:8080/api/chat" -Method POST -ContentType "application/json" -Body $json
+[System.IO.File]::WriteAllText("$PWD\body.json", $json, [System.Text.Encoding]::UTF8)
+curl.exe -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d "@body.json"
 ```
 
-**Opción 2 - Con curl (asegúrate de incluir comillas correctamente):**
+**Opción 2 - Con Invoke-WebRequest y bytes UTF-8:**
 ```powershell
-curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
+$bytes = [System.Text.Encoding]::UTF8.GetBytes('{"message": "¿2+2?", "system_prompt": "Responde en una línea"}')
+Invoke-WebRequest -Uri "http://localhost:8080/api/chat" -Method POST -ContentType "application/json; charset=utf-8" -Body $bytes | Select-Object -ExpandProperty Content
 ```
 
-**Opción 3 - Con curl usando variable (mejor para variables):**
-```powershell
-$json = @{
-    message = "¿2+2?"
-    system_prompt = "Responde en una línea"
-} | ConvertTo-Json -Compress
-curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d $json
-```
-
-**Nota:** En PowerShell, usa `-d` en lugar de `-Body` con curl.
+**Nota:** En PowerShell, `curl` es un alias de `Invoke-WebRequest` y no acepta flags Unix como `-H` o `-d`. Usa siempre `curl.exe` para invocar el binario real.
 
 ---
 
@@ -181,7 +179,7 @@ GET/POST → Spring Boot → Ollama → Respuesta JSON
 | Error | Causa | Solución |
 |-------|-------|----------|
 | `Connection refused: localhost:11434` | Ollama no está ejecutándose | Ejecutar `ollama serve` en otra terminal |
-| `Model not found` | No hay modelos instalados | Ejecutar `ollama pull mistral` |
+| `Model not found` | No hay modelos instalados | Ejecutar `ollama pull llama3.2` |
 | `Timeout after 2 minutes` | Modelo muy lento | Aumentar `ia.ollama.timeout` en `application.properties` |
 | `Port 8080 already in use` | Otro proceso usando puerto | Cambiar puerto: `server.port=8081` |
 | `jq command not found` | jq no está instalado (solo bash) | `sudo apt-get install jq` o ignorar errores JSON |
