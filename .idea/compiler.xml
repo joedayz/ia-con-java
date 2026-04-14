@@ -20,9 +20,11 @@
         <module name="fase3-spring-ai" />
         <module name="common" />
         <module name="fase1-start" />
-        <module name="fase1-springboot-start" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="fase1-springboot-start" target="21" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

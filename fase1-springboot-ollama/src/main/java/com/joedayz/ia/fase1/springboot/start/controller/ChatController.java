@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 /**
- * REST API para chat con múltiples proveedores de IA
- * 
+ * REST API para chat con Ollama (modelos de IA locales)
+ *
  * Endpoints:
- * - GET /api/chat?message=texto&provider=openai
- * - POST /api/chat con JSON: {"message": "...", "provider": "openai"}
+ * - GET /api/chat?message=texto
+ * - POST /api/chat con JSON: {"message": "...", "system_prompt": "..."}
  */
 @RestController
 @RequestMapping("/api/chat")
@@ -31,24 +31,24 @@ public class ChatController {
     }
 
     /**
-     * GET /api/chat?message=Hola&provider=openai
+     * GET /api/chat?message=Hola
      */
     @GetMapping
     public ResponseEntity<Map<String, Object>> chatGet(
-            @RequestParam(name = "message") String message,
-            @RequestParam(name = "provider", defaultValue = "openai") String provider) {
-        
+            @RequestParam(name = "message") String message) {
+
         if (message == null || message.isBlank()) {
             return ResponseEntity.badRequest().build();
         }
         
-        log.info("GET /api/chat - provider: {}, message: {}", provider, message);
-        
+        log.info("GET /api/chat - message: {}", message);
+
         try {
-            String response = iaService.chat(message, provider);
+            String response = iaService.chat(message, "ollama");
             return ResponseEntity.ok(Map.of(
                 "response", response,
-                "provider", provider,
+                "provider", "ollama",
+                "model", config.getOllama().getModel(),
                 "timestamp", System.currentTimeMillis()
             ));
         } catch (Exception e) {
@@ -60,25 +60,25 @@ public class ChatController {
 
     /**
      * POST /api/chat
-     * Body: {"message": "Hola", "provider": "openai", "system_prompt": "..."}
+     * Body: {"message": "Hola", "system_prompt": "..."}
      */
     @PostMapping
     public ResponseEntity<Map<String, Object>> chatPost(@RequestBody Map<String, String> request) {
         String message = request.get("message");
-        String provider = request.getOrDefault("provider", "openai");
         String systemPrompt = request.get("system_prompt");
         
         if (message == null || message.isBlank()) {
             return ResponseEntity.badRequest().build();
         }
         
-        log.info("POST /api/chat - provider: {}, message: {}", provider, message);
-        
+        log.info("POST /api/chat - message: {}", message);
+
         try {
-            String response = iaService.chat(message, systemPrompt, provider);
+            String response = iaService.chat(message, systemPrompt, "ollama");
             return ResponseEntity.ok(Map.of(
                 "response", response,
-                "provider", provider,
+                "provider", "ollama",
+                "model", config.getOllama().getModel(),
                 "timestamp", System.currentTimeMillis()
             ));
         } catch (Exception e) {
@@ -95,8 +95,9 @@ public class ChatController {
     public ResponseEntity<Map<String, String>> health() {
         return ResponseEntity.ok(Map.of(
             "status", "UP",
-            "openai_model", config.getOpenai().getModel(),
-            "anthropic_model", config.getAnthropic().getModel()
+            "provider", "ollama",
+            "model", config.getOllama().getModel(),
+            "base_url", config.getOllama().getBase()
         ));
     }
 }

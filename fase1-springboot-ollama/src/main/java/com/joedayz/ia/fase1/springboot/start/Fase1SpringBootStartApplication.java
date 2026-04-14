@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Aplicación principal de Spring Boot - Fase 1 Start
- * Versión starter para construir paso a paso en clase
+ * Aplicación principal de Spring Boot - Fase 1 Ollama
+ * Versión para usar Ollama (modelos de IA locales, sin API keys)
  */
 @SpringBootApplication
 public class Fase1SpringBootStartApplication {
