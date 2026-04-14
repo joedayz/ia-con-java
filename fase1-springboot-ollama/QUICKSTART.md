@@ -79,23 +79,50 @@ bash test-api.sh
 .\test-api.ps1
 ```
 
-#### Manual con curl (cualquier plataforma):
+#### Manual con curl
 
-**Health Check:**
+**Health Check (Linux/Mac/Windows):**
 ```bash
 curl http://localhost:8080/api/chat/health
 ```
 
-**GET Simple:**
+**GET Simple (Linux/Mac):**
 ```bash
 curl "http://localhost:8080/api/chat?message=Hola"
 ```
 
-**POST con System Prompt:**
+**GET Simple (Windows PowerShell):**
+```powershell
+curl "http://localhost:8080/api/chat?message=Hola"
+```
+
+**POST con System Prompt (Linux/Mac):**
 ```bash
 curl -X POST http://localhost:8080/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
+```
+
+**POST con System Prompt (Windows PowerShell):**
+```powershell
+$body = @{
+    message = "¿2+2?"
+    system_prompt = "Responde en una línea"
+} | ConvertTo-Json
+
+curl -X POST http://localhost:8080/api/chat `
+  -H "Content-Type: application/json" `
+  -Body $body
+```
+
+O alternativamente en PowerShell con Invoke-WebRequest:
+```powershell
+$body = '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
+
+Invoke-WebRequest -Uri "http://localhost:8080/api/chat" `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body $body
 ```
 
 ---
