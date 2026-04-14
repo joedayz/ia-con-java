@@ -104,26 +104,28 @@ curl -X POST http://localhost:8080/api/chat \
 ```
 
 **POST con System Prompt (Windows PowerShell):**
+
+**Opción 1 - Con Invoke-WebRequest (RECOMENDADO PARA POWERSHELL):**
 ```powershell
-$body = @{
+$json = '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
+Invoke-WebRequest -Uri "http://localhost:8080/api/chat" -Method POST -ContentType "application/json" -Body $json
+```
+
+**Opción 2 - Con curl (asegúrate de incluir comillas correctamente):**
+```powershell
+curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
+```
+
+**Opción 3 - Con curl usando variable (mejor para variables):**
+```powershell
+$json = @{
     message = "¿2+2?"
     system_prompt = "Responde en una línea"
-} | ConvertTo-Json
-
-curl -X POST http://localhost:8080/api/chat `
-  -H "Content-Type: application/json" `
-  -Body $body
+} | ConvertTo-Json -Compress
+curl -X POST "http://localhost:8080/api/chat" -H "Content-Type: application/json" -d $json
 ```
 
-O alternativamente en PowerShell con Invoke-WebRequest:
-```powershell
-$body = '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
-
-Invoke-WebRequest -Uri "http://localhost:8080/api/chat" `
-  -Method POST `
-  -ContentType "application/json" `
-  -Body $body
-```
+**Nota:** En PowerShell, usa `-d` en lugar de `-Body` con curl.
 
 ---
 
