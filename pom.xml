@@ -18,6 +18,7 @@
         <module>fase1-quarkus-ollama</module>
         <module>fase1-ollama</module>
         <module>fase2</module>
+        <module>fase2-ollama</module>
         <module>fase3</module>
         <module>fase3-start</module>
         <module>fase3-spring-ai</module>

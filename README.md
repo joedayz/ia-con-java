@@ -13,6 +13,7 @@ ia-con-java/
 ├── fase1/                   # Proyecto Fase 1 - Primera llamada a la API (Java puro)
 ├── fase1-quarkus/          # Proyecto Fase 1 - Versión con Quarkus (REST API)
 ├── fase2/                   # Proyecto Fase 2 - Prompt engineering
+├── fase2-ollama/            # Proyecto Fase 2 - Prompt engineering con Ollama local
 ├── fase3/                   # Proyecto Fase 3 - Servicio de IA (demo)
 ├── fase3-spring-ai/         # Proyecto Fase 3 - Spring AI (SOLUCIÓN)
 ├── fase3-spring-ai-start/   # Proyecto Fase 3 - Spring AI (START para clase)
@@ -57,6 +58,7 @@ Ejecuta siempre desde la **raíz del repositorio** para que se encuentre el `.en
 | **Fase 1 (Quarkus)** | REST API con hot reload (lee `.env` en la raíz automáticamente) | `mvn -pl fase1-quarkus quarkus:dev` |
 | **Fase 1 (Quarkus con mensaje)** | Envía un mensaje al endpoint REST (equivalente al "con mensaje" de Java puro) | `curl "http://localhost:8080/api/chat?message=Explica%20qu%C3%A9%20es%20Java"` |
 | **Fase 2** | Prompt engineering (consola interactiva) | `mvn -pl fase2 exec:java` |
+| **Fase 2 (Ollama)** | Prompt engineering local con modelos Ollama | `mvn -pl fase2-ollama exec:java` |
 | **Fase 3** | Demo del servicio de IA compartido | `mvn -pl fase3 exec:java` |
 | **Fase 3 Spring AI (solution)** | Chatbot con memoria (implementación completa) | `mvn -pl fase3-spring-ai spring-boot:run` |
 | **Fase 3 Spring AI (start)** | Base de clase paso a paso | `mvn -pl fase3-spring-ai-start spring-boot:run` |
@@ -146,6 +148,7 @@ mvn compile
 ```bash
 mvn -pl fase1 compile exec:java
 mvn -pl fase2 compile exec:java
+mvn -pl fase2-ollama compile exec:java
 # etc.
 ```
 
@@ -156,6 +159,7 @@ Cada fase tiene su propio `pom.xml` y su clase principal configurada en el plugi
 - **common**: Carga de `.env` (`EnvConfig`) y servicio reutilizable `ServicioIA`. Lo usan fase3 y fase4.
 - **fase1**: HttpClient, primera petición a `chat/completions`.
 - **fase2**: System prompt y consola para preguntas/respuestas.
+- **fase2-ollama**: Labs equivalentes a fase2 pero ejecutando modelos locales con Ollama.
 - **fase3**: Uso de `ServicioIA` desde código (demo del módulo common).
 - **fase3-spring-ai**: Solución completa de Fase 3 con Spring AI (memoria RAM, persistente y multi-sesión).
 - **fase3-spring-ai-start**: Versión de clase con TODOs para construir Fase 3 paso a paso.

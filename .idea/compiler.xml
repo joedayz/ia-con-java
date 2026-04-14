@@ -6,11 +6,11 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
+        <module name="fase2-ollama" />
         <module name="fase3-start" />
         <module name="fase1-ollama" />
         <module name="fase3-spring-ai-start" />
-        <module name="fase1-quarkus-start" />
-        <module name="fase1-ollama-start" />
+        <module name="fase1-quarkus-ollama" />
         <module name="fase4" />
         <module name="fase3" />
         <module name="fase2" />
@@ -22,6 +22,8 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="fase1-ollama-start" target="21" />
+      <module name="fase1-quarkus-start" target="21" />
       <module name="fase1-springboot-start" target="21" />
       <module name="fase1-start" target="21" />
     </bytecodeTargetLevel>
