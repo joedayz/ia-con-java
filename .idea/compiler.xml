@@ -19,11 +19,11 @@
         <module name="fase1-springboot" />
         <module name="fase3-spring-ai" />
         <module name="common" />
-        <module name="fase1-start" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="fase1-springboot-start" target="21" />
+      <module name="fase1-start" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

@@ -4,9 +4,18 @@
 
 ### 1. Verificar Requisitos (1 min)
 
+#### Linux/Mac:
 ```bash
-# En una terminal, verificar Ollama
 bash verificar-ollama.sh
+```
+
+#### Windows PowerShell:
+```powershell
+# Verificar que Ollama está instalado
+ollama --version
+
+# Verificar que está ejecutándose
+curl http://localhost:11434/api/version
 ```
 
 Si falta algo:
@@ -16,85 +25,165 @@ Si falta algo:
 
 ### 2. Iniciar Ollama (si no está corriendo)
 
+#### Linux/Mac:
 ```bash
 # Terminal 1: Ollama
 ollama serve
 ```
 
-### 3. Ejecutar la Aplicación
+#### Windows PowerShell:
+```powershell
+# Terminal 1: Ollama
+ollama serve
+```
 
+### 3. Instalar Modelo (si es necesario)
+
+#### Linux/Mac/Windows:
+```bash
+ollama pull mistral
+# o si prefieres otro modelo:
+ollama pull neural-chat
+ollama list  # Ver modelos instalados
+```
+
+### 4. Ejecutar la Aplicación
+
+#### Linux/Mac:
 ```bash
 # Terminal 2: Spring Boot
+cd fase1-springboot-ollama
+mvn spring-boot:run
+```
+
+#### Windows PowerShell:
+```powershell
+# Terminal 2: Spring Boot
+cd fase1-springboot-ollama
 mvn spring-boot:run
 ```
 
 La aplicación estará en: **http://localhost:8080**
 
-### 4. Probar la API
+### 5. Probar la API
 
-#### En Linux/Mac:
+#### Linux/Mac - Usar script automático:
 ```bash
+# Terminal 3: Pruebas
 bash test-api.sh
 ```
 
-#### En PowerShell (Windows):
+#### Windows PowerShell - Usar script automático:
 ```powershell
+# Terminal 3: Pruebas
 .\test-api.ps1
 ```
 
-#### Manual con curl:
+#### Manual con curl (cualquier plataforma):
+
+**Health Check:**
 ```bash
-# Health check
 curl http://localhost:8080/api/chat/health
+```
 
-# GET simple
+**GET Simple:**
+```bash
 curl "http://localhost:8080/api/chat?message=Hola"
+```
 
-# POST con system prompt
+**POST con System Prompt:**
+```bash
 curl -X POST http://localhost:8080/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "¿2+2?", "system_prompt": "Responde en una línea"}'
 ```
 
+---
+
 ## 🎯 Comandos Útiles
 
+### Ver modelos instalados (todas plataformas):
 ```bash
-# Listar modelos instalados
 ollama list
+```
 
-# Instalar un modelo
+### Instalar un nuevo modelo (todas plataformas):
+```bash
 ollama pull neural-chat
+ollama pull llama2
+```
 
-# Ver logs en vivo
-mvn spring-boot:run -X
-
-# Empaquetar JAR
+### Compilar JAR (todas plataformas):
+```bash
+cd fase1-springboot-ollama
 mvn clean package
+```
 
-# Ejecutar JAR
+### Ejecutar JAR (todas plataformas):
+```bash
 java -jar target/fase1-springboot-ollama-1.0.0.jar
 ```
 
-## ⚠️ Errores Comunes
+### Ver logs en vivo (todas plataformas):
+```bash
+mvn spring-boot:run -X
+```
 
-| Error | Solución |
-|-------|----------|
-| `Connection refused: localhost:11434` | Ejecutar `ollama serve` |
-| `No models found` | Ejecutar `ollama pull mistral` |
-| `Timeout after 2 minutes` | Aumentar timeout en `application.properties` |
-| `Port 8080 already in use` | Cambiar puerto: `--server.port=8081` |
+---
 
 ## 📊 Flujo de Ejecución
 
 ```
-Terminal 1: ollama serve (http://localhost:11434)
+Terminal 1: ollama serve
+    ↓ (http://localhost:11434)
+    
+Terminal 2: mvn spring-boot:run
+    ↓ (http://localhost:8080)
+    
+Terminal 3: bash test-api.sh (o .\test-api.ps1 en Windows)
     ↓
-Terminal 2: mvn spring-boot:run (http://localhost:8080)
-    ↓
-Terminal 3: curl o test-api.sh
-    ↓
-GET/POST → Spring Boot → Ollama → Respuesta
+GET/POST → Spring Boot → Ollama → Respuesta JSON
 ```
+
+---
+
+## ⚠️ Errores Comunes
+
+| Error | Causa | Solución |
+|-------|-------|----------|
+| `Connection refused: localhost:11434` | Ollama no está ejecutándose | Ejecutar `ollama serve` en otra terminal |
+| `Model not found` | No hay modelos instalados | Ejecutar `ollama pull mistral` |
+| `Timeout after 2 minutes` | Modelo muy lento | Aumentar `ia.ollama.timeout` en `application.properties` |
+| `Port 8080 already in use` | Otro proceso usando puerto | Cambiar puerto: `server.port=8081` |
+| `jq command not found` | jq no está instalado (solo bash) | `sudo apt-get install jq` o ignorar errores JSON |
+
+---
+
+## 📝 Archivos Importantes
+
+- `pom.xml` - Dependencias y configuración Maven
+- `src/main/resources/application.properties` - Configuración de Ollama
+- `src/main/java/.../OllamaService.java` - Lógica principal
+- `test-api.sh` - Script de pruebas para bash
+- `test-api.ps1` - Script de pruebas para PowerShell
+
+---
+
+## 🌐 Plataformas Soportadas
+
+✅ **Linux** (Ubuntu, Debian, CentOS, etc.)
+✅ **macOS** (Intel y Apple Silicon)
+✅ **Windows** (PowerShell)
+
+---
+
+## 🎓 Próximos Pasos
+
+1. ✅ Ejecutar el proyecto
+2. ✅ Probar los endpoints
+3. ✅ Leer `README.md` para más detalles
+4. ✅ Modificar `OllamaService.java` según necesidades
+5. ✅ Agregar más funcionalidades
 
 ---
 

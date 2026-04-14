@@ -1,103 +1,98 @@
 param(
-    [string]$BaseUrl = "http://localhost:8080",
-    [switch]$SkipServerCheck
+    [string]$BaseUrl = "http://localhost:8080"
 )
 
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"
 
-function Write-Section {
-    param([string]$Text)
-    Write-Host ""
-    Write-Host "=== $Text ===" -ForegroundColor Cyan
-}
+Write-Host "=============================================" -ForegroundColor Cyan
+Write-Host "🧪 Pruebas de Fase 1 Spring Boot Ollama" -ForegroundColor Cyan
+Write-Host "=============================================" -ForegroundColor Cyan
+Write-Host ""
 
-function Write-TestResult {
+function Test-Endpoint {
     param(
-        [string]$Name,
-        [bool]$Passed
-    )
-
-    if ($Passed) {
-        Write-Host "[OK] $Name" -ForegroundColor Green
-    }
-    else {
-        Write-Host "[FAIL] $Name" -ForegroundColor Red
-    }
-}
-
-function Invoke-Api {
-    param(
+        [string]$Title,
         [string]$Method,
-        [string]$Url,
-        [object]$Body = $null
+        [string]$Endpoint,
+        [hashtable]$Body
     )
 
-    $params = @{
-        Uri                = $Url
-        Method             = $Method
-        SkipHttpErrorCheck = $true
-    }
-
-    if ($null -ne $Body) {
-        $params.ContentType = "application/json"
-        $params.Body = $Body | ConvertTo-Json -Depth 8 -Compress
-    }
+    Write-Host $Title -ForegroundColor Blue
+    Write-Host "$Method $Endpoint" -ForegroundColor Gray
+    Write-Host ""
 
     try {
-        $response = Invoke-WebRequest @params
-        return [pscustomobject]@{
-            Success    = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300)
-            StatusCode = [int]$response.StatusCode
-            Content    = [string]$response.Content
+        $params = @{
+            Uri             = $Endpoint
+            Method          = $Method
+            UseBasicParsing = $true
         }
+
+        if ($Body) {
+            $params.ContentType = "application/json"
+            $params.Body = $Body | ConvertTo-Json
+        }
+
+        $response = Invoke-WebRequest @params
+        $json = $response.Content | ConvertFrom-Json
+        $json | ConvertTo-Json | Write-Host -ForegroundColor Green
     }
     catch {
-        return [pscustomobject]@{
-            Success    = $false
-            StatusCode = 0
-            Content    = $_.Exception.Message
-        }
+        Write-Host "❌ Error: $_" -ForegroundColor Red
     }
+
+    Write-Host ""
+    Write-Host ""
 }
 
-Write-Host "============================================="
-Write-Host " Fase 1 Spring Boot Start API Tests"
-Write-Host "============================================="
+# 1. Health Check
+Test-Endpoint -Title "1️⃣ Health Check" `
+    -Method GET `
+    -Endpoint "$BaseUrl/api/chat/health"
 
-if (-not $SkipServerCheck) {
-    $healthCheck = Invoke-Api -Method GET -Url "$BaseUrl/api/chat/health"
-    if (-not $healthCheck.Success) {
-        Write-Host "Server not reachable at $BaseUrl" -ForegroundColor Red
-        Write-Host "Start with: mvn spring-boot:run"
-        exit 1
+# 2. GET Simple
+Test-Endpoint -Title "2️⃣ GET Simple - Hola" `
+    -Method GET `
+    -Endpoint "$BaseUrl/api/chat?message=Hola"
+
+# 3. GET con Pregunta
+Test-Endpoint -Title "3️⃣ GET - Pregunta" `
+    -Method GET `
+    -Endpoint "$BaseUrl/api/chat?message=¿Cuál%20es%20la%20capital%20de%20Francia?"
+
+# 4. POST sin system prompt
+Test-Endpoint -Title "4️⃣ POST - Sin System Prompt" `
+    -Method POST `
+    -Endpoint "$BaseUrl/api/chat" `
+    -Body @{
+        message = "Escribe un haiku sobre la programación"
     }
-}
 
-Write-Section "1) Health check"
-$health = Invoke-Api -Method GET -Url "$BaseUrl/api/chat/health"
-Write-Host $health.Content
-Write-TestResult -Name "GET /api/chat/health" -Passed $health.Success
+# 5. POST con system prompt
+Test-Endpoint -Title "5️⃣ POST - Con System Prompt" `
+    -Method POST `
+    -Endpoint "$BaseUrl/api/chat" `
+    -Body @{
+        message = "¿Qué es Java?"
+        system_prompt = "Eres un profesor experto en programación. Explica de forma clara y concisa"
+    }
 
-Write-Section "2) GET with provider=openai"
-$getOpenAi = Invoke-Api -Method GET -Url "$BaseUrl/api/chat?message=Di%20hola&provider=openai"
-Write-Host $getOpenAi.Content
-Write-TestResult -Name "GET /api/chat provider=openai" -Passed $getOpenAi.Success
+# 6. POST generación de código
+Test-Endpoint -Title "6️⃣ POST - Generación de Código" `
+    -Method POST `
+    -Endpoint "$BaseUrl/api/chat" `
+    -Body @{
+        message = "Escribe una función en Python que sume dos números"
+        system_prompt = "Eres un programador experto"
+    }
 
-Write-Section "3) POST with provider=openai"
-$postOpenAi = Invoke-Api -Method POST -Url "$BaseUrl/api/chat" -Body @{ message = "Que es Java?"; provider = "openai" }
-Write-Host $postOpenAi.Content
-Write-TestResult -Name "POST /api/chat provider=openai" -Passed $postOpenAi.Success
-
-Write-Section "4) POST with provider=anthropic"
-$postAnthropic = Invoke-Api -Method POST -Url "$BaseUrl/api/chat" -Body @{ message = "Que es inteligencia artificial?"; provider = "anthropic" }
-Write-Host $postAnthropic.Content
-Write-TestResult -Name "POST /api/chat provider=anthropic" -Passed $postAnthropic.Success
-
-Write-Section "5) POST with system prompt"
-$postSystem = Invoke-Api -Method POST -Url "$BaseUrl/api/chat" -Body @{ message = "Explica Spring Boot"; provider = "openai"; system_prompt = "Eres un profesor que explica de forma muy simple" }
-Write-Host $postSystem.Content
-Write-TestResult -Name "POST /api/chat with system_prompt" -Passed $postSystem.Success
-
+Write-Host "=============================================" -ForegroundColor Green
+Write-Host "✅ Pruebas completadas" -ForegroundColor Green
+Write-Host "=============================================" -ForegroundColor Green
 Write-Host ""
-Write-Host "Done." -ForegroundColor Green
+Write-Host "💡 Tips:" -ForegroundColor Yellow
+Write-Host "   - Si la conexión falla, verifica que:" -ForegroundColor Gray
+Write-Host "     1. ollama serve esté ejecutándose" -ForegroundColor Gray
+Write-Host "     2. mvn spring-boot:run esté ejecutándose" -ForegroundColor Gray
+Write-Host "     3. El modelo esté instalado: ollama pull mistral" -ForegroundColor Gray
 
