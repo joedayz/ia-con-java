@@ -11,9 +11,9 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>fase1-quarkus-start</artifactId>
-    <name>Fase 1 - Quarkus Start (Multi-Provider)</name>
-    <description>API REST con Quarkus - Versión starter multi-proveedor</description>
+    <artifactId>fase1-quarkus-ollama</artifactId>
+    <name>Fase 1 - Quarkus Ollama (llama3.2)</name>
+    <description>API REST con Quarkus usando Ollama con llama3.2</description>
 
     <properties>
         <quarkus.version>3.8.1</quarkus.version>
