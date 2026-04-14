@@ -5,6 +5,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$SupportsSkipHttpErrorCheck = (Get-Command Invoke-WebRequest).Parameters.ContainsKey("SkipHttpErrorCheck")
+
 function Write-Section {
     param([string]$Text)
     Write-Host ""
@@ -33,9 +35,12 @@ function Invoke-Api {
     )
 
     $params = @{
-        Uri                = $Url
-        Method             = $Method
-        SkipHttpErrorCheck = $true
+        Uri    = $Url
+        Method = $Method
+    }
+
+    if ($SupportsSkipHttpErrorCheck) {
+        $params.SkipHttpErrorCheck = $true
     }
 
     if ($null -ne $Body) {
@@ -52,10 +57,37 @@ function Invoke-Api {
         }
     }
     catch {
+        $statusCode = 0
+        $errorContent = $_.Exception.Message
+
+        # PowerShell 5.1 throws on non-2xx and stores HTTP details in Exception.Response.
+        if ($_.Exception.Response) {
+            try {
+                $statusCode = [int]$_.Exception.Response.StatusCode
+            }
+            catch {
+                $statusCode = 0
+            }
+
+            try {
+                $stream = $_.Exception.Response.GetResponseStream()
+                if ($stream) {
+                    $reader = New-Object System.IO.StreamReader($stream)
+                    $raw = $reader.ReadToEnd()
+                    if ($raw) {
+                        $errorContent = $raw
+                    }
+                }
+            }
+            catch {
+                # Keep default exception message if response body cannot be read.
+            }
+        }
+
         return [pscustomobject]@{
             Success    = $false
-            StatusCode = 0
-            Content    = $_.Exception.Message
+            StatusCode = $statusCode
+            Content    = $errorContent
         }
     }
 }
