@@ -14,10 +14,8 @@
     <modules>
         <module>common</module>
         <module>fase1</module>
-        <module>fase1-start</module>
         <module>fase1-quarkus</module>
-        <module>fase1-quarkus-start</module>
-        <module>fase1-ollama-start</module>
+        <module>fase1-quarkus-ollama</module>
         <module>fase1-ollama</module>
         <module>fase2</module>
         <module>fase3</module>
