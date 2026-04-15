@@ -2,7 +2,7 @@
 
 ## Descripcion
 
-Este modulo reproduce `fase3` pero usando **Ollama local** en lugar de OpenAI/Anthropic.
+Este modulo es la version de Fase 3 orientada a **Ollama local**.
 
 Aprenderas a:
 - Entender el problema de un chatbot sin memoria
