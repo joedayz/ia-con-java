@@ -11,10 +11,10 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>fase3-start</artifactId>
+    <artifactId>fase3-ollama</artifactId>
     <packaging>jar</packaging>
-    <name>Fase 3 Start - Chatbots con Memoria (Esqueleto)</name>
-    <description>Punto de partida para que los alumnos implementen chatbots con memoria</description>
+    <name>Fase 3 - Chatbots con Memoria usando Ollama Local</name>
+    <description>Versión Ollama de Fase 3: mismos chatbots con memoria pero sin API keys, usando modelos locales</description>
 
     <dependencies>
         <dependency>
@@ -31,7 +31,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>com.joedayz.ia.fase3.ChatbotConMemoriaPersistente</mainClass>
+                    <mainClass>com.joedayz.ia.fase3.ollama.GestorMultiSesion</mainClass>
                 </configuration>
             </plugin>
         </plugins>
