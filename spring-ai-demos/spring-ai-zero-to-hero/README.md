@@ -7,6 +7,10 @@ AI projects.
 
 If you want to start quickly, follow the **[QUICKSTART.md](./QUICKSTART.md)**.
 
+### Indice de demos (Ollama primero)
+
+Si quieres avanzar demo por demo con un orden didactico y ejemplos listos para explicar en clase, usa **[INDICE-DEMOS-OLLAMA.md](./INDICE-DEMOS-OLLAMA.md)**.
+
 ### Ejecución de las Demos
 
 Este es un proyecto multi-módulo. **Debes instalar los componentes comunes primero** antes de ejecutar cualquier demo. Usa el flag `-U` para forzar la actualización de metadatos y resolver dependencias internas:
@@ -32,7 +36,7 @@ Debes ejecutar las aplicaciones específicas usando el flag `-pl` (project list)
   ./mvnw spring-boot:run -pl agentic-system/01-inner-monologue/inner-monologue-cli
   ```
 
-Para una guía paso a paso con los comandos de prueba (`curl`/`httpie`), consulta el **[ROADMAP.md](./ROADMAP.md)**.
+Para una guia paso a paso con los comandos de prueba (`curl`/`httpie`), consulta el **[ROADMAP.md](./ROADMAP.md)** o el recorrido guiado **[INDICE-DEMOS-OLLAMA.md](./INDICE-DEMOS-OLLAMA.md)**.
 
 ### Solución de Problemas Comunes
 

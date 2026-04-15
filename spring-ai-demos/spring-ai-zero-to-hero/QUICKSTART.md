@@ -2,6 +2,8 @@
 
 This guide provides a fast path to get the demos up and running.
 
+If you want a teaching-friendly sequence to run demos one by one with Ollama first, use **[INDICE-DEMOS-OLLAMA.md](./INDICE-DEMOS-OLLAMA.md)**.
+
 ## 1. Prerequisites (Mandatory)
 
 Before running any code, you must have these services ready:
