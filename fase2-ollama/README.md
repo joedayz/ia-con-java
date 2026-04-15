@@ -45,37 +45,37 @@ Desde la raiz del repo `ia-con-java`.
 ### Linux/macOS
 ```bash
 # Lab 5: chatbot interactivo
-mvn -U -pl fase2-ollama -am exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.PromptEngineering
+mvn -U -pl fase2-ollama  exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.PromptEngineering
 
 # Lab 6: clasificador few-shot
-mvn -U -pl fase2-ollama -am exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ClasificadorSentimiento
+mvn  -pl fase2-ollama  exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ClasificadorSentimiento
 
 # Bonus: chain of thought
-mvn -U -pl fase2-ollama -am exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ChainOfThought
+mvn  -pl fase2-ollama  exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ChainOfThought
 
 # Bonus: salida estructurada
-mvn -U -pl fase2-ollama -am exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.SalidaEstructurada
+mvn -pl fase2-ollama  exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.SalidaEstructurada
 
 # Demo comparativa
-mvn -U -pl fase2-ollama -am exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ComparacionZeroShotVsFewShot
+mvn  -pl fase2-ollama  exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ComparacionZeroShotVsFewShot
 ```
 
 ### Windows (PowerShell)
 ```powershell
 # Lab 5: chatbot interactivo
-mvn -U -pl fase2-ollama -am exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.PromptEngineering"
+mvn  -pl fase2-ollama  exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.PromptEngineering"
 
 # Lab 6: clasificador few-shot
-mvn -U -pl fase2-ollama -am exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.ClasificadorSentimiento"
+mvn  -pl fase2-ollama  exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.ClasificadorSentimiento"
 
 # Bonus: chain of thought
-mvn -U -pl fase2-ollama -am exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.ChainOfThought"
+mvn  -pl fase2-ollama  exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.ChainOfThought"
 
 # Bonus: salida estructurada
-mvn -U -pl fase2-ollama -am exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.SalidaEstructurada"
+mvn  -pl fase2-ollama  exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.SalidaEstructurada"
 
 # Demo comparativa
-mvn -U -pl fase2-ollama -am exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.ComparacionZeroShotVsFewShot"
+mvn  -pl fase2-ollama  exec:java "-Dexec.mainClass=com.joedayz.ia.fase2.ollama.ComparacionZeroShotVsFewShot"
 ```
 
 Con modelo especifico:
