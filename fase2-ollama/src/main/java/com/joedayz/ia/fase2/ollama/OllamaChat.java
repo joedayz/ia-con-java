@@ -1,7 +1,5 @@
 package com.joedayz.ia.fase2.ollama;
 
-import com.joedayz.ia.common.config.EnvConfig;
-
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -10,8 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.joedayz.ia.common.config.EnvConfig;
 
 /**
  * Cliente simple para llamar a Ollama usando el endpoint compatible con OpenAI.
@@ -152,7 +153,7 @@ public class OllamaChat {
                 "{\"role\":\"user\",\"content\":\"%s\"}",
                 escapeJson(userMessage)));
 
-        return String.format("""
+        return String.format(Locale.US, """
                 {
                   "model": "%s",
                   "messages": [%s],
