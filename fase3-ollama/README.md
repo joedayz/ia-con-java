@@ -1,405 +1,227 @@
-# 🧠 Fase 3 Start: Chatbots con Memoria
+# Fase 3 Ollama: Chatbots con Memoria
 
-## 📋 Descripción
+## Descripcion
 
-**Punto de partida** para implementar chatbots con memoria conversacional.
+Este modulo reproduce `fase3` pero usando **Ollama local** en lugar de OpenAI/Anthropic.
 
-En este módulo aprenderás a:
-- ✅ Entender por qué los chatbots necesitan memoria
-- ✅ Implementar buffer memory usando `List<Mensaje>`
-- ✅ Guardar conversaciones en archivos JSON
-- ✅ Gestionar múltiples sesiones de usuario
+Aprenderas a:
+- Entender el problema de un chatbot sin memoria
+- Implementar memoria conversacional en RAM (buffer memory)
+- Persistir sesiones en JSON
+- Gestionar multiples sesiones de usuarios
 
----
+## Requisitos
 
-## 🎯 Laboratorios a Completar
+- Java 21
+- Maven
+- Ollama instalado: <https://ollama.com>
+- Al menos un modelo descargado (ejemplo `llama3.2`)
 
-### Lab 7: Buffer Memory ⭐⭐
+## Configuracion de Ollama
 
-**Archivo:** `ChatbotConMemoria.java`  
-**Dificultad:** Intermedio  
-**Tiempo estimado:** 20-30 minutos
-
-**Objetivo:** Implementar un chatbot que recuerda toda la conversación usando `List<Mensaje>`.
-
-**TODOs a completar:**
-1. ✅ Inicializar `ServicioIA` y el historial
-2. ✅ Agregar system prompt inicial
-3. ✅ Implementar flujo: agregar mensaje → enviar → guardar respuesta
-4. ✅ Implementar comandos `/historial` y `/limpiar`
-5. ✅ Implementar método `enviarConHistorial()`
-6. ✅ Implementar método `mostrarHistorial()`
-
-**Prueba de éxito:**
-```
-Tú: Hola, me llamo Juan y me gustan las pizzas
-Bot: Hola Juan, qué interesante que te gusten las pizzas...
-
-Tú: ¿Cuál es mi nombre y qué me gusta?
-Bot: Tu nombre es Juan y te gustan las pizzas ✅
-```
-
----
-
-### Lab 8: Memoria Persistente ⭐⭐⭐
-
-**Archivo:** `ChatbotConMemoriaPersistente.java`  
-**Dificultad:** Avanzado  
-**Tiempo estimado:** 30-45 minutos
-
-**Objetivo:** Guardar conversaciones en archivos JSON para recuperarlas después.
-
-**TODOs a completar:**
-1. ✅ Crear directorio de sesiones
-2. ✅ Solicitar session ID al usuario
-3. ✅ Implementar `cargarSesion()` - leer desde archivo
-4. ✅ Implementar `guardarSesion()` - escribir a archivo
-5. ✅ Implementar `convertirAJson()` - serialización
-6. ✅ (BONUS) Implementar `parsearJson()` - deserialización
-
-**Prueba de éxito:**
-```bash
-# Primera ejecución
-Ingresa un ID: juan
-Tú: Me llamo Juan
-Bot: Hola Juan...
-Tú: salir
-💾 Conversación guardada
-
-# Segunda ejecución (mismo ID)
-Ingresa un ID: juan
-📂 Sesión cargada: juan (2 mensajes)
-Tú: ¿Cuál es mi nombre?
-Bot: Tu nombre es Juan ✅
-```
-
----
-
-## 🚀 Cómo Empezar
-
-### 1. Configurar API Key
+### Linux/macOS
 
 ```bash
-# En la raíz del proyecto
-export OPENAI_API_KEY=sk-tu-clave
+# 1) Levantar Ollama
+ollama serve
 
-# O crear archivo .env
-echo "OPENAI_API_KEY=sk-tu-clave" > ../.env
+# 2) En otra terminal, descargar modelo de chat
+ollama pull llama3.2
 ```
 
-### 2. Ejecutar el Demo del Problema
+### Windows (PowerShell)
 
-Primero, observa el problema que vamos a resolver:
+```powershell
+# 1) Levantar Ollama
+ollama serve
+
+# 2) En otra terminal, descargar modelo de chat
+ollama pull llama3.2
+```
+
+## Variables opcionales
+
+Puedes configurar en `.env` o variables de entorno:
+
+- `OLLAMA_BASE_URL` (default: `http://localhost:11434`)
+- `OLLAMA_MODEL` (default sugerido: `llama3.2`)
+
+### Linux/macOS
 
 ```bash
-cd fase3-start
+export OLLAMA_BASE_URL=http://localhost:11434
+export OLLAMA_MODEL=llama3.2
+```
+
+### Windows (PowerShell)
+
+```powershell
+$env:OLLAMA_BASE_URL = "http://localhost:11434"
+$env:OLLAMA_MODEL = "llama3.2"
+```
+
+## Compilar
+
+### Linux/macOS
+
+```bash
+# Desde la raiz del repo
+mvn -pl common install -DskipTests
+cd fase3-ollama
+mvn clean compile
+```
+
+### Windows (PowerShell)
+
+```powershell
+# Desde la raiz del repo
+mvn -pl common install -DskipTests
+Set-Location fase3-ollama
+mvn clean compile
+```
+
+## Ejecutar demos
+
+> Nota: todos los comandos se ejecutan dentro de `fase3-ollama`.
+
+### 1) Chatbot sin memoria
+
+#### Linux/macOS
+
+```bash
 mvn exec:java -Dexec.mainClass="com.joedayz.ia.fase3.ChatbotSinMemoria"
 ```
 
-**Observa:** El bot NO recuerda tu nombre cuando se lo preguntas.
+#### Windows (PowerShell)
 
-### 3. Completar Lab 7
+```powershell
+mvn exec:java "-Dexec.mainClass=com.joedayz.ia.fase3.ChatbotSinMemoria"
+```
 
-Abre `ChatbotConMemoria.java` y completa todos los TODOs.
+### 2) Chatbot con memoria (Lab 7)
 
-**Pistas:**
-- Usa `List<Mensaje> historial = new ArrayList<>();`
-- Cada mensaje tiene un rol: "system", "user", "assistant"
-- Envía TODO el historial en cada request
-- El método `servicio.chatConHistorial()` ya está implementado en `common`
+#### Linux/macOS
 
-**Verificar:**
 ```bash
-mvn clean compile
 mvn exec:java -Dexec.mainClass="com.joedayz.ia.fase3.ChatbotConMemoria"
 ```
 
-### 4. Completar Lab 8
+#### Windows (PowerShell)
 
-Abre `ChatbotConMemoriaPersistente.java` y completa todos los TODOs.
+```powershell
+mvn exec:java "-Dexec.mainClass=com.joedayz.ia.fase3.ChatbotConMemoria"
+```
 
-**Pistas:**
-- Usa `Files.readString()` y `Files.writeString()`
-- Formato JSON: `[{"rol":"user","contenido":"Hola"},...]`
-- Escapa caracteres especiales con `escapeJson()`
-- El parseo de JSON es BONUS (complejo)
+### 3) Memoria persistente JSON (Lab 8)
 
-**Verificar:**
+#### Linux/macOS
+
 ```bash
-mkdir -p sessions
 mvn exec:java -Dexec.mainClass="com.joedayz.ia.fase3.ChatbotConMemoriaPersistente"
 ```
 
----
+#### Windows (PowerShell)
 
-## 📖 Conceptos Clave
-
-### ¿Qué es la memoria conversacional?
-
-Los LLMs son **stateless** (sin estado). Cada request es independiente:
-
-```
-❌ SIN MEMORIA:
-Request 1: "Me llamo Ana" → OK
-Request 2: "¿Mi nombre?" → "No lo sé"
-
-✅ CON MEMORIA:
-Request: [
-  {user: "Me llamo Ana"},
-  {assistant: "Hola Ana"},
-  {user: "¿Mi nombre?"}
-]
-→ "Tu nombre es Ana"
+```powershell
+mvn exec:java "-Dexec.mainClass=com.joedayz.ia.fase3.ChatbotConMemoriaPersistente"
 ```
 
-### Buffer Memory
+### 4) Comparacion CON vs SIN memoria
 
-Estrategia más simple: **guardar todos los mensajes** en una lista.
-
-```java
-List<Mensaje> historial = new ArrayList<>();
-
-// System prompt
-historial.add(new Mensaje("system", "Eres un asistente..."));
-
-// Conversación
-historial.add(Mensaje.usuario("Hola"));
-historial.add(Mensaje.asistente("¿En qué puedo ayudarte?"));
-historial.add(Mensaje.usuario("Mi nombre es Juan"));
-historial.add(Mensaje.asistente("Hola Juan"));
-
-// Siguiente pregunta - envía TODO el historial
-String respuesta = servicio.chatConHistorial(historial, "¿Cuál es mi nombre?");
-// → "Tu nombre es Juan" ✅
-```
-
-**Ventajas:**
-- ✅ Simple de implementar
-- ✅ Contexto completo siempre disponible
-
-**Desventajas:**
-- ❌ Crece infinitamente
-- ❌ Puede superar el context window
-- ❌ Más tokens = mayor costo
-
-### Persistent Memory
-
-Guardar el historial en disco para sobrevivir a reinicios.
-
-**Casos de uso:**
-- Aplicaciones multi-usuario
-- Recuperar conversaciones previas
-- Análisis histórico
-- Backup y seguridad
-
-**Estructura de archivos:**
-```
-fase3-start/
-  sessions/
-    juan.json
-    maria.json
-    usuario-123.json
-```
-
-**Formato JSON:**
-```json
-[
-  { "rol": "system", "contenido": "Eres un asistente..." },
-  { "rol": "user", "contenido": "Me llamo Juan" },
-  { "rol": "assistant", "contenido": "Hola Juan" }
-]
-```
-
----
-
-## 💡 Pistas y Ayuda
-
-### Lab 7: Buffer Memory
-
-**Inicialización:**
-```java
-ServicioIA servicio = new ServicioIA();
-List<Mensaje> historial = new ArrayList<>();
-historial.add(new Mensaje("system", "Eres un asistente amigable..."));
-```
-
-**Flujo de conversación:**
-```java
-// 1. Usuario escribe
-historial.add(Mensaje.usuario(entrada));
-
-// 2. Enviamos TODO el historial
-String respuesta = enviarConHistorial(servicio, historial);
-
-// 3. Guardamos respuesta
-historial.add(Mensaje.asistente(respuesta));
-```
-
-**Método enviarConHistorial:**
-```java
-private static String enviarConHistorial(ServicioIA servicio, List<Mensaje> historial) {
-    // Separar el último mensaje (del usuario)
-    Mensaje ultimo = historial.get(historial.size() - 1);
-    List<Mensaje> previo = historial.subList(0, historial.size() - 1);
-    
-    // Enviar
-    return servicio.chatConHistorial(previo, ultimo.contenido());
-}
-```
-
-### Lab 8: Memoria Persistente
-
-**Cargar sesión:**
-```java
-private static List<Mensaje> cargarSesion(String sessionId) {
-    Path archivo = obtenerArchivo(sessionId);
-    
-    if (!Files.exists(archivo)) {
-        return new ArrayList<>(); // Nueva sesión
-    }
-    
-    String json = Files.readString(archivo);
-    return parsearJson(json); // Convertir de JSON
-}
-```
-
-**Guardar sesión:**
-```java
-private static void guardarSesion(String sessionId, List<Mensaje> historial) {
-    Path archivo = obtenerArchivo(sessionId);
-    String json = convertirAJson(historial);
-    Files.writeString(archivo, json);
-}
-```
-
-**Convertir a JSON:**
-```java
-private static String convertirAJson(List<Mensaje> mensajes) {
-    StringBuilder json = new StringBuilder("[\n");
-    
-    for (int i = 0; i < mensajes.size(); i++) {
-        Mensaje m = mensajes.get(i);
-        json.append("  {")
-            .append("\"rol\":\"").append(escapeJson(m.rol())).append("\",")
-            .append("\"contenido\":\"").append(escapeJson(m.contenido())).append("\"")
-            .append("}");
-        
-        if (i < mensajes.size() - 1) {
-            json.append(",");
-        }
-        json.append("\n");
-    }
-    
-    json.append("]");
-    return json.toString();
-}
-```
-
----
-
-## ✅ Checklist de Completado
-
-Marca cuando completes cada tarea:
-
-### Lab 7: ChatbotConMemoria.java
-- [ ] Inicializar `ServicioIA`
-- [ ] Crear lista `historial`
-- [ ] Agregar system prompt inicial
-- [ ] Implementar flujo: agregar → enviar → guardar
-- [ ] Implementar comando `/historial`
-- [ ] Implementar comando `/limpiar`
-- [ ] Implementar método `enviarConHistorial()`
-- [ ] Implementar método `mostrarHistorial()`
-- [ ] Probar: bot recuerda tu nombre ✅
-
-### Lab 8: ChatbotConMemoriaPersistente.java
-- [ ] Crear directorio `sessions/`
-- [ ] Solicitar session ID
-- [ ] Implementar `cargarSesion()`
-- [ ] Implementar `guardarSesion()`
-- [ ] Implementar `convertirAJson()`
-- [ ] Guardar automáticamente después de cada mensaje
-- [ ] Probar: crear sesión "juan"
-- [ ] Probar: salir y volver a entrar con "juan"
-- [ ] Verificar: historial se recupera ✅
-- [ ] (BONUS) Implementar `parsearJson()`
-
----
-
-## 🐛 Solución de Problemas
-
-### Error: "Falta OPENAI_API_KEY"
+#### Linux/macOS
 
 ```bash
-# Verificar
-echo $OPENAI_API_KEY
-
-# Configurar
-export OPENAI_API_KEY=sk-tu-clave
+mvn exec:java -Dexec.mainClass="com.joedayz.ia.fase3.ComparacionMemoria"
 ```
 
-### Error: "Cannot find symbol: ServicioIA"
+#### Windows (PowerShell)
+
+```powershell
+mvn exec:java "-Dexec.mainClass=com.joedayz.ia.fase3.ComparacionMemoria"
+```
+
+### 5) Gestor multi-sesion (reto)
+
+#### Linux/macOS
 
 ```bash
-# Compilar desde la raíz
-cd ..
-mvn clean install -DskipTests
-cd fase3-start
+mvn exec:java -Dexec.mainClass="com.joedayz.ia.fase3.GestorMultiSesion"
 ```
 
-### El historial no se guarda (Lab 8)
+#### Windows (PowerShell)
+
+```powershell
+mvn exec:java "-Dexec.mainClass=com.joedayz.ia.fase3.GestorMultiSesion"
+```
+
+### 6) Demo rapido del servicio
+
+#### Linux/macOS
 
 ```bash
-# Verificar que existe el directorio
-ls -la sessions/
-
-# Si no existe:
-mkdir -p sessions
+mvn exec:java -Dexec.mainClass="com.joedayz.ia.fase3.DemoServicioIA"
 ```
 
-### NullPointerException
+#### Windows (PowerShell)
 
-- ¿Inicializaste `servicio`?
-- ¿Inicializaste `historial`?
-- ¿Agregaste el system prompt?
+```powershell
+mvn exec:java "-Dexec.mainClass=com.joedayz.ia.fase3.DemoServicioIA"
+```
 
----
+## Estructura principal
 
-## 🎓 Comparar con la Solución
+- `src/main/java/com/joedayz/ia/fase3/ChatbotSinMemoria.java`
+- `src/main/java/com/joedayz/ia/fase3/ChatbotConMemoria.java`
+- `src/main/java/com/joedayz/ia/fase3/ChatbotConMemoriaPersistente.java`
+- `src/main/java/com/joedayz/ia/fase3/ComparacionMemoria.java`
+- `src/main/java/com/joedayz/ia/fase3/GestorMultiSesion.java`
+- `src/main/java/com/joedayz/ia/fase3/DemoServicioIA.java`
+- `src/main/java/com/joedayz/ia/fase3/ollama/ServicioIAOllama.java`
 
-Después de completar los labs, compara tu código con la solución oficial:
+## Solucion de problemas
+
+### Error: Ollama no esta corriendo
+
+### Linux/macOS
 
 ```bash
-# Ver la solución completa
-cd ../fase3
-
-# Comparar archivos
-diff fase3-start/src/.../ChatbotConMemoria.java \
-     fase3/src/.../ChatbotConMemoria.java
+ollama serve
 ```
 
----
+### Windows (PowerShell)
 
-## 🚀 Siguiente Paso
+```powershell
+ollama serve
+```
 
-Una vez completes estos labs, estarás listo para:
+### Error: no hay modelos instalados
 
-- **Fase 4:** Embeddings y Vector Databases
-- **Fase 5:** RAG (Retrieval Augmented Generation)
-- **Fase 6:** Tool Calling
-- **Fase 7:** AI Agents
+### Linux/macOS
 
----
+```bash
+ollama pull llama3.2
+```
 
-## 📚 Recursos Adicionales
+### Windows (PowerShell)
 
-- [OpenAI Chat Completions](https://platform.openai.com/docs/guides/chat)
-- [Java NIO File Operations](https://docs.oracle.com/javase/tutorial/essential/io/file.html)
-- [JSON Specification](https://www.json.org/)
-- [Prompt Engineering Guide](https://www.promptingguide.ai/)
+```powershell
+ollama pull llama3.2
+```
 
----
+### Ver modelos instalados
 
-**¡Buena suerte con los labs! 🚀**
+### Linux/macOS
 
-Si tienes dudas, consulta al instructor o revisa la documentación en `fase3/README.md`.
+```bash
+ollama list
+```
+
+### Windows (PowerShell)
+
+```powershell
+ollama list
+```
+
+## Nota
+
+Este README es intencionalmente **Ollama-only** para `fase3-ollama`.

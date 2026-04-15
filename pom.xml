@@ -20,6 +20,7 @@
         <module>fase2</module>
         <module>fase2-ollama</module>
         <module>fase3</module>
+        <module>fase3-ollama</module>
     </modules>
 
     <properties>
