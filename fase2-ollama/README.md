@@ -21,7 +21,7 @@ Variables opcionales:
 Desde la raiz del repo:
 ```bash
 # Lab 5: chatbot interactivo
-mvn -pl fase2-ollama exec:java
+mvn -pl fase2-ollama exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.PromptEngineering
 # Lab 6: clasificador few-shot
 mvn -pl fase2-ollama exec:java -Dexec.mainClass=com.joedayz.ia.fase2.ollama.ClasificadorSentimiento
 # Bonus: chain of thought
