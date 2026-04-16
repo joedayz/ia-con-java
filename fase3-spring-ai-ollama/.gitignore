@@ -1,5 +1,5 @@
 # Directorios de base de datos H2
-data/
+data/*.h2.db
 *.mv.db
 *.trace.db
 

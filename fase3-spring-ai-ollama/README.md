@@ -2,6 +2,8 @@
 
 Proyecto Spring Boot de la fase 3 adaptado para usar **solo Ollama**.
 
+Ahora el chat usa **persistencia real en H2 por defecto**. Si prefieres el comportamiento anterior (solo RAM), puedes cambiar una propiedad.
+
 Incluye:
 - Chat con memoria conversacional
 - Chat multi-sesión
@@ -81,6 +83,8 @@ Por defecto el proyecto usa:
 - `OLLAMA_BASE_URL=http://localhost:11434`
 - `OLLAMA_CHAT_MODEL=llama3.2`
 - `OLLAMA_EMBEDDING_MODEL=mxbai-embed-large`
+- `APP_CHAT_MEMORY_REPOSITORY=jdbc` → memoria persistente en H2
+- `APP_CHAT_MEMORY_MAX_MESSAGES=20` → ventana de contexto por sesión
 
 Si quieres cambiarlos:
 
@@ -89,6 +93,8 @@ Si quieres cambiarlos:
 export OLLAMA_BASE_URL=http://localhost:11434
 export OLLAMA_CHAT_MODEL=llama3.2
 export OLLAMA_EMBEDDING_MODEL=mxbai-embed-large
+export APP_CHAT_MEMORY_REPOSITORY=jdbc
+export APP_CHAT_MEMORY_MAX_MESSAGES=20
 mvn spring-boot:run
 ```
 
@@ -97,6 +103,22 @@ mvn spring-boot:run
 $env:OLLAMA_BASE_URL="http://localhost:11434"
 $env:OLLAMA_CHAT_MODEL="llama3.2"
 $env:OLLAMA_EMBEDDING_MODEL="mxbai-embed-large"
+$env:APP_CHAT_MEMORY_REPOSITORY="jdbc"
+$env:APP_CHAT_MEMORY_MAX_MESSAGES="20"
+mvn spring-boot:run
+```
+
+### Volver al modo anterior en memoria (sin persistencia)
+
+#### Linux / macOS
+```bash
+export APP_CHAT_MEMORY_REPOSITORY=in-memory
+mvn spring-boot:run
+```
+
+#### Windows
+```powershell
+$env:APP_CHAT_MEMORY_REPOSITORY="in-memory"
 mvn spring-boot:run
 ```
 
@@ -174,6 +196,40 @@ Invoke-RestMethod -Uri http://localhost:8080/api/chat `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"message":"¿Cómo me llamo?"}'
+```
+
+### Verificar persistencia tras reiniciar
+
+1. Envía un mensaje a una sesión fija, por ejemplo `demo-persistencia`.
+2. Reinicia la aplicación.
+3. Vuelve a preguntar por el dato anterior usando la misma sesión.
+
+#### Linux / macOS
+```bash
+curl -X POST http://localhost:8080/api/chat/demo-persistencia \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hola, me llamo Carlos y hoy es mi primer día conversando contigo"}'
+
+# Reinicia la app aquí
+
+curl -X POST http://localhost:8080/api/chat/demo-persistencia \
+  -H "Content-Type: application/json" \
+  -d '{"message":"¿Cómo me llamo y qué día es hoy para mí?"}'
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/demo-persistencia `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"Hola, me llamo Carlos y hoy es mi primer día conversando contigo"}'
+
+# Reinicia la app aquí
+
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/demo-persistencia `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"¿Cómo me llamo y qué día es hoy para mí?"}'
 ```
 
 ### Estado del servicio de chat
@@ -428,6 +484,8 @@ $OutputEncoding = [Console]::OutputEncoding
 ```
 
 Si aún ocurre, revisa también que tu terminal/IDE esté guardando y mostrando archivos en UTF-8.
+
+En este módulo el backend ya fuerza UTF-8 para requests y responses HTTP. Si todavía ves `Â¡` o `DÃ­a`, el problema suele estar en el cliente (terminal, Swagger incrustado en otra página, proxy o extensión del navegador).
 
 ## Datos de ejemplo
 
