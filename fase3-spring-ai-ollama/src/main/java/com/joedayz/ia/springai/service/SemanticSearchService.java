@@ -22,6 +22,9 @@ import java.util.Map;
 @Service
 public class SemanticSearchService {
 
+    private static final int MARKDOWN_CHUNK_SIZE = 700;
+    private static final int MARKDOWN_CHUNK_OVERLAP = 120;
+
     private final EmbeddingModel embeddingModel;
     private VectorStore vectorStore;
     private boolean demoDocumentosCargados;
@@ -168,24 +171,49 @@ public class SemanticSearchService {
             if (texto.length() < 30) {
                 continue;
             }
-            if (texto.length() > 2000) {
-                texto = texto.substring(0, 2000);
-            }
-
             String titulo = "sin-titulo";
             int newline = texto.indexOf('\n');
             if (newline > 0) {
                 titulo = texto.substring(0, newline).replaceAll("^#+\\s*", "").strip();
             }
 
-            docs.add(new Document(texto, Map.of(
-                    "fuente", source,
-                    "seccion", titulo,
-                    "filePath", path,
-                    "tipo", "markdown"
-            )));
+            List<String> chunks = splitTextWithOverlap(texto, MARKDOWN_CHUNK_SIZE, MARKDOWN_CHUNK_OVERLAP);
+            for (int i = 0; i < chunks.size(); i++) {
+                docs.add(new Document(chunks.get(i), Map.of(
+                        "fuente", source,
+                        "seccion", titulo,
+                        "filePath", path,
+                        "tipo", "markdown",
+                        "chunk", i + 1,
+                        "totalChunks", chunks.size()
+                )));
+            }
         }
         return docs;
+    }
+
+    private List<String> splitTextWithOverlap(String text, int chunkSize, int overlap) {
+        if (text.length() <= chunkSize) {
+            return List.of(text);
+        }
+
+        List<String> chunks = new ArrayList<>();
+        int step = Math.max(1, chunkSize - overlap);
+        int start = 0;
+
+        while (start < text.length()) {
+            int end = Math.min(start + chunkSize, text.length());
+            String chunk = text.substring(start, end).strip();
+            if (chunk.length() >= 30) {
+                chunks.add(chunk);
+            }
+            if (end == text.length()) {
+                break;
+            }
+            start += step;
+        }
+
+        return chunks.isEmpty() ? List.of(text.substring(0, Math.min(text.length(), chunkSize)).strip()) : chunks;
     }
 
     private Map<String, Object> mergeMetadata(Map<String, Object> metadata, String source, String path) {
