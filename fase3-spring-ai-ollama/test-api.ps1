@@ -3,6 +3,10 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$InvokeWebRequestCommand = Get-Command Invoke-WebRequest
+$SupportsSkipHttpErrorCheck = $null -ne $InvokeWebRequestCommand.Parameters["SkipHttpErrorCheck"]
+$SupportsUseBasicParsing = $null -ne $InvokeWebRequestCommand.Parameters["UseBasicParsing"]
+$SupportsDisableKeepAlive = $null -ne $InvokeWebRequestCommand.Parameters["DisableKeepAlive"]
 
 # Forzar UTF-8 en consola para evitar caracteres mojibake como Ã¡, Ã©, Â¿, Â¡
 try {
@@ -43,6 +47,46 @@ function Write-Section {
     Write-Host "------------------------------------------------------------"
 }
 
+function Invoke-WebRequestCompat {
+    param(
+        [hashtable]$RequestParams
+    )
+
+    if ($SupportsSkipHttpErrorCheck) {
+        $RequestParams.SkipHttpErrorCheck = $true
+    }
+    if ($SupportsUseBasicParsing) {
+        $RequestParams.UseBasicParsing = $true
+    }
+    if ($SupportsDisableKeepAlive) {
+        $RequestParams.DisableKeepAlive = $true
+    }
+
+    try {
+        return Invoke-WebRequest @RequestParams
+    }
+    catch {
+        $response = $_.Exception.Response
+        if ($null -eq $response) {
+            throw
+        }
+
+        $reader = [System.IO.StreamReader]::new($response.GetResponseStream())
+        try {
+            $content = $reader.ReadToEnd()
+        }
+        finally {
+            $reader.Dispose()
+            $response.Dispose()
+        }
+
+        return [pscustomobject]@{
+            StatusCode = [int]$response.StatusCode
+            Content    = [string]$content
+        }
+    }
+}
+
 function Invoke-Api {
     param(
         [string]$Method,
@@ -51,9 +95,8 @@ function Invoke-Api {
     )
 
     $requestParams = @{
-        Uri                = $Url
-        Method             = $Method
-        SkipHttpErrorCheck = $true
+        Uri    = $Url
+        Method = $Method
     }
 
     if ($null -ne $Body) {
@@ -61,7 +104,7 @@ function Invoke-Api {
         $requestParams.Body = $Body | ConvertTo-Json -Depth 10 -Compress
     }
 
-    $response = Invoke-WebRequest @requestParams
+    $response = Invoke-WebRequestCompat -RequestParams $requestParams
     $parsed = $null
     try {
         $parsed = $response.Content | ConvertFrom-Json
@@ -107,7 +150,11 @@ Write-Host ""
 
 Write-Host "Checking server at $BaseUrl ..."
 try {
-    $health = Invoke-WebRequest -Uri "$BaseUrl/actuator/health" -Method GET -TimeoutSec 5 -SkipHttpErrorCheck
+    $health = Invoke-WebRequestCompat -RequestParams @{
+        Uri        = "$BaseUrl/actuator/health"
+        Method     = "GET"
+        TimeoutSec = 5
+    }
     if ($health.StatusCode -ge 200 -and $health.StatusCode -lt 300) {
         Write-Host "[OK] Server is running" -ForegroundColor Green
     }
