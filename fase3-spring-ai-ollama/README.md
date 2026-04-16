@@ -118,48 +118,112 @@ mvn spring-boot:run
 ## 6. Pruebas rápidas
 
 ### Chat simple
+
+#### Linux / macOS
 ```bash
 curl -X POST http://localhost:8080/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"Hola, me llamo Carlos"}'
 ```
 
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/chat `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"Hola, me llamo Carlos"}'
+```
+
 ### Verificar memoria
+
+#### Linux / macOS
 ```bash
 curl -X POST http://localhost:8080/api/chat \
   -H "Content-Type: application/json" \
   -d '{"message":"¿Cómo me llamo?"}'
 ```
 
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/chat `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"¿Cómo me llamo?"}'
+```
+
 ### Indexar documentos demo
+
+#### Linux / macOS
 ```bash
 curl -X POST http://localhost:8080/api/buscar/demo
 ```
 
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/buscar/demo -Method POST
+```
+
 ### Buscar por similitud
+
+#### Linux / macOS
 ```bash
 curl "http://localhost:8080/api/buscar?query=similitud%20coseno&topK=3"
 ```
 
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri "http://localhost:8080/api/buscar?query=similitud%20coseno&topK=3"
+```
+
 ### RAG manual
+
+#### Linux / macOS
 ```bash
 curl -X POST http://localhost:8080/api/rag/simple \
   -H "Content-Type: application/json" \
   -d '{"query":"¿Qué son los embeddings?","topK":3}'
 ```
 
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/rag/simple `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"query":"¿Qué son los embeddings?","topK":3}'
+```
+
 ### Cargar documentación Markdown
+
+#### Linux / macOS
 ```bash
 curl -X POST http://localhost:8080/api/rag/docs/cargar \
   -H "Content-Type: application/json" \
   -d '{"path":"./data/docs"}'
 ```
 
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/rag/docs/cargar `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"path":"./data/docs"}'
+```
+
 ### Preguntar a la documentación
+
+#### Linux / macOS
 ```bash
 curl -X POST http://localhost:8080/api/rag/docs/preguntar \
   -H "Content-Type: application/json" \
   -d '{"query":"¿Cuál es la diferencia entre RAG simple y advisor?","topK":4}'
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/rag/docs/preguntar `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"query":"¿Cuál es la diferencia entre RAG simple y advisor?","topK":4}'
 ```
 
 ## 7. Scripts de prueba
