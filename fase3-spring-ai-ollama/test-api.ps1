@@ -19,6 +19,16 @@ catch {
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DocsPath = Join-Path $ScriptDir "data/docs"
 $Utf8 = [System.Text.UTF8Encoding]::new($false)
+
+try {
+    Add-Type -AssemblyName System.Net.Http -ErrorAction Stop
+}
+catch {
+    Write-Host "[FAIL] Could not load System.Net.Http assembly in this PowerShell host." -ForegroundColor Red
+    Write-Host "Run this script with Windows PowerShell 5.1+ or PowerShell 7+."
+    exit 1
+}
+
 $HttpClient = [System.Net.Http.HttpClient]::new()
 $HttpClient.DefaultRequestHeaders.Accept.Clear()
 $HttpClient.DefaultRequestHeaders.Accept.ParseAdd("application/json")
