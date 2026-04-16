@@ -8,6 +8,8 @@ echo "╚═══════════════════════�
 echo ""
 
 BASE_URL="http://localhost:8080"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+DOCS_PATH="$SCRIPT_DIR/data/docs"
 
 # Colores
 GREEN='\033[0;32m'
@@ -147,6 +149,74 @@ if echo "$response" | grep -qi "carlos"; then
     print_test "Memoria limpiada correctamente" 1
 else
     print_test "Memoria limpiada correctamente" 0
+fi
+echo ""
+
+# Test 5: Búsqueda semántica
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🔍 Test 4: Búsqueda semántica"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+response=$(curl -s -X POST "$BASE_URL/api/buscar/demo")
+echo "POST /api/buscar/demo: $response"
+if echo "$response" | grep -q '"documentos"'; then
+    print_test "Carga de documentos demo" 0
+else
+    print_test "Carga de documentos demo" 1
+fi
+
+response=$(curl -s "$BASE_URL/api/buscar?query=similitud%20coseno&topK=3")
+echo "GET /api/buscar?query=similitud coseno: $response"
+if echo "$response" | grep -q '"resultados"'; then
+    print_test "Búsqueda semántica devuelve resultados" 0
+else
+    print_test "Búsqueda semántica devuelve resultados" 1
+fi
+echo ""
+
+# Test 6: RAG
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🧠 Test 5: RAG (simple, advisor y docs)"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+response=$(curl -s -X POST "$BASE_URL/api/rag/simple" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"que son los embeddings","topK":3}')
+echo "POST /api/rag/simple: $response"
+if echo "$response" | grep -q '"answer"' && echo "$response" | grep -q '"citations"'; then
+    print_test "RAG simple responde con citas" 0
+else
+    print_test "RAG simple responde con citas" 1
+fi
+
+response=$(curl -s -X POST "$BASE_URL/api/rag/advisor" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"que es similitud coseno","topK":3}')
+echo "POST /api/rag/advisor: $response"
+if echo "$response" | grep -q '"answer"' && echo "$response" | grep -q '"citations"'; then
+    print_test "RAG advisor responde con citas" 0
+else
+    print_test "RAG advisor responde con citas" 1
+fi
+
+response=$(curl -s -X POST "$BASE_URL/api/rag/docs/cargar" \
+  -H "Content-Type: application/json" \
+  -d "{\"path\":\"$DOCS_PATH\"}")
+echo "POST /api/rag/docs/cargar: $response"
+if echo "$response" | grep -q '"totalChunks"'; then
+    print_test "Carga de docs Markdown" 0
+else
+    print_test "Carga de docs Markdown" 1
+fi
+
+response=$(curl -s -X POST "$BASE_URL/api/rag/docs/preguntar" \
+  -H "Content-Type: application/json" \
+  -d '{"query":"diferencia entre rag simple y advisor","topK":4}')
+echo "POST /api/rag/docs/preguntar: $response"
+if echo "$response" | grep -q '"answer"' && echo "$response" | grep -q '"citations"'; then
+    print_test "Asistente de docs responde" 0
+else
+    print_test "Asistente de docs responde" 1
 fi
 echo ""
 

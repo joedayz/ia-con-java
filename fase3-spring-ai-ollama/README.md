@@ -62,6 +62,19 @@ cd fase3-spring-ai-ollama
 mvn spring-boot:run
 ```
 
+### Windows / PowerShell UTF-8 recomendado
+
+Si ves caracteres como `Ã¡`, `Ã©`, `Â¿` o `Â¡`, configura la consola en UTF-8 antes de probar la API:
+
+```powershell
+chcp 65001
+[Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$OutputEncoding = [Console]::OutputEncoding
+```
+
+Luego ejecuta la app o los scripts normalmente.
+
 ## 3. Configuración opcional
 
 Por defecto el proyecto usa:
@@ -117,6 +130,18 @@ mvn spring-boot:run
 
 ## 6. Pruebas rápidas
 
+### Health check
+
+#### Linux / macOS
+```bash
+curl http://localhost:8080/actuator/health
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/actuator/health
+```
+
 ### Chat simple
 
 #### Linux / macOS
@@ -151,6 +176,77 @@ Invoke-RestMethod -Uri http://localhost:8080/api/chat `
   -Body '{"message":"¿Cómo me llamo?"}'
 ```
 
+### Estado del servicio de chat
+
+#### Linux / macOS
+```bash
+curl http://localhost:8080/api/chat/status
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/status
+```
+
+### Chat multi-sesión
+
+#### Linux / macOS
+```bash
+curl -X POST http://localhost:8080/api/chat/user-123 \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hola, me llamo Carlos"}'
+
+curl -X POST http://localhost:8080/api/chat/user-456 \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Hola, me llamo Ana"}'
+
+curl -X POST http://localhost:8080/api/chat/user-123 \
+  -H "Content-Type: application/json" \
+  -d '{"message":"¿Cuál es mi nombre?"}'
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/user-123 `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"Hola, me llamo Carlos"}'
+
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/user-456 `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"Hola, me llamo Ana"}'
+
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/user-123 `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"message":"¿Cuál es mi nombre?"}'
+```
+
+### Limpiar sesión
+
+#### Linux / macOS
+```bash
+curl -X DELETE http://localhost:8080/api/chat/user-123
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/chat/user-123 -Method DELETE
+```
+
+### Estado del vector store
+
+#### Linux / macOS
+```bash
+curl http://localhost:8080/api/buscar/status
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/buscar/status
+```
+
 ### Indexar documentos demo
 
 #### Linux / macOS
@@ -175,6 +271,41 @@ curl "http://localhost:8080/api/buscar?query=similitud%20coseno&topK=3"
 Invoke-RestMethod -Uri "http://localhost:8080/api/buscar?query=similitud%20coseno&topK=3"
 ```
 
+### Cargar PDF local
+
+#### Linux / macOS
+```bash
+curl -X POST http://localhost:8080/api/buscar/pdf \
+  -H "Content-Type: application/json" \
+  -d '{"path":"/Users/josediaz/Projects/JoeDayz/ia-con-java/docs/01-AI_Developer_Blueprint.pdf","sourceId":"ai-blueprint"}'
+```
+
+#### Windows (PowerShell)
+```powershell
+$pdfPath = "C:/ruta/al/archivo.pdf"
+Invoke-RestMethod -Uri http://localhost:8080/api/buscar/pdf `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body (@{ path = $pdfPath; sourceId = "mi-pdf" } | ConvertTo-Json -Compress)
+```
+
+### RAG alias (`/api/rag`)
+
+#### Linux / macOS
+```bash
+curl -X POST http://localhost:8080/api/rag \
+  -H "Content-Type: application/json" \
+  -d '{"query":"¿Qué son los embeddings?","topK":3}'
+```
+
+#### Windows (PowerShell)
+```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/rag `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"query":"¿Qué son los embeddings?","topK":3}'
+```
+
 ### RAG manual
 
 #### Linux / macOS
@@ -192,21 +323,42 @@ Invoke-RestMethod -Uri http://localhost:8080/api/rag/simple `
   -Body '{"query":"¿Qué son los embeddings?","topK":3}'
 ```
 
-### Cargar documentación Markdown
+### RAG con advisor
 
 #### Linux / macOS
 ```bash
-curl -X POST http://localhost:8080/api/rag/docs/cargar \
+curl -X POST http://localhost:8080/api/rag/advisor \
   -H "Content-Type: application/json" \
-  -d '{"path":"./data/docs"}'
+  -d '{"query":"¿Qué es la similitud coseno?","topK":3}'
 ```
 
 #### Windows (PowerShell)
 ```powershell
+Invoke-RestMethod -Uri http://localhost:8080/api/rag/advisor `
+  -Method POST `
+  -ContentType "application/json" `
+  -Body '{"query":"¿Qué es la similitud coseno?","topK":3}'
+```
+
+### Cargar documentación Markdown
+
+#### Linux / macOS
+```bash
+DOCS_PATH="$(pwd)/data/docs"
+
+curl -X POST http://localhost:8080/api/rag/docs/cargar \
+  -H "Content-Type: application/json" \
+  -d "{\"path\":\"$DOCS_PATH\"}"
+```
+
+#### Windows (PowerShell)
+```powershell
+$docsPath = Join-Path (Get-Location) "data/docs"
+
 Invoke-RestMethod -Uri http://localhost:8080/api/rag/docs/cargar `
   -Method POST `
   -ContentType "application/json" `
-  -Body '{"path":"./data/docs"}'
+  -Body (@{ path = $docsPath } | ConvertTo-Json -Compress)
 ```
 
 ### Preguntar a la documentación
@@ -236,6 +388,11 @@ chmod +x test-api.sh
 
 ### Windows
 ```powershell
+chcp 65001
+[Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$OutputEncoding = [Console]::OutputEncoding
+
 ./test-api.ps1
 ```
 
@@ -259,6 +416,18 @@ ollama pull mxbai-embed-large
 
 ### Error: conexión rechazada a `localhost:11434`
 Inicia Ollama antes de levantar Spring Boot.
+
+### En Windows veo caracteres rotos como `Ã¡`, `Ã±` o `Â¿`
+Antes de ejecutar comandos interactivos o `test-api.ps1`, fuerza UTF-8:
+
+```powershell
+chcp 65001
+[Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
+[Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
+$OutputEncoding = [Console]::OutputEncoding
+```
+
+Si aún ocurre, revisa también que tu terminal/IDE esté guardando y mostrando archivos en UTF-8.
 
 ## Datos de ejemplo
 
