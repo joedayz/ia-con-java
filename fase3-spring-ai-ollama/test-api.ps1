@@ -3,12 +3,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$InvokeWebRequestCommand = Get-Command Invoke-WebRequest
-$SupportsSkipHttpErrorCheck = $null -ne $InvokeWebRequestCommand.Parameters["SkipHttpErrorCheck"]
-$SupportsUseBasicParsing = $null -ne $InvokeWebRequestCommand.Parameters["UseBasicParsing"]
-$SupportsDisableKeepAlive = $null -ne $InvokeWebRequestCommand.Parameters["DisableKeepAlive"]
 
-# Forzar UTF-8 en consola para evitar caracteres mojibake como Ã¡, Ã©, Â¿, Â¡
 try {
     [Console]::InputEncoding = [System.Text.UTF8Encoding]::new($false)
     [Console]::OutputEncoding = [System.Text.UTF8Encoding]::new($false)
@@ -18,11 +13,23 @@ try {
     }
 }
 catch {
-    # Si el host no permite cambiar encoding, continuar sin romper el script.
+    # If host does not allow changing encoding, continue.
 }
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $DocsPath = Join-Path $ScriptDir "data/docs"
+$Utf8 = [System.Text.UTF8Encoding]::new($false)
+$HttpClient = [System.Net.Http.HttpClient]::new()
+$HttpClient.DefaultRequestHeaders.Accept.Clear()
+$HttpClient.DefaultRequestHeaders.Accept.ParseAdd("application/json")
+
+try {
+    $HttpClient.DefaultRequestHeaders.AcceptCharset.Clear()
+    $HttpClient.DefaultRequestHeaders.AcceptCharset.ParseAdd("utf-8")
+}
+catch {
+    # Some hosts do not expose Accept-Charset; continue.
+}
 
 function Write-TestResult {
     param(
@@ -47,77 +54,47 @@ function Write-Section {
     Write-Host "------------------------------------------------------------"
 }
 
-function Invoke-WebRequestCompat {
-    param(
-        [hashtable]$RequestParams
-    )
-
-    if ($SupportsSkipHttpErrorCheck) {
-        $RequestParams.SkipHttpErrorCheck = $true
-    }
-    if ($SupportsUseBasicParsing) {
-        $RequestParams.UseBasicParsing = $true
-    }
-    if ($SupportsDisableKeepAlive) {
-        $RequestParams.DisableKeepAlive = $true
-    }
-
-    try {
-        return Invoke-WebRequest @RequestParams
-    }
-    catch {
-        $response = $_.Exception.Response
-        if ($null -eq $response) {
-            throw
-        }
-
-        $reader = [System.IO.StreamReader]::new($response.GetResponseStream())
-        try {
-            $content = $reader.ReadToEnd()
-        }
-        finally {
-            $reader.Dispose()
-            $response.Dispose()
-        }
-
-        return [pscustomobject]@{
-            StatusCode = [int]$response.StatusCode
-            Content    = [string]$content
-        }
-    }
-}
-
 function Invoke-Api {
     param(
         [string]$Method,
         [string]$Url,
-        [object]$Body = $null
+        [object]$Body = $null,
+        [int]$TimeoutSeconds = 120
     )
 
-    $requestParams = @{
-        Uri    = $Url
-        Method = $Method
-    }
+    $request = [System.Net.Http.HttpRequestMessage]::new([System.Net.Http.HttpMethod]::new($Method), $Url)
 
     if ($null -ne $Body) {
-        $requestParams.ContentType = "application/json"
-        $requestParams.Body = $Body | ConvertTo-Json -Depth 10 -Compress
+        $jsonBody = $Body | ConvertTo-Json -Depth 10 -Compress
+        $request.Content = [System.Net.Http.StringContent]::new($jsonBody, $Utf8, "application/json")
     }
 
-    $response = Invoke-WebRequestCompat -RequestParams $requestParams
-    $parsed = $null
+    $cts = [System.Threading.CancellationTokenSource]::new()
+    $cts.CancelAfter([TimeSpan]::FromSeconds($TimeoutSeconds))
+
     try {
-        $parsed = $response.Content | ConvertFrom-Json
-    }
-    catch {
-        # Response is not JSON; keep raw content.
-    }
+        $response = $HttpClient.SendAsync($request, $cts.Token).GetAwaiter().GetResult()
+        $bytes = $response.Content.ReadAsByteArrayAsync().GetAwaiter().GetResult()
+        $content = $Utf8.GetString($bytes)
 
-    return [pscustomobject]@{
-        Success    = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300)
-        StatusCode = [int]$response.StatusCode
-        Content    = [string]$response.Content
-        Data       = $parsed
+        $parsed = $null
+        try {
+            $parsed = $content | ConvertFrom-Json
+        }
+        catch {
+            # Non-JSON response; keep plain text.
+        }
+
+        return [pscustomobject]@{
+            Success    = ($response.StatusCode -ge 200 -and $response.StatusCode -lt 300)
+            StatusCode = [int]$response.StatusCode
+            Content    = [string]$content
+            Data       = $parsed
+        }
+    }
+    finally {
+        $cts.Dispose()
+        $request.Dispose()
     }
 }
 
@@ -150,12 +127,8 @@ Write-Host ""
 
 Write-Host "Checking server at $BaseUrl ..."
 try {
-    $health = Invoke-WebRequestCompat -RequestParams @{
-        Uri        = "$BaseUrl/actuator/health"
-        Method     = "GET"
-        TimeoutSec = 5
-    }
-    if ($health.StatusCode -ge 200 -and $health.StatusCode -lt 300) {
+    $health = Invoke-Api -Method GET -Url "$BaseUrl/actuator/health" -TimeoutSeconds 5
+    if ($health.Success) {
         Write-Host "[OK] Server is running" -ForegroundColor Green
     }
     else {
@@ -253,3 +226,4 @@ Write-TestResult -Name "Docs assistant answers" -Passed $askDocsOk
 Write-Host ""
 Write-Host "Done." -ForegroundColor Green
 
+$HttpClient.Dispose()

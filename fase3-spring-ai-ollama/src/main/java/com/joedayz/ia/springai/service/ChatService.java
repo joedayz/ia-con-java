@@ -26,6 +26,10 @@ public class ChatService {
     private final ChatMemory chatMemory;
 
     private static final int DEFAULT_WINDOW_SIZE = 20; // Últimos 20 mensajes
+    private static final String SPANISH_OUTPUT_PROMPT =
+            "Responde siempre en espanol correcto. "
+                    + "Usa tildes y signos de apertura (\u00BF, \u00A1) cuando corresponda. "
+                    + "Nunca uses secuencias corruptas como \u00C2\u00BF o \u00C2\u00A1.";
 
     /**
      * ✅ SOLUCIÓN LAB 7: Constructor que inicializa ChatClient con memoria.
@@ -79,6 +83,7 @@ public class ChatService {
      */
     public String chat(String sessionId, String mensaje) {
         return chatClient.prompt()
+                .system(SPANISH_OUTPUT_PROMPT)
                 // En 1.1.x el advisor se construye por conversacion.
                 .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
                         .conversationId(sessionId)
