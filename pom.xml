@@ -23,6 +23,7 @@
         <module>fase3-ollama</module>
         <module>fase3-spring-ai</module>
         <module>fase3-spring-ai-ollama</module>
+        <module>fase4-spring-ai-ollama-pgvector</module>
     </modules>
 
     <properties>
