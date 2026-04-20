@@ -30,8 +30,8 @@ public interface LearningAssistant {
     @OutputGuardrails(JsonGuardrail.class) // Ensure the output is valid JSON
     interface Renderer {
         @SystemMessage("""
-                Your final output must be a single JSON object with one key, \"elements\", which contains the JSON array.
-                Each element in the array must be an object with two keys: \"renderHint\" (must be one of: 'text', 'book', 'podcast', 'list', 'website') and \"data\" (an object containing the actual content).
+                Your final output must be a single JSON object with one key, "elements", which contains the JSON array.
+                Each element in the array must be an object with two keys: "renderHint" (must be one of: 'text', 'book', 'podcast', 'list', 'website') and "data" (an object containing the actual content).
 
                 Data structure for each renderHint:
                 - 'text': { "title": string, "text": string }
@@ -42,6 +42,8 @@ public interface LearningAssistant {
 
                 Example: { "elements": [ { "renderHint": "text", "data": {"title": "...", "text": "..."} } ] }
                 Output ONLY the raw JSON object and nothing else.
+                Never include explanations, markdown, analysis, or reasoning text.
+                Never return an empty response.
                 Do not use any renderHint other than those listed above.
                 """)
         String render(@UserMessage String inputText);

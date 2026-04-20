@@ -4,6 +4,7 @@ import org.jboss.logging.Logger;
 
 import com.example.model.RenderedResponse;
 import com.example.service.LearningAssistant;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.inject.Inject;
@@ -42,18 +43,20 @@ public class LearningResource {
         }
 
         // 2. Call the Renderer AI to structure the content
-        // Append /no_think to disable qwen3 thinking mode (must be in user message)
-        String jsonResponse = rendererAI.render(researchResult + "\n/no_think");
-        LOG.infof("RAW JSON from Renderer: %s", jsonResponse);
+        String jsonResponse = rendererAI.render(researchResult);
+        LOG.infof("RAW JSON from Renderer (length=%d)", jsonResponse == null ? 0 : jsonResponse.length());
+
+        if (jsonResponse == null || jsonResponse.isBlank()) {
+            LOG.error("Renderer returned empty content. Check renderer model config and output constraints.");
+            return "{\"elements\":[]}";
+        }
+
+        String cleanJson = sanitizeAndExtractJson(jsonResponse);
 
         // 3. Parse the JSON into our POJOs
-        RenderedResponse renderedResponse = null;
+        RenderedResponse renderedResponse;
         try {
-            // A simple way to clean potential markdown ```json ``` wrapper
-            // String cleanJson = jsonResponse.replace("```json", "").replace("```",
-            // "").trim();
-            renderedResponse = objectMapper.readValue(jsonResponse, RenderedResponse.class);
-            // LOG.infof("Parsed JSON: %s", jsonResponse);
+            renderedResponse = objectMapper.readValue(cleanJson, RenderedResponse.class);
             if (renderedResponse != null && renderedResponse.elements != null) {
                 for (com.example.model.UIElement element : renderedResponse.elements) {
                     LOG.infof("Element class: %s, renderHint: %s",
@@ -63,13 +66,41 @@ public class LearningResource {
             }
 
         } catch (Exception e) {
-            LOG.errorf("Failed to parse JSON: " + jsonResponse, e);
-            // If parsing fails, return the raw JSON response because the Guardrail ensures
-            // it's valid JSON
-            return jsonResponse;
+            LOG.errorf("Failed to parse JSON: %s", cleanJson, e);
+            return cleanJson;
         }
 
-        return renderedResponse.toString();
+        return objectMapper.writeValueAsString(renderedResponse);
+    }
+
+    private String sanitizeAndExtractJson(String raw) {
+        String trimmed = raw.trim();
+
+        if (trimmed.startsWith("```") && trimmed.endsWith("```")) {
+            trimmed = trimmed.replaceFirst("^```(?:json)?\\s*", "");
+            trimmed = trimmed.replaceFirst("\\s*```$", "");
+            trimmed = trimmed.trim();
+        }
+
+        if (trimmed.startsWith("{")) {
+            return trimmed;
+        }
+
+        int start = trimmed.indexOf('{');
+        int end = trimmed.lastIndexOf('}');
+        if (start >= 0 && end > start) {
+            String candidate = trimmed.substring(start, end + 1);
+            try {
+                JsonNode node = objectMapper.readTree(candidate);
+                if (node.isObject()) {
+                    return candidate;
+                }
+            } catch (Exception ignored) {
+                // fall through and return original text
+            }
+        }
+
+        return trimmed;
     }
 
 }
