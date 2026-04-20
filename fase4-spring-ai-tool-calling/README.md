@@ -60,6 +60,8 @@ La herramienta `consultarPais` consulta **restcountries.com** (API gratuita, sin
 
 ## Ejecutar
 
+### Linux / macOS
+
 ```bash
 # Desde el directorio del módulo
 cd fase4-spring-ai-tool-calling
@@ -69,11 +71,24 @@ cd fase4-spring-ai-tool-calling
 ./mvnw -pl fase4-spring-ai-tool-calling spring-boot:run
 ```
 
+### Windows (PowerShell)
+
+```powershell
+# Desde el directorio del módulo
+cd fase4-spring-ai-tool-calling
+..\mvnw.cmd spring-boot:run
+
+# O desde la raíz del proyecto
+.\mvnw.cmd -pl fase4-spring-ai-tool-calling spring-boot:run
+```
+
 **Puerto**: 8081
 
 ## Probar
 
 ### Con curl
+
+#### Linux / macOS
 
 ```bash
 # Lab 13: Consultar clima (tool obtenerClima)
@@ -97,11 +112,45 @@ curl -s -X POST http://localhost:8081/api/tool-calling/chat \
   -d '{"message": "¿Qué es la inteligencia artificial?"}' | jq .
 ```
 
+#### Windows (PowerShell)
+
+```powershell
+# Lab 13: Consultar clima (tool obtenerClima)
+$body = @{ message = "¿Cómo está el clima en Lima?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
+  -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
+
+# Lab 13: Otra ciudad
+$body = @{ message = "¿Qué temperatura hace en Madrid?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
+  -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
+
+# Reto: Consultar país (tool consultarPais - API real)
+$body = @{ message = "Cuéntame sobre Japón: capital, población e idiomas" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
+  -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
+
+# Sin herramientas: pregunta general
+$body = @{ message = "¿Qué es la inteligencia artificial?" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
+  -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
+```
+
 ### Con script de pruebas
+
+#### Linux / macOS
 
 ```bash
 chmod +x test-api.sh
 ./test-api.sh
+```
+
+#### Windows (PowerShell)
+
+```powershell
+.\test-api.ps1
+# Si tu política de ejecución bloquea scripts:
+# powershell -ExecutionPolicy Bypass -File .\test-api.ps1
 ```
 
 ### Con Swagger UI
