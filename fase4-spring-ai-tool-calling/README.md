@@ -45,6 +45,21 @@ chatClient.prompt()
 
 La herramienta `consultarPais` consulta **restcountries.com** (API gratuita, sin API key) para obtener información real de cualquier país.
 
+Flujo implementado en `ToolConfig.consultarPais`:
+
+1. Limpia el texto del país (`sanitizeCountry`)
+2. Genera variantes (normalización sin tildes y alias comunes en español)
+3. Intenta resolver por `v3.1/name/{pais}`
+4. Si no encuentra, reintenta por `v3.1/translation/{pais}`
+5. Si no hay coincidencias, retorna fallback controlado (`No encontrado`)
+
+Alias soportados (ejemplos):
+
+- `alemania` -> `germany`
+- `japon` -> `japan`
+- `espana` / `españa` -> `spain`
+- `estados unidos` -> `united states`
+
 ## Herramientas Disponibles
 
 | Herramienta | Tipo | Descripción |
@@ -106,6 +121,16 @@ curl -s -X POST http://localhost:8081/api/tool-calling/chat \
   -H "Content-Type: application/json" \
   -d '{"message": "Cuéntame sobre Japón: capital, población e idiomas"}' | jq .
 
+# Alias en español: Alemania (mapea a germany)
+curl -s -X POST http://localhost:8081/api/tool-calling/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Dame datos de Alemania: capital e idiomas"}' | jq .
+
+# Caso no encontrado (fallback controlado)
+curl -s -X POST http://localhost:8081/api/tool-calling/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Cuéntame sobre Wakanda: capital y población"}' | jq .
+
 # Sin herramientas: pregunta general
 curl -s -X POST http://localhost:8081/api/tool-calling/chat \
   -H "Content-Type: application/json" \
@@ -127,6 +152,16 @@ Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat 
 
 # Reto: Consultar país (tool consultarPais - API real)
 $body = @{ message = "Cuéntame sobre Japón: capital, población e idiomas" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
+  -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
+
+# Alias en español: Alemania (mapea a germany)
+$body = @{ message = "Dame datos de Alemania: capital e idiomas" } | ConvertTo-Json
+Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
+  -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
+
+# Caso no encontrado (fallback controlado)
+$body = @{ message = "Cuéntame sobre Wakanda: capital y población" } | ConvertTo-Json
 Invoke-RestMethod -Method Post -Uri http://localhost:8081/api/tool-calling/chat `
   -ContentType "application/json" -Body $body | ConvertTo-Json -Depth 6
 

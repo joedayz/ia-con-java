@@ -11,8 +11,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Description;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -35,6 +42,20 @@ import java.util.function.Function;
 public class ToolConfig {
 
     private static final Logger log = LoggerFactory.getLogger(ToolConfig.class);
+    private static final String REST_COUNTRIES_FIELDS = "?fields=name,capital,population,region,languages";
+
+    private static final Map<String, String> COUNTRY_ALIASES = Map.ofEntries(
+            Map.entry("alemania", "germany"),
+            Map.entry("japon", "japan"),
+            Map.entry("espana", "spain"),
+            Map.entry("españa", "spain"),
+            Map.entry("reino unido", "united kingdom"),
+            Map.entry("estados unidos", "united states"),
+            Map.entry("corea del sur", "south korea"),
+            Map.entry("corea del norte", "north korea"),
+            Map.entry("paises bajos", "netherlands"),
+            Map.entry("países bajos", "netherlands")
+    );
 
     /**
      * Lab 13: Tool obtenerClima() registrado como @Bean.
@@ -84,26 +105,36 @@ public class ToolConfig {
         return request -> {
             log.info("🌍 Tool consultarPais invocado para país: {}", request.pais());
             try {
-                String encoded = URLEncoder.encode(request.pais(), StandardCharsets.UTF_8);
-                String url = "https://restcountries.com/v3.1/name/" + encoded
-                        + "?fields=name,capital,population,region,languages";
-                String json = restTemplate.getForObject(url, String.class);
-                JsonNode root = mapper.readTree(json);
-                JsonNode country = root.get(0);
+                String paisLimpio = sanitizeCountry(request.pais());
+                JsonNode country = findCountryNode(restTemplate, mapper, paisLimpio);
 
-                String nombre = country.path("name").path("common").asText();
-                String capital = country.path("capital").has(0)
-                        ? country.path("capital").get(0).asText() : "No disponible";
-                long poblacion = country.path("population").asLong();
-                String region = country.path("region").asText();
+                if (country == null || !country.isObject()) {
+                    log.warn("🌍 País no encontrado en restcountries para: {}", request.pais());
+                    return new PaisResponse(request.pais(), "No disponible", "No disponible", 0,
+                            "No encontrado");
+                }
+
+                JsonNode nameNode = country.path("name");
+                String nombre = nameNode.path("official").asText(nameNode.path("common").asText("No disponible"));
+                String capital = country.path("capital").isArray() && country.path("capital").size() > 0
+                        ? country.path("capital").get(0).asText("No disponible")
+                        : "No disponible";
+                long poblacion = country.path("population").asLong(0L);
+                String region = country.path("region").asText("No disponible");
 
                 StringBuilder idiomas = new StringBuilder();
-                country.path("languages").fields().forEachRemaining(entry -> {
-                    if (!idiomas.isEmpty()) idiomas.append(", ");
-                    idiomas.append(entry.getValue().asText());
-                });
+                JsonNode languagesNode = country.path("languages");
+                if (languagesNode.isObject()) {
+                    languagesNode.fields().forEachRemaining(entry -> {
+                        if (!idiomas.isEmpty()) {
+                            idiomas.append(", ");
+                        }
+                        idiomas.append(entry.getValue().asText());
+                    });
+                }
 
-                PaisResponse response = new PaisResponse(nombre, capital, region, poblacion, idiomas.toString());
+                String idiomasValue = idiomas.isEmpty() ? "No disponible" : idiomas.toString();
+                PaisResponse response = new PaisResponse(nombre, capital, region, poblacion, idiomasValue);
                 log.info("🌍 Respuesta país: {}", response);
                 return response;
             } catch (Exception e) {
@@ -112,5 +143,63 @@ public class ToolConfig {
                         "Error: " + e.getMessage());
             }
         };
+    }
+
+    private JsonNode findCountryNode(RestTemplate restTemplate, ObjectMapper mapper, String paisLimpio) {
+        LinkedHashSet<String> candidates = new LinkedHashSet<>();
+        candidates.add(paisLimpio);
+
+        String normalized = removeDiacritics(paisLimpio.toLowerCase(Locale.ROOT));
+        String alias = COUNTRY_ALIASES.get(normalized);
+        if (alias != null) {
+            candidates.add(alias);
+        }
+        if (!normalized.equalsIgnoreCase(paisLimpio)) {
+            candidates.add(normalized);
+        }
+
+        List<String> endpoints = List.of("name", "translation");
+        for (String candidate : new ArrayList<>(candidates)) {
+            String encoded = URLEncoder.encode(candidate, StandardCharsets.UTF_8);
+            for (String endpoint : endpoints) {
+                String url = "https://restcountries.com/v3.1/" + endpoint + "/" + encoded + REST_COUNTRIES_FIELDS;
+                try {
+                    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+                    JsonNode country = extractFirstCountry(mapper, response.getBody());
+                    if (country != null) {
+                        log.info("🌍 País encontrado usando {}='{}'", endpoint, candidate);
+                        return country;
+                    }
+                } catch (HttpClientErrorException.NotFound notFound) {
+                    log.debug("🌍 Sin resultados para {}='{}'", endpoint, candidate);
+                } catch (Exception ex) {
+                    log.warn("⚠️ Error consultando {}='{}': {}", endpoint, candidate, ex.getMessage());
+                }
+            }
+        }
+        return null;
+    }
+
+    private JsonNode extractFirstCountry(ObjectMapper mapper, String body) throws Exception {
+        if (body == null || body.isBlank()) {
+            return null;
+        }
+        JsonNode root = mapper.readTree(body);
+        if (root.isArray() && !root.isEmpty()) {
+            return root.get(0);
+        }
+        return null;
+    }
+
+    private String sanitizeCountry(String pais) {
+        if (pais == null || pais.isBlank()) {
+            return "";
+        }
+        return pais.trim().replaceAll("^[\\p{Punct}\\s]+|[\\p{Punct}\\s]+$", "");
+    }
+
+    private String removeDiacritics(String input) {
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+        return normalized.replaceAll("\\p{M}", "");
     }
 }
