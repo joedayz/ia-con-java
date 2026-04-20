@@ -24,6 +24,8 @@
         <module>fase3-spring-ai</module>
         <module>fase3-spring-ai-ollama</module>
         <module>fase4-spring-ai-ollama-pgvector</module>
+        <module>fase4-spring-ai-tool-calling</module>
+        <module>fase4-langchain4j-tool-calling</module>
     </modules>
 
     <properties>

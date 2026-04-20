@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: fase4-langchain4j-tool-calling
+
+langchain4j:
+  ollama:
+    chat-model:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      model-name: ${OLLAMA_CHAT_MODEL:llama3.2}
+      temperature: 0.7
+      timeout: PT120S
+      log-requests: true
+      log-responses: true
+
+server:
+  port: 8082
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+# Logging
+logging:
+  level:
+    dev.langchain4j: INFO
+    com.joedayz: INFO
+
+# Swagger / OpenAPI
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+    tagsSorter: alpha

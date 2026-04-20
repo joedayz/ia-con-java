@@ -16,8 +16,8 @@
 | 3 | 24 Mar | Martes | Prompt Engineering: system prompts, zero-shot, few-shot, chain of thought, salida estructurada (JSON). | **Lab 5:** Ejecutar `PromptEngineering` interactivo. **Lab 6:** Crear `ClasificadorSentimiento.java` con few-shot. **Reto:** Salida JSON con `entity()` en Spring AI. | `fase2` + Spring Boot |
 | 4 | 27 Mar | Viernes | Chatbots con memoria: tipos de memoria (buffer, window, summary), memoria persistente, multi-sesión. | **Lab 7:** Crear `ChatbotConMemoria.java` con historial en lista. **Lab 8:** Memoria persistente con `JdbcChatMemory` en Spring AI. **Reto:** Endpoint `/chat/{sessionId}` multi-usuario. | `fase3` + Spring Boot |
 | 5 | 31 Mar | Martes | Embeddings: vectores, similitud coseno, modelos de embedding. Vector databases: PgVector, Chroma, SimpleVectorStore. | **Lab 9:** Búsqueda semántica en memoria con `SimpleVectorStore`. **Lab 10:** Endpoint `/buscar` que retorna documentos similares. **Reto:** Cargar un PDF con `TikaDocumentReader` y buscar en él. | Spring Boot |
-| 6 | 3 Abr | Viernes | RAG completo: flujo indexación + consulta, chunks, por qué RAG > fine-tuning, RAG en Java puro vs con vector DB. | **Lab 11:** Ejecutar `RAGSimple` (contexto en prompt). **Lab 12:** RAG con Spring AI + `QuestionAnswerAdvisor`. **Reto:** Asistente de documentación con 3-5 archivos MD. | `fase4` + Spring Boot |
-| 7 | 7 Abr | Martes | Tool Calling: qué es, flujo (LLM decide → app ejecuta → LLM responde), implementación en Spring AI y LangChain4j. | **Lab 13:** Tool `obtenerClima()` con Spring AI y `@Bean`. **Lab 14:** `Calculadora` y `fechaActual()` con `@Tool` de LangChain4j. **Reto:** Agregar tool que consulte una API REST real. | Spring Boot + LangChain4j |
+| 6 | 3 Abr | Viernes | RAG completo: flujo indexación + consulta, chunks, por qué RAG > fine-tuning, RAG en Java puro vs con vector DB persistente. | **Lab 11:** Ejecutar `RAGSimple` (contexto en prompt). **Lab 12:** RAG con Spring AI + `QuestionAnswerAdvisor`. **Lab 12+ (opcional):** `fase4-spring-ai-ollama-pgvector` (PgVector persistente + advisor pipeline). **Reto:** Asistente de documentación con 3-5 archivos MD. | `fase4` + `fase4-spring-ai-ollama-pgvector` |
+| 7 | 7 Abr | Martes | Tool Calling: qué es, flujo (LLM decide → app ejecuta → LLM responde), implementación real en Spring AI y LangChain4j. | **Lab 13:** `fase4-spring-ai-tool-calling` con `ToolConfig.obtenerClima()` y `consultarPais` (API real). **Lab 14:** `fase4-langchain4j-tool-calling` con `CalculadoraTools`, `FechaTools` y `PaisApiTools`. | `fase4-spring-ai-tool-calling` + `fase4-langchain4j-tool-calling` |
 | 8 | 10 Abr | Viernes | AI Agents: patrón ReAct, componentes (LLM + Tools + Memory + orquestador), agents vs chatbots, multi-agent intro. | **Lab 15:** Agente "Asistente de Desarrollo" con 3 herramientas y `AiServices`. **Reto:** Agente "Analista de datos" con CSV + estadísticas + reporte. | LangChain4j |
 | 9 | 14 Abr | Martes | Arquitectura completa: diseño backend+frontend, streaming SSE, consideraciones de producción (costos, seguridad, observabilidad). | **Lab 16:** Backend con endpoint SSE `/chat/stream`. **Lab 17:** Frontend HTML+JS con `EventSource`. **Reto:** Integrar memoria + RAG + tool en un solo endpoint. | Spring Boot + HTML |
 | 10 | 17 Abr | Viernes | Repaso general, patrones avanzados, mejores prácticas, Q&A. | **Lab Final:** Proyecto integrador — app completa con chat UI + RAG + al menos 1 tool + memoria persistente + streaming. Presentación de proyectos. | Proyecto final |
@@ -603,7 +603,7 @@ curl "http://localhost:8080/chat?mensaje=Hola+desde+Spring+AI"
 
 3. **Tool Calling con Spring AI**
    - Definir funciones como `@Bean` de tipo `Function<Request, Response>`
-   - Registrar con `.functions("nombreFuncion")`
+   - Registrar tools con `.toolNames("nombreTool")`
    - Spring AI maneja el loop automáticamente
 
 4. **Tool Calling con LangChain4j**
@@ -613,82 +613,100 @@ curl "http://localhost:8080/chat?mensaje=Hola+desde+Spring+AI"
 
 ### Lab: Tool Calling
 
-#### Ejercicio guiado: Tools con Spring AI (25 min)
+#### Ejercicio guiado: Demo real con Spring AI (25 min)
 
-> **Paso 1:** Crear la función-herramienta:
+**Módulo:** `fase4-spring-ai-tool-calling`
+
+> **Paso 1:** Revisar herramientas reales en `ToolConfig.java`:
 > ```java
 > @Configuration
-> public class ToolsConfig {
+> public class ToolConfig {
 >
->     @Bean
->     @Description("Obtiene el clima actual de una ciudad")
+>     @Bean("obtenerClima")
+>     @Description("Obtiene el clima actual para una ciudad dada")
 >     public Function<ClimaRequest, ClimaResponse> obtenerClima() {
 >         return request -> {
->             // Simulación (en producción: llamar API del clima)
->             return new ClimaResponse(request.ciudad(), 22.5, "Parcialmente nublado");
+>             // Simulación de clima para ciudades conocidas
+>             return new ClimaResponse(request.ciudad(), "22°C", "Parcialmente nublado", "78%");
 >         };
 >     }
 >
->     record ClimaRequest(String ciudad) {}
->     record ClimaResponse(String ciudad, double temperatura, String estado) {}
+>     @Bean("consultarPais")
+>     @Description("Consulta información real de un país")
+>     public Function<PaisRequest, PaisResponse> consultarPais() {
+>         // API real: https://restcountries.com/v3.1/name/{pais}
+>     }
 > }
 > ```
 >
-> **Paso 2:** Usar en el ChatClient:
+> **Paso 2:** Revisar endpoint en `ToolCallingController`:
 > ```java
-> @GetMapping("/chat-tools")
-> public String chatConTools(@RequestParam String mensaje) {
->     return chatClient.prompt()
->         .functions("obtenerClima")
->         .user(mensaje)
+> @PostMapping("/chat")
+> public ChatResponse chat(@RequestBody ChatRequest request) {
+>     String response = chatClient.prompt()
+>         .toolNames("obtenerClima", "consultarPais")
+>         .user(request.message())
 >         .call()
 >         .content();
+>
+>     return new ChatResponse(response);
 > }
 > ```
 >
 > **Probar:**
 > ```bash
-> curl "http://localhost:8080/chat-tools?mensaje=¿Qué+clima+hace+en+Lima?"
-> # → "En Lima la temperatura es 22.5°C, parcialmente nublado"
+> # Puerto 8081
+> curl -s -X POST http://localhost:8081/api/tool-calling/chat \
+>   -H "Content-Type: application/json" \
+>   -d '{"message": "¿Cómo está el clima en Lima?"}' | jq .
+>
+> curl -s -X POST http://localhost:8081/api/tool-calling/chat \
+>   -H "Content-Type: application/json" \
+>   -d '{"message": "Cuéntame sobre Japón: capital, población e idiomas"}' | jq .
 > ```
 
-#### Ejercicio guiado: Tools con LangChain4j (20 min)
+#### Ejercicio guiado: Demo real con LangChain4j (20 min)
+
+**Módulo:** `fase4-langchain4j-tool-calling`
 
 > ```java
-> public class HerramientasDemo {
+> @Component
+> public class CalculadoraTools {
 >
->     static class Calculadora {
->         @Tool("Suma dos números")
->         public double sumar(double a, double b) {
+>     @Tool("Suma dos números y retorna el resultado")
+>     public double sumar(double a, double b) {
 >             return a + b;
->         }
->
->         @Tool("Obtiene la fecha y hora actual")
->         public String fechaActual() {
->             return LocalDateTime.now().toString();
->         }
 >     }
 >
->     interface Asistente {
->         String chat(String mensaje);
->     }
->
->     public static void main(String[] args) {
->         ChatLanguageModel model = OpenAiChatModel.builder()
->             .apiKey(EnvConfig.getOpenAiApiKey())
->             .modelName("gpt-3.5-turbo")
->             .build();
->
->         Asistente asistente = AiServices.builder(Asistente.class)
->             .chatLanguageModel(model)
->             .tools(new Calculadora())
->             .build();
->
->         System.out.println(asistente.chat("¿Cuánto es 42 + 58?"));
->         System.out.println(asistente.chat("¿Qué hora es?"));
+>     @Tool("Divide dos números")
+>     public double dividir(double a, double b) {
+>         return a / b;
 >     }
 > }
 > ```
+
+> Configuración real en `LangChain4jConfig`:
+> ```java
+> AiServices.builder(Assistant.class)
+>     .chatLanguageModel(chatLanguageModel)
+>     .tools(calculadoraTools, fechaTools, paisApiTools)
+>     .build();
+> ```
+
+> **Probar (puerto 8082):**
+> ```bash
+> curl -s -X POST http://localhost:8082/api/tool-calling/chat \
+>   -H "Content-Type: application/json" \
+>   -d '{"message": "¿Cuánto es 125 multiplicado por 37?"}' | jq .
+>
+> curl -s -X POST http://localhost:8082/api/tool-calling/chat \
+>   -H "Content-Type: application/json" \
+>   -d '{"message": "¿Qué fecha es hoy?"}' | jq .
+> ```
+
+#### Extensión opcional: conectar RAG + Tool Calling (10 min)
+
+> Si quieres una demo puente de arquitectura completa, usa `fase4-spring-ai-ollama-pgvector` para recuperar contexto con `/api/rag/advisor` o `/api/buscar`, y luego continúa con Tool Calling en los módulos de Labs 13-14.
 
 ---
 
@@ -959,8 +977,11 @@ curl "http://localhost:8080/chat?mensaje=Hola+desde+Spring+AI"
 | `fase1` | Primera llamada a OpenAI | ✅ `PrimeraLlamadaOpenAI.java` | Reto: agregar system prompt |
 | `fase2` | Prompt Engineering | ✅ `PromptEngineering.java` | `ClasificadorSentimiento.java` |
 | `fase3` | Servicio IA + Chatbot | ✅ `DemoServicioIA.java` | `ChatbotConMemoria.java` |
-| `fase4` | RAG Simple | ✅ `RAGSimple.java` | Reto: RAG con más documentos |
-| Spring Boot | Spring AI completo | — | Proyecto nuevo (todos los bloques) |
+| `fase4` | Lab 11 - RAG Simple | ✅ `RAGSimple.java` | Reto: RAG con más documentos |
+| `fase4-spring-ai-ollama-pgvector` | Lab 12+ (opcional) - RAG persistente | ✅ `RagController`, `BusquedaController` | Ajustar dataset y prompts para caso real |
+| `fase4-spring-ai-tool-calling` | Lab 13 - Tool Calling Spring AI | ✅ `ToolConfig`, `ToolCallingController` | Reto: nueva tool externa |
+| `fase4-langchain4j-tool-calling` | Lab 14 - Tool Calling LangChain4j | ✅ `CalculadoraTools`, `FechaTools`, `PaisApiTools` | Reto: tool adicional con validación |
+| Spring Boot (integrador) | Labs 15-17 y proyecto final | — | Integrar memoria + RAG + tools + streaming |
 
 ---
 

@@ -1,0 +1,9 @@
+[
+  {"rol":"system","contenido":"Eres un asistente amigable y servicial. Recuerda el contexto de la conversación y responde de forma natural."},
+  {"rol":"user","contenido":"soy jose y me gusta el soccer"},
+  {"rol":"assistant","contenido":"¡Hola José! ¡Genial que te guste el fútbol! ¿Cuál es tu equipo favorito del mundo del balón? ¿Tienes un jugador favorito en el equipo o simplemente disfrutas viendo las partidas con los amigos y familiares?"},
+  {"rol":"user","contenido":"como me llamo y que me gusta?"},
+  {"rol":"assistant","contenido":"Disculpa mi error anterior! Me olvidé de tu nombre, José. ¡No hay problema! Me alegra saber que te guste el fútbol. ¿Quieres hablar sobre tus equipos favoritos, partidos importantes o alguna noticia del mundo del fútbol? Estoy aquí para charlar contigo sobre el deporte que amas."},
+  {"rol":"user","contenido":"como me llamo ?"},
+  {"rol":"assistant","contenido":"¡Vale! Me doy cuenta... ¡Me alegra dar la respuesta correcta a partir de ahora! No sabía tu nombre, y ahora lo he conseguido: **José**. ¿Quieres contarme algo sobre ti o seguimos hablando de fútbol?"}
+]

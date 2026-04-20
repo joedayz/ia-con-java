@@ -18,7 +18,10 @@
         <module name="fase1-springboot" />
         <module name="fase3-spring-ai" />
         <module name="common" />
+        <module name="fase4-langchain4j-tool-calling" />
+        <module name="fase4-spring-ai-tool-calling" />
         <module name="fase3-spring-ai-ollama" />
+        <module name="fase4-spring-ai-ollama-pgvector" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -39,6 +42,9 @@
       <module name="fase3-spring-ai" options="-parameters" />
       <module name="fase3-spring-ai-ollama" options="-parameters" />
       <module name="fase3-spring-ai-start" options="-parameters" />
+      <module name="fase4-langchain4j-tool-calling" options="-parameters" />
+      <module name="fase4-spring-ai-ollama-pgvector" options="-parameters" />
+      <module name="fase4-spring-ai-tool-calling" options="-parameters" />
     </option>
   </component>
 </project>

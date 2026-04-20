@@ -1,0 +1,23 @@
+[
+  {"rol":"system","contenido":"Eres un asistente amigable y servicial. Recuerda el contexto de la conversación y responde de forma natural."},
+  {"rol":"user","contenido":"hola soy miryan y me gusta la reposteria"},
+  {"rol":"assistant","contenido":"¡Hola Miryan! Me alegra conocerte. La repostería es un tema delicioso, ¿verdad? Hay tantos dulces y sabrosos postres que disfrutar. ¿Cuál es tu pastel favorito? ¿Te gustan las tortas de frutas, los brownies o tal vez algunas classicas como el tartufo o el cheesecake?"},
+  {"rol":"user","contenido":"que me gusta?"},
+  {"rol":"assistant","contenido":"Como estamos charlando sobre repostería, voy a intentar adivinar... ¿Te gustaría saborear algo con masa que es fruto de la pasión y dedicación de los panaderos como mi amigo Carlos o quizás alguien que le gusta el tipo enroscado?"},
+  {"rol":"user","contenido":"si"},
+  {"rol":"assistant","contenido":"¡Piensa en él! ¿Sabe qué me hace querer...?\n\nAhora lo tengo ¡es un croissant francés! El tipo que se desgarra al morderte con su masa crocante y su sabor dulce y esponjoso. ¿Es ese el tipo de pastel que te hace soñar?"},
+  {"rol":"user","contenido":"me gusta los postres? porque?"},
+  {"rol":"assistant","contenido":"Los postres son tan deliciosos... Me parece que hay muchas razones por las que les gustan a todos. ¿Qué te hace querer un buen postre, Miryan?\n\nUna posible respuesta es que son una forma de celebración o de sorpresa. Ya sea un cumpleaños, un aniversario u otra ocasión especial, los postres suelen ser parte importante del evento.\n\nO tal vez porque los postres tienen la capacidad de conmover y conectar a las personas. Los aromas, los sabores y los momentos compartidos alrededor del pastel pueden activar emociones tan fuertes como la alegría, la nostalgia o simples placer.\n\n¿Te gusta que alguien te prepare un postre? ¿O tal vez es porque los postres en general son muy versátiles y puedes disfrutar de casi cualquier tipo a tu medida y con tus gustos."},
+  {"rol":"user","contenido":"como me llamo?"},
+  {"rol":"assistant","contenido":"Me olvidé de que todavía no los conoces perfectamente... ¡Tu nombre es Miryan! Y recuerda, te estamos charlando sobre la repostería en general o quizás tu preferencia por el croissant francés. ¿Qué más quieres contarme, Miryan?"},
+  {"rol":"user","contenido":"/salir"},
+  {"rol":"assistant","contenido":"¡Adiós entonces Miryan! Ha sido un placer charlar contigo sobre la repostería y descubrir que disfrutas de los postres. Si alguna vez estás listo para una nueva conversación o quieres compartir algo más, no dudes en volver a verte.\n\nTen un buen día y que siempre haya pasteles frescos por venir!\n\n(Se va... solo un silencio)"},
+  {"rol":"user","contenido":"/salir"},
+  {"rol":"assistant","contenido":"¡Hasta luego Miryan! \n\n(Aparte de la pantalla, todavía se puede escuchar el sonido de una campana de pastelería abiertando su puerta)."},
+  {"rol":"user","contenido":"aalir"},
+  {"rol":"assistant","contenido":"Esa es la última vez que se vuelve a ver el nombre \"MiryaN\" en esta conversación. El pasillo del boliche está vacío, y los únicos sonidos son los de una cafetera que le dice: Hasta luego, amigo"},
+  {"rol":"user","contenido":"list"},
+  {"rol":"assistant","contenido":"No parece muy claro, ¿quién eres tú ahora? \"List\" no suena mucho como un saludo... Quizás intentas evadir de repente la conversación sobre nuestra amistad en el mundo del pastel... o tal vez solo estabas pasando por aquí y fue todo."},
+  {"rol":"user","contenido":"listar"},
+  {"rol":"assistant","contenido":"En ese caso, creo que hay una lista de cosas que hemos charcutado ya. ¡Y parece ser que has terminado la conversación!\n\n**Lista de puntos clave:**\n\n1. Hablamos sobre repostería.\n2. Descubrí tu nombre (Miryan).\n3. Me dieron indicaciones para el tipo de postre que te gusta.\n4. Hablamos sobre por qué os gustan los postres.\n\nUna conversación perfectamente normal y dulce, ¡como todo pastel!"}
+]
