@@ -21,6 +21,7 @@
 | 8 | 10 Abr | Viernes | AI Agents: patrón ReAct, componentes (LLM + Tools + Memory + orquestador), agents vs chatbots, multi-agent intro. | **Lab 15:** Agente "Asistente de Desarrollo" con 3 herramientas y `AiServices`. **Reto:** Agente "Analista de datos" con CSV + estadísticas + reporte. | LangChain4j |
 | 9 | 14 Abr | Martes | Arquitectura completa: diseño backend+frontend, streaming SSE, consideraciones de producción (costos, seguridad, observabilidad). | **Lab 16:** Backend con endpoint SSE `/chat/stream`. **Lab 17:** Frontend HTML+JS con `EventSource`. **Reto:** Integrar memoria + RAG + tool en un solo endpoint. | Spring Boot + HTML |
 | 10 | 17 Abr | Viernes | Repaso general, patrones avanzados, mejores prácticas, Q&A. | **Lab Final:** Proyecto integrador — app completa con chat UI + RAG + al menos 1 tool + memoria persistente + streaming. Presentación de proyectos. | Proyecto final |
+| 11 | 21 Abr | Martes | MCP avanzado en Spring AI: arquitectura proveedor/consumidor, transporte SSE, capacidades con `@McpResource` y `@McpPrompt`, orquestación con `ChatClient` + `ToolCallbackProvider`. | **Lab 18:** Levantar `fase5-mcp-provider` y validar recursos/prompts MCP. **Lab 19:** Consumir desde `fase5-mcp-consumer` con endpoint `/api/mcp/chat` + Swagger. **Reto:** Agregar una nueva capacidad MCP y usarla desde el consumidor. | `fase5-mcp` |
 
 ---
 
@@ -39,6 +40,7 @@
 | 9 | Tool Calling e integración con APIs | Teoría + Lab | 45 min |
 | 10 | AI Agents con LangChain4j | Teoría + Lab | 60 min |
 | 11 | Arquitectura completa (backend + frontend) | Teoría + Lab | 60 min |
+| 12 | MCP (Model Context Protocol) con proveedor/consumidor | Teoría + Lab | 45 min |
 
 ---
 
@@ -970,6 +972,54 @@ curl "http://localhost:8080/chat?mensaje=Hola+desde+Spring+AI"
 
 ---
 
+## BLOQUE 12 — MCP (Model Context Protocol) con proveedor y consumidor
+
+### Contenido Teórico
+
+1. **¿Qué es MCP y cuándo usarlo?**
+   - MCP como protocolo para exponer capacidades de una app a otra
+   - Patrón proveedor/consumidor para integración modular
+   - Capacidades MCP: tools, resources y prompts
+
+2. **Capacidades declarativas con anotaciones**
+   - `@McpResource` para exponer contexto consultable (ej: `curso://cronograma/{clase}`)
+   - `@McpPrompt` para exponer plantillas de prompts reutilizables
+   - Registro de specs con `SpringAiMcpAnnotationProvider`
+
+3. **Consumo con Spring AI**
+   - `spring-ai-starter-mcp-client` con conexion SSE
+   - `ChatClient` + `ToolCallbackProvider` para que el modelo invoque capacidades MCP
+   - Endpoint unificado `/api/mcp/chat` para orquestar consultas
+
+### Lab: MCP Provider + Consumer (Fase 5)
+
+**Módulo:** `fase5-mcp`
+
+#### Ejercicio guiado (20 min)
+
+1. Levantar proveedor MCP (`fase5-mcp-provider`) en puerto `8091`
+2. Revisar capacidades del provider:
+   - Recursos con `@McpResource`
+   - Prompt con `@McpPrompt`
+3. Levantar consumidor MCP (`fase5-mcp-consumer`) en puerto `8092`
+4. Probar endpoint de chat:
+   ```bash
+   curl -s -X POST http://localhost:8092/api/mcp/chat \
+     -H "Content-Type: application/json" \
+     -d '{"message":"Que se ve en la clase 5 del curso?"}' | jq .
+   ```
+
+#### Ejercicio autónomo (25 min)
+
+> **Reto:** Extiende `fase5-mcp` con una capacidad MCP nueva (tool/resource/prompt) y consúmela desde el endpoint `/api/mcp/chat`.
+>
+> **Sugerencias:**
+> 1. Crear recurso `curso://laboratorio/{numero}` con guía resumida
+> 2. Crear prompt `retroalimentacion-lab` con nivel (`basico`/`avanzado`)
+> 3. Probar desde Swagger del consumidor (`/swagger-ui.html`)
+
+---
+
 ## Resumen de Labs por Fase del Proyecto
 
 | Módulo | Lab | Código existente | Por crear |
@@ -981,6 +1031,7 @@ curl "http://localhost:8080/chat?mensaje=Hola+desde+Spring+AI"
 | `fase4-spring-ai-ollama-pgvector` | Lab 12+ (opcional) - RAG persistente | ✅ `RagController`, `BusquedaController` | Ajustar dataset y prompts para caso real |
 | `fase4-spring-ai-tool-calling` | Lab 13 - Tool Calling Spring AI | ✅ `ToolConfig`, `ToolCallingController` | Reto: nueva tool externa |
 | `fase4-langchain4j-tool-calling` | Lab 14 - Tool Calling LangChain4j | ✅ `CalculadoraTools`, `FechaTools`, `PaisApiTools` | Reto: tool adicional con validación |
+| `fase5-mcp` | Lab 18-19 - MCP Provider/Consumer | ✅ `@McpResource`, `@McpPrompt`, `McpConsumerController` | Reto: nueva capacidad MCP + consumo por chat |
 | Spring Boot (integrador) | Labs 15-17 y proyecto final | — | Integrar memoria + RAG + tools + streaming |
 
 ---

@@ -1,0 +1,25 @@
+server:
+  port: 8092
+
+spring:
+  application:
+    name: fase5-mcp-consumer
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      chat:
+        options:
+          model: llama3.2:3b
+    mcp:
+      client:
+        sse:
+          connections:
+            fase5-provider:
+              url: http://localhost:8091
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+

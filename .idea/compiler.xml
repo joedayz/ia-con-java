@@ -7,9 +7,11 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="fase2-ollama" />
+        <module name="fase5-mcp-provider" />
         <module name="fase1-ollama" />
         <module name="fase1-quarkus-ollama" />
         <module name="fase3-ollama" />
+        <module name="fase5-mcp-consumer" />
         <module name="02-retrieval-augmented-generation" />
         <module name="fase3" />
         <module name="fase2" />
@@ -45,6 +47,8 @@
       <module name="fase4-langchain4j-tool-calling" options="-parameters" />
       <module name="fase4-spring-ai-ollama-pgvector" options="-parameters" />
       <module name="fase4-spring-ai-tool-calling" options="-parameters" />
+      <module name="fase5-mcp-consumer" options="-parameters" />
+      <module name="fase5-mcp-provider" options="-parameters" />
     </option>
   </component>
 </project>
