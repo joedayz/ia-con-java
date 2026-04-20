@@ -4,12 +4,14 @@ import com.joedayz.ia.fase5.mcp.consumer.dto.ChatRequest;
 import com.joedayz.ia.fase5.mcp.consumer.dto.ChatResponse;
 import com.joedayz.ia.fase5.mcp.consumer.dto.PromptRequest;
 import com.joedayz.ia.fase5.mcp.consumer.service.McpGatewayService;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/mcp")
@@ -23,6 +25,10 @@ public class McpConsumerController {
 
     @PostMapping("/chat")
     public ChatResponse chat(@RequestBody ChatRequest request) {
+        if (request == null || request.message() == null || request.message().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                "El campo 'message' es obligatorio y no puede estar vacio.");
+        }
         return new ChatResponse(gatewayService.ask(request.message()));
     }
 

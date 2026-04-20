@@ -40,7 +40,12 @@ public class McpGatewayService {
     }
 
     public String ask(String userMessage) {
-        String answer = callModel(userMessage);
+        String answer;
+        try {
+            answer = callModel(userMessage);
+        } catch (Exception callError) {
+            return "No pude procesar la consulta en este momento. Verifica que el provider MCP este activo y vuelve a intentar.";
+        }
 
         if (!looksLikeToolCallPayload(answer)) {
             return answer;
