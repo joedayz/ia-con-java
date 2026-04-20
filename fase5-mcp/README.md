@@ -5,6 +5,8 @@ Esta demo agrega una fase de MCP con dos apps:
 - `fase5-mcp-provider`: expone capacidades MCP con `@McpResource`, `@McpPrompt` y tools MCP.
 - `fase5-mcp-consumer`: consume MCP por SSE y usa `ChatClient + ToolCallbackProvider`.
 
+Además, el consumer incluye una demo multimodal para analizar imágenes con Ollama.
+
 ## Estructura
 
 - `fase5-mcp/fase5-mcp-provider`
@@ -84,6 +86,12 @@ curl -s http://localhost:8092/api/mcp/demo/modulo/fase5 | jq .
 curl -s -X POST http://localhost:8092/api/mcp/demo/actividad \
   -H "Content-Type: application/json" \
   -d '{"tema":"@McpResource y @McpPrompt","nivel":"intermedio"}' | jq .
+
+curl -s http://localhost:8092/api/multimodal/status | jq .
+
+curl -s -X POST http://localhost:8092/api/multimodal/analyze \
+  -F "image=@/ruta/a/tu/imagen.png" \
+  -F "prompt=Describe la escena y elementos principales" | jq .
 ```
 
 ### Windows PowerShell
@@ -105,12 +113,39 @@ Invoke-RestMethod -Uri "http://localhost:8092/api/mcp/demo/actividad" `
   -Method Post `
   -ContentType "application/json" `
   -Body $body | ConvertTo-Json -Depth 8
+
+Invoke-RestMethod -Uri "http://localhost:8092/api/multimodal/status" | ConvertTo-Json -Depth 8
+
+$form = @{
+  image = Get-Item "C:/ruta/a/tu/imagen.png"
+  prompt = "Describe la escena y elementos principales"
+}
+
+Invoke-RestMethod -Uri "http://localhost:8092/api/multimodal/analyze" `
+  -Method Post `
+  -Form $form | ConvertTo-Json -Depth 8
 ```
 
 ## Notas
 
 - Si cambias host/puerto del provider, ajusta `spring.ai.mcp.client.sse.connections.fase5-provider.url` en `fase5-mcp-consumer/src/main/resources/application.yaml`.
 - El consumer usa un modelo local de Ollama por defecto (`llama3.2:3b`).
+- Para multimodal, usa un modelo de visión como `llava`:
+
+### Linux / macOS
+
+```bash
+ollama pull llava
+export OLLAMA_CHAT_MODEL=llava
+```
+
+### Windows PowerShell
+
+```powershell
+ollama pull llava
+$env:OLLAMA_CHAT_MODEL="llava"
+```
+
 - Asegúrate de que Ollama esté corriendo antes de ejecutar el consumer:
 
 ### Linux / macOS

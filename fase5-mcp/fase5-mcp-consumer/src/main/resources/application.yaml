@@ -17,9 +17,13 @@ spring:
             fase5-provider:
               url: http://localhost:8091
 
+app:
+  multimodal:
+    default-prompt: "Describe en espanol lo que ves en la imagen y destaca detalles utiles."
+    recommended-model: "llava"
+
 management:
   endpoints:
     web:
       exposure:
         include: health,info
-

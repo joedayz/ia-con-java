@@ -13,8 +13,7 @@ public class OpenApiConfig {
         return new OpenAPI()
             .info(new Info()
                 .title("Fase 5 MCP Consumer")
-                .description("Consumidor MCP con ChatClient + ToolCallbackProvider conectado por SSE al provider")
+                .description("Consumidor MCP con ChatClient + ToolCallbackProvider por SSE y endpoint multimodal para analisis de imagenes")
                 .version("1.0.0"));
     }
 }
-
