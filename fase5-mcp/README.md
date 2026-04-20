@@ -89,22 +89,22 @@ curl -s -X POST http://localhost:8092/api/mcp/demo/actividad \
 ### Windows PowerShell
 
 ```powershell
-$body = @{ message = "Que se ve en la clase 5 del curso?" } | ConvertTo-Json
+$body = @{ message = "Que se ve en la clase 5 del curso?" } | ConvertTo-Json -Compress
 
-Invoke-RestMethod -Uri http://localhost:8092/api/mcp/chat `
+Invoke-RestMethod -Uri "http://localhost:8092/api/mcp/chat" `
   -Method Post `
   -ContentType "application/json" `
-  -Body $body | ConvertTo-Json
+  -Body $body | ConvertTo-Json -Depth 8
 
-Invoke-RestMethod -Uri http://localhost:8092/api/mcp/demo/cronograma/5 | ConvertTo-Json
-Invoke-RestMethod -Uri http://localhost:8092/api/mcp/demo/modulo/fase5 | ConvertTo-Json
+Invoke-RestMethod -Uri "http://localhost:8092/api/mcp/demo/cronograma/5" | ConvertTo-Json -Depth 8
+Invoke-RestMethod -Uri "http://localhost:8092/api/mcp/demo/modulo/fase5" | ConvertTo-Json -Depth 8
 
-$body = @{ tema = "@McpResource y @McpPrompt"; nivel = "intermedio" } | ConvertTo-Json
+$body = @{ tema = "@McpResource y @McpPrompt"; nivel = "intermedio" } | ConvertTo-Json -Compress
 
-Invoke-RestMethod -Uri http://localhost:8092/api/mcp/demo/actividad `
+Invoke-RestMethod -Uri "http://localhost:8092/api/mcp/demo/actividad" `
   -Method Post `
   -ContentType "application/json" `
-  -Body $body | ConvertTo-Json
+  -Body $body | ConvertTo-Json -Depth 8
 ```
 
 ## Notas
