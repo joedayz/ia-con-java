@@ -1,0 +1,24 @@
+
+
+spring:
+  application:
+    name: mcp-client
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:${SPRING_AI_OPENAI_API_KEY:}}
+
+    mcp:
+      client:
+        stdio:
+          connections:
+            boardgamedb:
+              command: java
+              args:
+              - -jar
+              - ${MCP_SERVER_PATH:/Users/josediaz/Projects/JoeDayz/ia-con-java/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-server}/build/libs/mcp-server-0.0.1-SNAPSHOT.jar
+              env:
+                SPRING_DOCKER_COMPOSE_FILE: ${MCP_SERVER_PATH:/Users/josediaz/Projects/JoeDayz/ia-con-java/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-server}/compose.yaml
+
+        toolcallback:
+          enabled: true

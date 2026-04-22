@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "filesystem": {
+      "command": "java",
+      "args": [
+        "-jar",
+        "/Users/josediaz/Projects/JoeDayz/ia-con-java/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-server/build/libs/mcp-server-0.0.1-SNAPSHOT.jar"
+      ]
+    }
+  }
+}
