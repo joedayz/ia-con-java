@@ -13,6 +13,7 @@
         <module name="fase3-ollama" />
         <module name="fase5-mcp-consumer" />
         <module name="02-retrieval-augmented-generation" />
+        <module name="fase6-spring-ai-voice-and-pictures" />
         <module name="fase3" />
         <module name="fase2" />
         <module name="fase1" />
@@ -57,6 +58,7 @@
       <module name="fase4-spring-ai-tool-calling" options="-parameters" />
       <module name="fase5-mcp-consumer" options="-parameters" />
       <module name="fase5-mcp-provider" options="-parameters" />
+      <module name="fase6-spring-ai-voice-and-pictures" options="-parameters" />
       <module name="mcp-client" options="-parameters" />
       <module name="mcp-client.main" options="-parameters" />
       <module name="mcp-client.test" options="-parameters" />
