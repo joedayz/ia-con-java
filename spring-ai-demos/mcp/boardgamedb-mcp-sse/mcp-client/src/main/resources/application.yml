@@ -5,6 +5,10 @@ spring:
     name: mcp-client
 
   ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:${SPRING_AI_OPENAI_API_KEY:}}
+
+
     mcp:
       client:
         sse:

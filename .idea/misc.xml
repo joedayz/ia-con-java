@@ -5,6 +5,7 @@
     <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-client" />
     <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-server" />
     <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/mcp/mcp-filesystem-client" />
+    <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/tool-calling/simple-tools" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
