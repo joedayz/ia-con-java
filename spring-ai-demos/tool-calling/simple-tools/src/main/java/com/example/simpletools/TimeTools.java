@@ -11,15 +11,15 @@ import java.time.ZoneId;
 @Component
 public class TimeTools {
 
-  private static final Logger LOGGER =
-      LoggerFactory.getLogger(TimeTools.class);
+    private static final Logger LOGGER =
+            LoggerFactory.getLogger(TimeTools.class);
 
-  @Tool(name = "getCurrentTime",
-        description = "Get the current time in the specified time zone.")  
-  public String getCurrentTime(String timeZone) {
-    LOGGER.info("Getting the current time in {}", timeZone);
-    var now = LocalDateTime.now(ZoneId.of(timeZone));
-    return now.toString();
-  }
+    @Tool(name = "getCurrentTime",
+            description = "Get the current time in the specified time zone.")
+    public String getCurrentTime(String timeZone) {
+        LOGGER.info("Getting the current time in {}", timeZone);
+        var now = LocalDateTime.now(ZoneId.of(timeZone));
+        return now.toString();
+    }
 
 }

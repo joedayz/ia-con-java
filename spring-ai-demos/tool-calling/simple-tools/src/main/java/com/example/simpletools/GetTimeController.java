@@ -20,6 +20,7 @@ public class GetTimeController {
         .build();
   }
 
+  //http://localhost:8080/time?city=London
   @GetMapping(path="/time", params = "city")
   public String getTime(@RequestParam("city") String city) {
     return chatClient.prompt()

@@ -39,6 +39,12 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="02-retrieval-augmented-generation" options="-parameters" />
+      <module name="board-game-buddy" options="-parameters" />
+      <module name="board-game-buddy.main" options="-parameters" />
+      <module name="board-game-buddy.test" options="-parameters" />
+      <module name="com.example.board-game-buddy" options="-parameters" />
+      <module name="com.example.board-game-buddy.main" options="-parameters" />
+      <module name="com.example.board-game-buddy.test" options="-parameters" />
       <module name="dynamic-renderer" options="-parameters" />
       <module name="fase1-quarkus" options="-parameters" />
       <module name="fase1-springboot" options="-parameters" />
@@ -51,6 +57,12 @@
       <module name="fase4-spring-ai-tool-calling" options="-parameters" />
       <module name="fase5-mcp-consumer" options="-parameters" />
       <module name="fase5-mcp-provider" options="-parameters" />
+      <module name="mcp-filesystem-client" options="-parameters" />
+      <module name="mcp-filesystem-client.main" options="-parameters" />
+      <module name="mcp-filesystem-client.test" options="-parameters" />
+      <module name="simple-functions" options="-parameters" />
+      <module name="simple-functions.main" options="-parameters" />
+      <module name="simple-functions.test" options="-parameters" />
     </option>
   </component>
 </project>

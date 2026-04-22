@@ -1,0 +1,27 @@
+
+
+spring:
+
+
+  application:
+    name: mcp-filesystem-client
+
+
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+    mcp:
+      client:
+        stdio:
+
+          connections:
+            filesystem:
+              command: 'npx'
+              args:
+                - '-y'
+                - '@modelcontextprotocol/server-filesystem'
+                - '/Users/josediaz/mcp-playground'
+
+        toolcallback:
+          enabled: true
