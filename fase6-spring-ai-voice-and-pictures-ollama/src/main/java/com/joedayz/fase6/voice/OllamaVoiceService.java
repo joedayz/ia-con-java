@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Locale;
 
 @Service
 public class OllamaVoiceService implements VoiceService {
@@ -21,6 +22,7 @@ public class OllamaVoiceService implements VoiceService {
     private final String sttCommand;
     private final String sttModel;
     private final String sttLanguage;
+    private final String osName;
 
     public OllamaVoiceService(
             @Value("${app.voice.tts.command:say}") String ttsCommand,
@@ -33,17 +35,28 @@ public class OllamaVoiceService implements VoiceService {
         this.sttCommand = sttCommand;
         this.sttModel = sttModel;
         this.sttLanguage = sttLanguage;
+        this.osName = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
     }
 
     @Override
-    public Resource textToSpeech(String text, String voice) {
+    public VoiceAudio textToSpeech(String text, String voice) {
+        String chosenVoice = (voice == null || voice.isBlank()) ? defaultVoice : voice;
+        if (osName.contains("mac")) {
+            return textToSpeechMac(text, chosenVoice);
+        }
+        if (osName.contains("win")) {
+            return textToSpeechWindows(text, chosenVoice);
+        }
+        throw new IllegalStateException("TTS local soporta macOS y Windows en esta demo.");
+    }
+
+    private VoiceAudio textToSpeechMac(String text, String voice) {
         try {
             Path outputAudio = Files.createTempFile("fase6-tts-", ".aiff");
-            String chosenVoice = (voice == null || voice.isBlank()) ? defaultVoice : voice;
 
             int exitCode = new ProcessBuilder(
                     ttsCommand,
-                    "-v", chosenVoice,
+                    "-v", voice,
                     "-o", outputAudio.toString(),
                     text)
                     .redirectError(ProcessBuilder.Redirect.DISCARD)
@@ -54,9 +67,44 @@ public class OllamaVoiceService implements VoiceService {
             if (exitCode != 0 || !Files.exists(outputAudio)) {
                 throw new IllegalStateException("No fue posible generar audio con comando local de TTS");
             }
-            return new ByteArrayResource(Files.readAllBytes(outputAudio));
+            return new VoiceAudio(
+                    new ByteArrayResource(Files.readAllBytes(outputAudio)),
+                    "audio/aiff",
+                    "speech.aiff");
         } catch (Exception e) {
             throw new IllegalStateException("Error ejecutando TTS local. Verifica comando 'say' en macOS.", e);
+        }
+    }
+
+    private VoiceAudio textToSpeechWindows(String text, String voice) {
+        try {
+            Path outputAudio = Files.createTempFile("fase6-tts-", ".wav");
+            String script = "Add-Type -AssemblyName System.Speech;"
+                    + "$s=New-Object System.Speech.Synthesis.SpeechSynthesizer;"
+                    + "try {$s.SelectVoice('" + escapePowerShellSingleQuoted(voice) + "')} catch {} ;"
+                    + "$s.SetOutputToWaveFile('" + escapePowerShellSingleQuoted(outputAudio.toString()) + "');"
+                    + "$s.Speak('" + escapePowerShellSingleQuoted(text) + "');"
+                    + "$s.Dispose();";
+
+            int exitCode = new ProcessBuilder(
+                    "powershell",
+                    "-NoProfile",
+                    "-ExecutionPolicy", "Bypass",
+                    "-Command", script)
+                    .redirectError(ProcessBuilder.Redirect.DISCARD)
+                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                    .start()
+                    .waitFor();
+
+            if (exitCode != 0 || !Files.exists(outputAudio)) {
+                throw new IllegalStateException("No fue posible generar audio con PowerShell TTS");
+            }
+            return new VoiceAudio(
+                    new ByteArrayResource(Files.readAllBytes(outputAudio)),
+                    "audio/wav",
+                    "speech.wav");
+        } catch (Exception e) {
+            throw new IllegalStateException("Error ejecutando TTS en Windows (PowerShell/System.Speech).", e);
         }
     }
 
@@ -80,7 +128,10 @@ public class OllamaVoiceService implements VoiceService {
                     .start()
                     .waitFor();
 
-            Path transcript = outDir.resolve(tmpAudio.getFileName().toString() + ".txt");
+            String audioFilename = tmpAudio.getFileName().toString();
+            int dotIndex = audioFilename.lastIndexOf('.');
+            String stem = dotIndex > 0 ? audioFilename.substring(0, dotIndex) : audioFilename;
+            Path transcript = outDir.resolve(stem + ".txt");
             if (exitCode != 0 || !Files.exists(transcript)) {
                 throw new IllegalStateException("No fue posible transcribir audio con whisper CLI");
             }
@@ -98,5 +149,9 @@ public class OllamaVoiceService implements VoiceService {
                 }
             }
         }
+    }
+
+    private String escapePowerShellSingleQuoted(String input) {
+        return input.replace("'", "''");
     }
 }

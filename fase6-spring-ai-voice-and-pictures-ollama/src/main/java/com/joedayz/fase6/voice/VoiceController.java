@@ -26,18 +26,18 @@ public class VoiceController {
      * En macOS puedes usar voces como: Monica, Jorge, Paulina, Diego.
      */
     @Operation(summary = "Text-to-Speech",
-               description = "Convierte texto a audio AIFF usando el comando local de TTS")
-    @PostMapping(value = "/tts", produces = "audio/aiff")
+               description = "Convierte texto a audio local (AIFF en macOS, WAV en Windows)")
+    @PostMapping(value = "/tts")
     public ResponseEntity<Resource> textToSpeech(
             @RequestParam String text,
             @RequestParam(defaultValue = "Monica") String voice) {
 
-        Resource audioResource = voiceService.textToSpeech(text, voice);
+        VoiceService.VoiceAudio audio = voiceService.textToSpeech(text, voice);
 
         return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("audio/aiff"))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"speech.aiff\"")
-                .body(audioResource);
+                .contentType(MediaType.parseMediaType(audio.contentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + audio.filename() + "\"")
+                .body(audio.resource());
     }
 
     /**

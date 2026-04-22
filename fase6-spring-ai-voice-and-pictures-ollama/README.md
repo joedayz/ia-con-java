@@ -37,14 +37,138 @@ mvn spring-boot:run
 
 ## Endpoints
 
-- `POST /api/voice/tts?text=...&voice=Monica` -> audio AIFF
+- `POST /api/voice/tts?text=...&voice=Monica` -> audio local (AIFF en macOS, WAV en Windows)
 - `POST /api/voice/transcribe` (multipart `audio`) -> texto
 - `POST /api/image/generate-url?prompt=...` -> data URL (`data:image/png;base64,...`)
 - `POST /api/image/generate-png?prompt=...` -> bytes PNG
 - `POST /api/vision/describe` (multipart `image`, `question`) -> descripción
 
+## Pruebas de endpoints (copy/paste)
+
+Precondición: aplicación corriendo en `http://localhost:8080`.
+
+### 1) Voice - Text to Speech (`/api/voice/tts`)
+
+Linux/macOS (curl/bash):
+
+```bash
+BASE_URL="http://localhost:8080"
+
+curl -X POST "$BASE_URL/api/voice/tts?text=Hola%20desde%20Ollama&voice=Monica" \
+  --output speech.aiff
+```
+
+Windows (PowerShell):
+
+```powershell
+$BASE_URL = "http://localhost:8080"
+
+Invoke-WebRequest -Uri "$BASE_URL/api/voice/tts?text=Hola%20desde%20Ollama&voice=Monica" `
+  -Method POST `
+  -OutFile ".\speech.wav"
+```
+
+Salida esperada: archivo `speech.aiff` (macOS) o `speech.wav` (Windows).
+
+### 2) Voice - Speech to Text (`/api/voice/transcribe`)
+
+Linux/macOS (curl/bash):
+
+```bash
+BASE_URL="http://localhost:8080"
+
+curl -X POST "$BASE_URL/api/voice/transcribe" \
+  -F "audio=@./speech.aiff"
+```
+
+Windows (PowerShell):
+
+```powershell
+$BASE_URL = "http://localhost:8080"
+
+$form = @{ audio = Get-Item ".\speech.wav" }
+Invoke-RestMethod -Uri "$BASE_URL/api/voice/transcribe" -Method POST -Form $form
+```
+
+Salida esperada: JSON con `transcription`.
+
+### 3) Image - Generar URL (`/api/image/generate-url`)
+
+Linux/macOS (curl/bash):
+
+```bash
+BASE_URL="http://localhost:8080"
+
+curl -X POST "$BASE_URL/api/image/generate-url?prompt=Un%20gato%20astronauta%20en%20estilo%20pixel%20art"
+```
+
+Windows (PowerShell):
+
+```powershell
+$BASE_URL = "http://localhost:8080"
+
+Invoke-RestMethod -Uri "$BASE_URL/api/image/generate-url?prompt=Un%20gato%20astronauta%20en%20estilo%20pixel%20art" -Method POST
+```
+
+Salida esperada: JSON con `url` (formato `data:image/png;base64,...`).
+
+### 4) Image - Generar PNG (`/api/image/generate-png`)
+
+Linux/macOS (curl/bash):
+
+```bash
+BASE_URL="http://localhost:8080"
+
+curl -X POST "$BASE_URL/api/image/generate-png?prompt=Una%20ciudad%20futurista%20de%20noche" \
+  --output image.png
+```
+
+Windows (PowerShell):
+
+```powershell
+$BASE_URL = "http://localhost:8080"
+
+Invoke-WebRequest -Uri "$BASE_URL/api/image/generate-png?prompt=Una%20ciudad%20futurista%20de%20noche" `
+  -Method POST `
+  -OutFile ".\image.png"
+```
+
+Salida esperada: archivo `image.png` generado.
+
+### 5) Vision - Describir imagen (`/api/vision/describe`)
+
+Linux/macOS (curl/bash):
+
+```bash
+BASE_URL="http://localhost:8080"
+
+curl -X POST "$BASE_URL/api/vision/describe" \
+  -F "image=@./image.png" \
+  -F "question=Describe esta imagen en espanol y menciona colores principales"
+```
+
+Windows (PowerShell):
+
+```powershell
+$BASE_URL = "http://localhost:8080"
+
+$form = @{
+  image = Get-Item ".\image.png"
+  question = "Describe esta imagen en espanol y menciona colores principales"
+}
+Invoke-RestMethod -Uri "$BASE_URL/api/vision/describe" -Method POST -Form $form
+```
+
+Salida esperada: JSON con `description` y `question`.
+
+## Scripts de prueba automáticos
+
+- Linux/macOS: `./test-api.sh`
+- Windows PowerShell: `./test-api.ps1`
+
 ## Notas importantes
 
 - `tts` usa comando local `say` (en macOS).
+- En Windows, `tts` usa PowerShell + `System.Speech` y genera WAV.
 - `transcribe` usa `whisper` CLI; si no está instalado, el endpoint devolverá error.
 - La generación de imagen no usa DALL-E; se genera SVG con Ollama y luego se renderiza a PNG.

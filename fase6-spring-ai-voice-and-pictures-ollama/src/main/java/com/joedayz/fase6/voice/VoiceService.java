@@ -4,10 +4,12 @@ import org.springframework.core.io.Resource;
 
 public interface VoiceService {
 
+    record VoiceAudio(Resource resource, String contentType, String filename) {}
+
     /**
      * Convierte texto a audio con proveedor local.
      */
-    Resource textToSpeech(String text, String voice);
+    VoiceAudio textToSpeech(String text, String voice);
 
     /**
      * Transcribe un archivo de audio a texto usando STT local.

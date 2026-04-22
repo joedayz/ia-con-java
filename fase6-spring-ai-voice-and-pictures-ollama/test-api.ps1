@@ -13,18 +13,18 @@ Write-Host ""
 # ---- TTS ----
 Write-Host ">>> [1/5] Text-to-Speech local: convirtiendo texto a audio..." -ForegroundColor Yellow
 $ttsUrl = "$BASE_URL/api/voice/tts?text=Hola%2C+bienvenido+a+la+fase+6+de+IA+con+Java&voice=Monica"
-Invoke-WebRequest -Uri $ttsUrl -Method POST -OutFile "$env:TEMP\fase6-speech.aiff"
-if (Test-Path "$env:TEMP\fase6-speech.aiff") {
-    Write-Host "    Audio guardado en $env:TEMP\fase6-speech.aiff" -ForegroundColor Green
+Invoke-WebRequest -Uri $ttsUrl -Method POST -OutFile "$env:TEMP\fase6-speech.wav"
+if (Test-Path "$env:TEMP\fase6-speech.wav") {
+    Write-Host "    Audio guardado en $env:TEMP\fase6-speech.wav" -ForegroundColor Green
 } else {
     Write-Host "    ERROR: no se generó el audio" -ForegroundColor Red
 }
 Write-Host ""
 
 # ---- Transcripción ----
-if (Test-Path "$env:TEMP\fase6-speech.aiff") {
+if (Test-Path "$env:TEMP\fase6-speech.wav") {
     Write-Host ">>> [2/5] Speech-to-Text: transcribiendo audio..." -ForegroundColor Yellow
-    $form = @{ audio = Get-Item "$env:TEMP\fase6-speech.aiff" }
+    $form = @{ audio = Get-Item "$env:TEMP\fase6-speech.wav" }
     $transcription = Invoke-RestMethod -Uri "$BASE_URL/api/voice/transcribe" -Method POST -Form $form
     Write-Host "    Transcripción: $transcription" -ForegroundColor Green
 } else {
