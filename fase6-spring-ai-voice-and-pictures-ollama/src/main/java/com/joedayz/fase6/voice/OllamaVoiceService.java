@@ -10,7 +10,9 @@ import org.springframework.stereotype.Service;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.io.IOException;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class OllamaVoiceService implements VoiceService {
@@ -22,19 +24,22 @@ public class OllamaVoiceService implements VoiceService {
     private final String sttCommand;
     private final String sttModel;
     private final String sttLanguage;
+    private final int sttTimeoutSeconds;
     private final String osName;
 
     public OllamaVoiceService(
             @Value("${app.voice.tts.command:say}") String ttsCommand,
             @Value("${app.voice.tts.default-voice:Monica}") String defaultVoice,
             @Value("${app.voice.stt.command:whisper}") String sttCommand,
-            @Value("${app.voice.stt.model:base}") String sttModel,
-            @Value("${app.voice.stt.language:es}") String sttLanguage) {
+            @Value("${app.voice.stt.model:tiny}") String sttModel,
+            @Value("${app.voice.stt.language:es}") String sttLanguage,
+            @Value("${app.voice.stt.timeout-seconds:60}") int sttTimeoutSeconds) {
         this.ttsCommand = ttsCommand;
         this.defaultVoice = defaultVoice;
         this.sttCommand = sttCommand;
         this.sttModel = sttModel;
         this.sttLanguage = sttLanguage;
+        this.sttTimeoutSeconds = sttTimeoutSeconds;
         this.osName = System.getProperty("os.name", "unknown").toLowerCase(Locale.ROOT);
     }
 
@@ -116,17 +121,32 @@ public class OllamaVoiceService implements VoiceService {
             Files.copy(audioResource.getInputStream(), tmpAudio, StandardCopyOption.REPLACE_EXISTING);
 
             Path outDir = Files.createTempDirectory("fase6-whisper-out-");
-            int exitCode = new ProcessBuilder(
-                    sttCommand,
-                    tmpAudio.toString(),
-                    "--model", sttModel,
-                    "--language", sttLanguage,
-                    "--output_format", "txt",
-                    "--output_dir", outDir.toString())
-                    .redirectError(ProcessBuilder.Redirect.DISCARD)
-                    .redirectOutput(ProcessBuilder.Redirect.DISCARD)
-                    .start()
-                    .waitFor();
+            Process whisperProcess;
+            try {
+                whisperProcess = new ProcessBuilder(
+                        sttCommand,
+                        tmpAudio.toString(),
+                        "--model", sttModel,
+                        "--language", sttLanguage,
+                        "--output_format", "txt",
+                        "--output_dir", outDir.toString())
+                        .redirectError(ProcessBuilder.Redirect.DISCARD)
+                        .redirectOutput(ProcessBuilder.Redirect.DISCARD)
+                        .start();
+            } catch (IOException ioException) {
+                throw new SttUnavailableException(
+                        "No se encontro el comando STT '" + sttCommand + "' en el sistema.",
+                        ioException);
+            }
+
+            boolean finished = whisperProcess.waitFor(sttTimeoutSeconds, TimeUnit.SECONDS);
+            if (!finished) {
+                whisperProcess.destroyForcibly();
+                throw new SttTimeoutException(
+                        "La transcripcion excedio el timeout de " + sttTimeoutSeconds + " segundos.");
+            }
+
+            int exitCode = whisperProcess.exitValue();
 
             String audioFilename = tmpAudio.getFileName().toString();
             int dotIndex = audioFilename.lastIndexOf('.');
@@ -137,6 +157,8 @@ public class OllamaVoiceService implements VoiceService {
             }
 
             return Files.readString(transcript).trim();
+        } catch (SttUnavailableException e) {
+            throw e;
         } catch (Exception e) {
             throw new IllegalStateException(
                     "Error en STT local. Instala 'whisper' CLI o ajusta app.voice.stt.command.", e);

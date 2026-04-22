@@ -24,6 +24,8 @@ export OLLAMA_BASE_URL=http://localhost:11434
 export OLLAMA_CHAT_MODEL=llama3.2-vision
 export APP_VOICE_TTS_DEFAULT_VOICE=Monica
 export APP_VOICE_STT_COMMAND=whisper
+export APP_VOICE_STT_MODEL=tiny
+export APP_VOICE_STT_TIMEOUT_SECONDS=60
 ```
 
 ## Arrancar
@@ -99,7 +101,7 @@ Linux/macOS (curl/bash):
 ```bash
 BASE_URL="http://localhost:8080"
 
-curl -X POST "$BASE_URL/api/image/generate-url?prompt=Un%20gato%20astronauta%20en%20estilo%20pixel%20art"
+curl -X POST "$BASE_URL/api/image/generate-url?prompt=Un%20perro%20astronauta%20en%20estilo%20pixel%20art"
 ```
 
 Windows (PowerShell):
@@ -107,7 +109,7 @@ Windows (PowerShell):
 ```powershell
 $BASE_URL = "http://localhost:8080"
 
-Invoke-RestMethod -Uri "$BASE_URL/api/image/generate-url?prompt=Un%20gato%20astronauta%20en%20estilo%20pixel%20art" -Method POST
+Invoke-RestMethod -Uri "$BASE_URL/api/image/generate-url?prompt=Un%20perro%20astronauta%20en%20estilo%20pixel%20art" -Method POST
 ```
 
 Salida esperada: JSON con `url` (formato `data:image/png;base64,...`).
@@ -172,3 +174,54 @@ Salida esperada: JSON con `description` y `question`.
 - En Windows, `tts` usa PowerShell + `System.Speech` y genera WAV.
 - `transcribe` usa `whisper` CLI; si no está instalado, el endpoint devolverá error.
 - La generación de imagen no usa DALL-E; se genera SVG con Ollama y luego se renderiza a PNG.
+
+## Troubleshooting STT (muy comun en Windows)
+
+Si llamas `POST /api/voice/transcribe` y no existe `whisper` en PATH, ahora la API responde:
+
+- HTTP `503 Service Unavailable`
+- JSON con `error=STT_UNAVAILABLE` y un `hint` accionable
+
+Ejemplo de respuesta:
+
+```json
+{
+  "error": "STT_UNAVAILABLE",
+  "message": "No se encontro el comando STT 'whisper' en el sistema.",
+  "hint": "Instala whisper CLI o configura APP_VOICE_STT_COMMAND con ruta absoluta."
+}
+```
+
+Configurar ruta absoluta del comando STT:
+
+Linux/macOS:
+
+```bash
+export APP_VOICE_STT_COMMAND="/usr/local/bin/whisper"
+```
+
+Windows PowerShell:
+
+```powershell
+$env:APP_VOICE_STT_COMMAND="C:\\Users\\TU_USUARIO\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\whisper.exe"
+```
+
+### Si `transcribe` tarda mucho
+
+- La primera ejecucion de `whisper` puede descargar/cargar el modelo y tardar bastante.
+- En CPU, `base` tarda mas que `tiny`.
+- La API ahora tiene timeout configurable para evitar que la request quede colgada.
+
+Recomendado para clase:
+
+```bash
+export APP_VOICE_STT_MODEL=tiny
+export APP_VOICE_STT_TIMEOUT_SECONDS=60
+```
+
+Precalentar `whisper` una vez antes de la demo (descarga modelo y cache):
+
+```bash
+$APP_VOICE_STT_COMMAND --model tiny --language es --output_format txt --output_dir /tmp ./speech.aiff
+```
+
