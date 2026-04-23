@@ -22,6 +22,9 @@ Proyecto equivalente a la fase 6 original, pero orientado a entorno local:
 ```bash
 export OLLAMA_BASE_URL=http://localhost:11434
 export OLLAMA_CHAT_MODEL=llama3.2-vision
+# Opcional: la app ya pide el modelo al arrancar si falta (`when_missing`).
+export OLLAMA_PULL_STRATEGY=when_missing
+export OLLAMA_INIT_TIMEOUT=20m
 export APP_VOICE_TTS_DEFAULT_VOICE=Monica
 export APP_VOICE_STT_COMMAND=whisper
 export APP_VOICE_STT_MODEL=tiny
@@ -172,8 +175,24 @@ Salida esperada: JSON con `description` y `question`.
 
 - `tts` usa comando local `say` (en macOS).
 - En Windows, `tts` usa PowerShell + `System.Speech` y genera WAV.
+- En Linux, `POST /api/voice/tts` no está soportado en esta demo (solo macOS/Windows).
 - `transcribe` usa `whisper` CLI; si no está instalado, el endpoint devolverá error.
 - La generación de imagen no usa DALL-E; se genera SVG con Ollama y luego se renderiza a PNG.
+
+## Troubleshooting Ollama (muy frecuente)
+
+Spring AI, por defecto, **no descarga** modelos (`pull-model-strategy=never`). Si nunca ejecutaste `ollama pull llama3.2-vision`, los endpoints que usan el chat (`/api/image/*`, `/api/vision/describe`) fallan con error de modelo inexistente o similar.
+
+Este proyecto configura `spring.ai.ollama.init.pull-model-strategy=when_missing`: al arrancar, si Ollama está en marcha y el modelo no está instalado, se descargará (la primera vez puede tardar mucho; revisa `OLLAMA_INIT_TIMEOUT`).
+
+Comprueba en terminal:
+
+```bash
+ollama list
+ollama pull llama3.2-vision
+```
+
+Si prefieres no auto-descargar (por ejemplo sin red), define `OLLAMA_PULL_STRATEGY=never` y mantén el modelo instalado manualmente.
 
 ## Troubleshooting STT (muy comun en Windows)
 

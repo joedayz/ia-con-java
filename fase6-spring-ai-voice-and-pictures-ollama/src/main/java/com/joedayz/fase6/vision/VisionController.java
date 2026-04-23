@@ -1,16 +1,18 @@
 package com.joedayz.fase6.vision;
 
+import java.util.Locale;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.MediaType;
+import org.springframework.util.MimeType;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 
 @RestController
 @RequestMapping("/api/vision")
@@ -37,8 +39,7 @@ public class VisionController {
                 ? question
                 : "Describe esta imagen en detalle.";
 
-        var mimeType = MimeTypeUtils.parseMimeType(
-                image.getContentType() != null ? image.getContentType() : "image/jpeg");
+        MimeType mimeType = resolveImageMimeType(image);
 
         String answer = chatClient.prompt()
                 .user(userSpec -> userSpec
@@ -48,6 +49,32 @@ public class VisionController {
                 .content();
 
         return new VisionResponse(answer, userQuestion);
+    }
+
+    /** MIME coherente para Ollama: si el cliente manda octet-stream o vacío, inferimos por extensión. */
+    private static MimeType resolveImageMimeType(MultipartFile image) {
+        String contentType = image.getContentType();
+        if (contentType != null && !contentType.isBlank()
+                && !MediaType.APPLICATION_OCTET_STREAM_VALUE.equalsIgnoreCase(contentType)) {
+            return MimeTypeUtils.parseMimeType(contentType);
+        }
+        String name = image.getOriginalFilename();
+        if (name != null) {
+            String lower = name.toLowerCase(Locale.ROOT);
+            if (lower.endsWith(".png")) {
+                return MimeTypeUtils.parseMimeType(MediaType.IMAGE_PNG_VALUE);
+            }
+            if (lower.endsWith(".gif")) {
+                return MimeTypeUtils.parseMimeType(MediaType.IMAGE_GIF_VALUE);
+            }
+            if (lower.endsWith(".webp")) {
+                return MimeTypeUtils.parseMimeType("image/webp");
+            }
+            if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+                return MimeTypeUtils.parseMimeType(MediaType.IMAGE_JPEG_VALUE);
+            }
+        }
+        return MimeTypeUtils.parseMimeType(MediaType.IMAGE_JPEG_VALUE);
     }
 
     public record VisionResponse(String description, String question) {}

@@ -117,7 +117,8 @@ public class OllamaVoiceService implements VoiceService {
     public String transcribe(Resource audioResource) {
         Path tmpAudio = null;
         try {
-            tmpAudio = Files.createTempFile("fase6-stt-", ".wav");
+            String suffix = audioSuffix(audioResource);
+            tmpAudio = Files.createTempFile("fase6-stt-", suffix);
             Files.copy(audioResource.getInputStream(), tmpAudio, StandardCopyOption.REPLACE_EXISTING);
 
             Path outDir = Files.createTempDirectory("fase6-whisper-out-");
@@ -175,5 +176,17 @@ public class OllamaVoiceService implements VoiceService {
 
     private String escapePowerShellSingleQuoted(String input) {
         return input.replace("'", "''");
+    }
+
+    /** Extensión temporal alineada al upload (p. ej. .aiff tras TTS en macOS) para que whisper infiera el formato. */
+    private static String audioSuffix(Resource audioResource) {
+        String filename = audioResource.getFilename();
+        if (filename != null) {
+            int dot = filename.lastIndexOf('.');
+            if (dot >= 0 && dot < filename.length() - 1) {
+                return filename.substring(dot).toLowerCase(Locale.ROOT);
+            }
+        }
+        return ".wav";
     }
 }
