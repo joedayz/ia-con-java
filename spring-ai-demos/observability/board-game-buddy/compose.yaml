@@ -1,0 +1,30 @@
+services:
+  qdrant:
+    image: 'qdrant/qdrant:latest'
+    ports:
+      - '6334:6334'
+
+  jaeger:
+    image: 'jaegertracing/all-in-one:1.57'
+    ports:
+      - '16686:16686'
+      - '4317:4317'
+      - '4318:4318'
+      - '9411:9411'
+
+  prometheus:
+    image: 'prom/prometheus:v2.54.1'
+    ports:
+      - '9090:9090'
+    volumes:
+      - './prometheus-config.yml:/etc/prometheus/prometheus.yml:ro'
+
+  grafana:
+    image: 'grafana/grafana:11.2.0'
+    ports:
+      - '3000:3000'
+    volumes:
+      - 'grafana-storage:/var/lib/grafana'
+
+volumes:
+  grafana-storage: {}
