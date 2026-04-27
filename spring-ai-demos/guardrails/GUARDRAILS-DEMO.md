@@ -2,7 +2,7 @@
 
 Esta carpeta agrupa **varios proyectos Gradle independientes** que demuestran “guardrails” para apps con LLMs (bloqueo por términos sensibles, anti prompt-leak, moderación de entrada, y control de acceso + filtrado RAG por usuario).
 
-> Requisitos generales: **Java 21**, Docker Desktop, y (opcional) `httpie` para probar endpoints.
+> Requisitos generales: **Java 21**, Docker Desktop, y un cliente HTTP (en esta guía uso `curl` y `Invoke-RestMethod`).
 
 ---
 
@@ -79,7 +79,7 @@ Notas:
 Proyecto: `game-rules-loader/`
 
 Qué hace:
-- Observa `/var/dropoff` (en tu host) y carga documentos al vector store **Qdrant**.
+- Observa `./dropoff` (relativo al proyecto) y carga documentos al vector store **Qdrant**.
 - Si el archivo termina con `-premium` antes de la extensión, agrega metadata `documentType=PREMIUM`.
 - También intenta inferir el título del juego y agrega metadata `gameTitle=<slug>` (ej. `burger_battle`).
 
@@ -93,18 +93,20 @@ cd spring-ai-demos/guardrails/game-rules-loader
 En otra terminal, crea el directorio dropoff y copia un documento:
 
 ```bash
-sudo mkdir -p /var/dropoff
-sudo cp "/ruta/a/tu-documento.pdf" /var/dropoff/
+mkdir -p ./dropoff
+cp "/ruta/a/tu-documento.pdf" ./dropoff/
 ```
 
 Para probar premium content:
 
 ```bash
-sudo cp "/ruta/a/tu-documento.pdf" /var/dropoff/tu-documento-premium.pdf
+cp "/ruta/a/tu-documento.pdf" ./dropoff/tu-documento-premium.pdf
 ```
 
 Nota:
 - Este proyecto trae `docker-compose.yaml` con Qdrant; Spring Boot lo levanta automáticamente (Docker Compose support).
+- Si quieres otra carpeta, override `file.supplier.directory` (o exporta `FILE_SUPPLIER_DIRECTORY`).
+- Si ya tienes Qdrant levantado por otro demo (por ejemplo `board-game-buddy_3`), **no levantes un segundo Qdrant**: reutiliza el que ya está corriendo (mismo puerto gRPC 6334).
 
 ---
 
@@ -132,11 +134,26 @@ cd spring-ai-demos/guardrails/board-game-buddy_3
 Requiere auth. Ejemplo “normal”:
 
 ```bash
-http :8080/ask \
-  -a mickey:password \
-  X_AI_CONVERSATION_ID:demo \
-  gameTitle="Burger Battle" \
-  question="How many can play?"
+curl -s http://localhost:8080/ask \
+  -u mickey:password \
+  -H "Content-Type: application/json" \
+  -H "X_AI_CONVERSATION_ID: demo" \
+  -d '{ "gameTitle": "Burger Battle", "question": "How many can play?" }'
+```
+
+En PowerShell (Windows):
+
+```powershell
+$cred = New-Object System.Management.Automation.PSCredential(
+  "mickey", (ConvertTo-SecureString "password" -AsPlainText -Force)
+)
+
+Invoke-RestMethod "http://localhost:8080/ask" `
+  -Authentication Basic `
+  -Credential $cred `
+  -Headers @{ "X_AI_CONVERSATION_ID"="demo" } `
+  -ContentType "application/json" `
+  -Body (@{ gameTitle="Burger Battle"; question="How many can play?" } | ConvertTo-Json)
 ```
 
 ### Probar filtrado premium (mickey vs donald)
@@ -145,19 +162,19 @@ http :8080/ask \
 2) Pregunta como premium:
 
 ```bash
-http :8080/ask \
-  -a mickey:password \
-  gameTitle="Tortuga 1667" \
-  question="Who can initiate a mutiny?"
+curl -s http://localhost:8080/ask \
+  -u mickey:password \
+  -H "Content-Type: application/json" \
+  -d '{ "gameTitle": "Tortuga 1667", "question": "Who can initiate a mutiny?" }'
 ```
 
 3) Pregunta como no-premium:
 
 ```bash
-http :8080/ask \
-  -a donald:password \
-  gameTitle="Tortuga 1667" \
-  question="Who can initiate a mutiny?"
+curl -s http://localhost:8080/ask \
+  -u donald:password \
+  -H "Content-Type: application/json" \
+  -d '{ "gameTitle": "Tortuga 1667", "question": "Who can initiate a mutiny?" }'
 ```
 
 Si el contenido realmente es premium, `donald` no debería poder obtener respuesta (porque el vector store filter excluye `documentType='PREMIUM'`).
@@ -167,10 +184,10 @@ Si el contenido realmente es premium, `donald` no debería poder obtener respues
 Envía un texto que dispare moderación (ejemplo del capítulo: harassment):
 
 ```bash
-http :8080/ask \
-  -a mickey:password \
-  gameTitle="Carcassonne" \
-  question="Dishonor on you, dishonor on your family, dishonor on your cow"
+curl -s http://localhost:8080/ask \
+  -u mickey:password \
+  -H "Content-Type: application/json" \
+  -d '{ "gameTitle": "Carcassonne", "question": "Dishonor on you, dishonor on your family, dishonor on your cow" }'
 ```
 
 Esperado:

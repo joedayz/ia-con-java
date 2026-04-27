@@ -1,10 +1,11 @@
 package com.example.gamerulesloader;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +57,9 @@ public class GameRulesLoaderApplication {
               new ByteArrayResource(fileBytes))
               .get()
               .getFirst();
+          if (fileName != null && !fileName.isBlank()) {
+            document.getMetadata().put("sourceFileName", fileName);
+          }
           if (isPremiumDocument(fileName)) {
             document.getMetadata().put("documentType", "PREMIUM"); 
           }
@@ -82,6 +86,8 @@ public class GameRulesLoaderApplication {
   @Value("classpath:/promptTemplates/nameOfTheGame.st")
   Resource nameOfTheGameTemplateResource;
 
+  private static final Pattern EXTENSION = Pattern.compile("\\.[^.]+$");
+
   @Bean
   Function<Flux<List<Document>>, Flux<List<Document>>>
               titleDeterminer(ChatClient.Builder chatClientBuilder) {
@@ -100,16 +106,22 @@ public class GameRulesLoaderApplication {
                 .call()
                 .entity(GameTitle.class);
 
-            if (Objects.requireNonNull(gameTitle).title().equals("UNKNOWN")) {
-              LOGGER.warn("Unable to determine the name of a game; " +
-                  "not adding to vector store.");
-              documents = Collections.emptyList();
-              return documents;
+            var title = (gameTitle == null) ? null : gameTitle.title();
+            if (title == null || title.isBlank() || title.equals("UNKNOWN")) {
+              var filenameTitle = titleFromFilename(firstDocument);
+              if (filenameTitle == null) {
+                LOGGER.warn("Unable to determine the name of a game; not adding to vector store.");
+                documents = Collections.emptyList();
+                return documents;
+              }
+              gameTitle = filenameTitle;
+              LOGGER.info("Using filename-derived title: {}", gameTitle.title());
             }
 
             LOGGER.info("Determined game title to be {}", gameTitle.title());
+            var normalizedTitle = gameTitle.getNormalizedTitle();
             documents = documents.stream().peek(document -> {
-              document.getMetadata().put("gameTitle", gameTitle.getNormalizedTitle()); 
+              document.getMetadata().put("gameTitle", normalizedTitle);
             }).toList();
           }
 
@@ -117,15 +129,34 @@ public class GameRulesLoaderApplication {
         });
   }
 
+  private GameTitle titleFromFilename(Document document) {
+    var fileName = (String) document.getMetadata().get("sourceFileName");
+    if (fileName == null || fileName.isBlank()) return null;
+
+    var base = EXTENSION.matcher(fileName).replaceAll("");
+    if (base.endsWith("-premium")) base = base.substring(0, base.length() - "-premium".length());
+
+    // turn Spec-Driven-Development -> "Spec Driven Development"
+    var words = base.replace('_', ' ').replace('-', ' ').trim().replaceAll("\\s+", " ");
+    if (words.isBlank()) return null;
+
+    var titleCased = Arrays.stream(words.split(" "))
+        .filter(w -> !w.isBlank())
+        .map(w -> w.substring(0, 1).toUpperCase() + w.substring(1).toLowerCase())
+        .reduce((a, b) -> a + " " + b)
+        .orElse("");
+    if (titleCased.isBlank()) return null;
+    return new GameTitle(titleCased);
+  }
+
   @Bean
   Consumer<Flux<List<Document>>> vectorStoreConsumer(VectorStore vectorStore) {
     return documentFlux -> documentFlux
+      .filter(documents -> documents != null && !documents.isEmpty())
       .doOnNext(documents -> {
         var docCount = documents.size();
         LOGGER.info("Writing {} documents to vector store.", docCount);
-
         vectorStore.accept(documents);
-
         LOGGER.info("{} documents have been written to vector store.", docCount);
       })
       .subscribe();

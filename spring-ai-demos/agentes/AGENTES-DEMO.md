@@ -115,8 +115,60 @@ cd spring-ai-demos/agentes/parallelization
 ```bash
 curl -s http://localhost:8080/ask \
   -H "Content-Type: application/json" \
-  -d '{ "question": "Summarize and list mechanics for Sagrada." }'
+  -d '{ "question": "Tell me about Azul" }'
 ```
+
+Este flujo corre así (como en el libro): `RuleFetcher` → `ParallelizerAction` (playerCount + mechanics) → `SummarizerAction`.
+
+## 5) Embabel (self-planning) (`embabel-games-agent`)
+
+Este demo **no expone REST controller**: levanta un **shell interactivo** (Embabel Agent Shell).
+
+### Levantar
+
+Primero configura `boardgame.rules.path` a tu folder local con reglas:
+
+```bash
+cd spring-ai-demos/agentes/embabel-games-agent
+SPRING_PROFILES_ACTIVE=shell \
+  ./gradlew bootRun -Dspring-boot.run.jvmArguments="-Dboardgame.rules.path=file:/absolute/path/to/BoardGameRules"
+```
+
+### Probar
+
+Cuando arranque, verás un prompt `embabel>`. Algunos comandos útiles:
+
+- `agents` (lista agentes)
+- `actions` (lista acciones)
+- `chat` (modo chat)
+- `execute "..."` (ejecuta un input)
+- `goals` (lista goals)
+- `help` (ayuda)
+
+Ejemplos (del libro):
+
+```text
+embabel> execute "How many can play Azul?"
+embabel> execute "What are the mechanics in Azul?"
+```
+
+> Si `embabel.shell.chat.confirm-goals=true`, el shell te pedirá confirmación antes de ejecutar el plan.
+
+## 6) Embabel + MCP (`embabel-games-agent-mcp`)
+
+Este demo expone herramientas vía MCP (por defecto los servidores MCP suelen escuchan en `server.port=3001`, que ya viene configurado).
+
+```bash
+cd spring-ai-demos/agentes/embabel-games-agent-mcp
+./gradlew bootRun -Dspring-boot.run.jvmArguments="-Dboardgame.rules.path=file:/absolute/path/to/BoardGameRules"
+```
+
+### Probar con MCP Inspector
+
+- Transport type: `SSE`
+- URL: `http://localhost:3001/sse`
+
+En “Tools” deberías ver herramientas remotas como `playerCount` y `gameMechanics`.
 
 ## Notas de compatibilidad
 

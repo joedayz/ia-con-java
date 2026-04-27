@@ -28,8 +28,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 
     // Docker compose
-    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-    developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
+    //developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    //developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
 
     // persistence
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'

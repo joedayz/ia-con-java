@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.ai.reader.tika.TikaDocumentReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.stringtemplate.v4.ST;
 
 import java.io.IOException;
@@ -43,10 +44,13 @@ public class GameInfoAgent {
   Resource mechanicsDeterminerPromptTemplate;
 
   private final String rulesFilePath;
+  private final ResourceLoader resourceLoader;
 
   public GameInfoAgent(
-      @Value("${boardgame.rules.path}") String rulesFilePath) {
+      @Value("${boardgame.rules.path:}") String rulesFilePath,
+      ResourceLoader resourceLoader) {
     this.rulesFilePath = rulesFilePath;
+    this.resourceLoader = resourceLoader;
   }
 
   //
@@ -75,7 +79,20 @@ public class GameInfoAgent {
   public GameRules getGameRules(GameTitle gameTitle, RulesFile rulesFile) {
     LOGGER.info("Getting game rules for: " + gameTitle.gameTitle() + " from file: " + rulesFile.filename());
     if (rulesFile.successful()) {
-      String rulesContent = new TikaDocumentReader(rulesFilePath + "/" + rulesFile.filename())
+      if (rulesFilePath == null || rulesFilePath.isBlank()) {
+        throw new ActionFailedException("""
+            Missing required property 'boardgame.rules.path'.
+            Set it to a local folder containing the rules files, for example:
+              boardgame.rules.path=file:/absolute/path/to/BoardGameRules
+            """);
+      }
+
+      var base = rulesFilePath.endsWith("/")
+          ? rulesFilePath.substring(0, rulesFilePath.length() - 1)
+          : rulesFilePath;
+      var rulesResource = resourceLoader.getResource(base + "/" + rulesFile.filename());
+
+      String rulesContent = new TikaDocumentReader(rulesResource)
           .get()
           .getFirst()
           .getText();

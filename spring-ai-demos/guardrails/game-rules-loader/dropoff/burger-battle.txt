@@ -1,0 +1,23 @@
+Burger Battle (board game) quick rules and reference
+
+Objective
+- Build and serve the best burgers to score points.
+
+Classic Burger (reference recipe)
+- Bun (top and bottom)
+- Beef patty
+- Cheddar cheese
+- Lettuce
+- Tomato
+- Pickles
+- Onion
+- Ketchup and mustard
+
+Gameplay (very short)
+- On your turn, draft ingredients, then assemble burgers that match recipes.
+- Completed burgers are scored and cleared from your tray.
+
+FAQ
+Q: What ingredients are on the Classic burger?
+A: Bun, beef patty, cheddar, lettuce, tomato, pickles, onion, ketchup, mustard.
+

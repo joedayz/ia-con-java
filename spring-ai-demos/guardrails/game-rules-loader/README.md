@@ -6,7 +6,10 @@ in this project since chapter 3.
 
 ## Quick Start
 You'll need Docker installed and running on your machine. When the application
-starts, it uses a docker-compose.yaml file to start a ChromaDB instance.
+starts, it uses a docker-compose.yaml file to start a Qdrant instance.
+
+If you already have Qdrant running (for example from `../board-game-buddy_3/compose.yaml`),
+don't start a second Qdrant container on the same ports. Just reuse the existing one.
 
 You'll also need an OpenAI API key. You can get one by signing up at
 https://platform.openai.com/ and creating an API key. Set it to an environment
@@ -18,8 +21,9 @@ Run the following command to start the application:
 ./gradlew bootRun
 ```
 
-Then copy documents (PDF, text, Excel, etc) into the `/var/dropoff` directory
-to have them loaded into Chroma. Note that larger documents take more time to
+Then copy documents (PDF, text, Excel, etc) into the `./dropoff` directory
+(relative to the project root when you run it) to have them loaded into Chroma.
+Note that larger documents take more time to
 load, so watch the logs to know when the document has been completely loaded.
 
 ## Technical Details
@@ -70,8 +74,8 @@ spring:
 ```
 
 The `fileSupplier` function is provided by the Spring Function Catalog and
-is configured in `src/main/resources/application.yml` to watch for files to
-appear in the `/var/dropoff` directory. When a file appears, the function
+is configured in `src/main/resources/application.properties` to watch for files to
+appear in the `./dropoff` directory. When a file appears, the function
 reads the file and sends it to the `vectorStoreLoaderConsumer` function.
 
 The `vectorStoreLoaderConsumer` function is defined in the `VectorStoreLoader`
@@ -84,5 +88,13 @@ a `ChromaVectorStore`).
 
 The function is kicked off by the `ApplicationRunner` bean, which looks up
 the composed function and calls its `run()` method. From that point, the
-`fileSupplier` function is watching for files to appear in the `/var/dropoff`
+`fileSupplier` function is watching for files to appear in the `./dropoff`
 directory.
+
+### Configuring the dropoff directory
+
+If you prefer a different directory (absolute path), override:
+
+```shell
+export FILE_SUPPLIER_DIRECTORY="/absolute/path/to/dropoff"
+```
