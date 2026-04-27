@@ -93,6 +93,10 @@ cd spring-ai-demos/ai-patterns/board-game-buddy
 ./gradlew bootRun
 ```
 
+Nota (OpenAI Moderation):
+- Si ves `Invalid value for 'model' = text-moderation-latest`, asegúrate de tener configurado:
+  - `spring.ai.openai.moderation.options.model=omni-moderation-latest`
+
 ### 3.1) Preguntar (`/ask`)
 
 ```bash
@@ -114,7 +118,7 @@ Envía un PDF/archivo como `multipart/form-data` en el part `rulesDocument`:
 ```bash
 curl -s http://localhost:8080/summarize \
   -u mickey:password \
-  -F "rulesDocument=@/absolute/path/to/rules.pdf;type=application/pdf"
+  -F "rulesDocument=@$(pwd)/docs/09_Spec-Driven-Development.pdf;type=application/pdf"
 ```
 
 ## 4) Summarization runner (`summarization`)
@@ -125,7 +129,7 @@ Este demo no expone endpoint: corre al iniciar la app **si** configuras `rules.r
 
 ```bash
 cd spring-ai-demos/ai-patterns/summarization
-./gradlew bootRun -Drules.resource="file:/absolute/path/to/rules.pdf"
+./gradlew bootRun -Dspring-boot.run.jvmArguments="-Drules.resource=file:$(cd ../../.. && pwd)/docs/09_Spec-Driven-Development.pdf"
 ```
 
 ## Notas sobre “desactualizado”
