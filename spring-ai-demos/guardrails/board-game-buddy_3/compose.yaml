@@ -2,7 +2,8 @@ services:
   qdrant:
     image: 'qdrant/qdrant:latest'
     ports:
-      - '6334'
+      - '6333:6333' # REST
+      - '6334:6334' # gRPC
   jaeger:
     image: jaegertracing/all-in-one:1.51 # At least 1.35 if you want to have enabled collector
     container_name: jaeger
