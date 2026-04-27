@@ -22,9 +22,24 @@ Run the following command to start the application:
 ```
 
 Then copy documents (PDF, text, Excel, etc) into the `./dropoff` directory
-(relative to the project root when you run it) to have them loaded into Chroma.
+(relative to the project root when you run it) to have them loaded into Qdrant.
 Note that larger documents take more time to
 load, so watch the logs to know when the document has been completely loaded.
+
+### Demo file: `Spec-Driven-Development-premium.pdf`
+
+If you're using the demo file:
+
+`dropoff/Spec-Driven-Development-premium.pdf`
+
+It will be tagged as:
+
+- `documentType=PREMIUM` (because the filename ends with `-premium`)
+- `gameTitle=spec_driven_development` (slug)
+
+If the title can't be reliably determined from the document content, the loader
+falls back to the filename to build a title like `Spec Driven Development` and then
+normalizes it to the slug above.
 
 ## Technical Details
 

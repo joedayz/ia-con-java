@@ -103,6 +103,12 @@ Para probar premium content:
 cp "/ruta/a/tu-documento.pdf" ./dropoff/tu-documento-premium.pdf
 ```
 
+Demo sugerida (este repo):
+
+```bash
+cp "/ruta/a/Spec-Driven-Development-premium.pdf" ./dropoff/Spec-Driven-Development-premium.pdf
+```
+
 Nota:
 - Este proyecto trae `docker-compose.yaml` con Qdrant; Spring Boot lo levanta automáticamente (Docker Compose support).
 - Si quieres otra carpeta, override `file.supplier.directory` (o exporta `FILE_SUPPLIER_DIRECTORY`).
@@ -165,7 +171,7 @@ Invoke-RestMethod "http://localhost:8080/ask" `
 curl -s http://localhost:8080/ask \
   -u mickey:password \
   -H "Content-Type: application/json" \
-  -d '{ "gameTitle": "Tortuga 1667", "question": "Who can initiate a mutiny?" }'
+  -d '{ "gameTitle": "Spec Driven Development", "question": "Give me a short summary." }'
 ```
 
 3) Pregunta como no-premium:
@@ -174,7 +180,7 @@ curl -s http://localhost:8080/ask \
 curl -s http://localhost:8080/ask \
   -u donald:password \
   -H "Content-Type: application/json" \
-  -d '{ "gameTitle": "Tortuga 1667", "question": "Who can initiate a mutiny?" }'
+  -d '{ "gameTitle": "Spec Driven Development", "question": "Give me a short summary." }'
 ```
 
 Si el contenido realmente es premium, `donald` no debería poder obtener respuesta (porque el vector store filter excluye `documentType='PREMIUM'`).
