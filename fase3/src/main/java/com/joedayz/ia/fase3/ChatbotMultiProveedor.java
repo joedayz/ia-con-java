@@ -51,7 +51,7 @@ public class ChatbotMultiProveedor {
                     servicio = new ServicioIA(
                         EnvConfig.getAnthropicApiBase(),
                         EnvConfig.getAnthropicApiKey(),
-                        "claude-3-haiku-20240307"
+                        "claude-haiku-4-5"
                     );
                     nombreProveedor = "Anthropic Claude 3 Haiku";
                 }

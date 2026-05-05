@@ -38,7 +38,7 @@ public class ServicioIA {
             String base = EnvConfig.get("ANTHROPIC_API_BASE", "https://api.anthropic.com/v1");
             this.baseUrl = base.endsWith("/") ? base : base + "/";
             this.apiKey = anthropicKey;
-            this.model = "claude-3-haiku-20240307";
+            this.model = "claude-haiku-4-5";
         } else {
             throw new IllegalStateException("Falta OPENAI_API_KEY o ANTHROPIC_API_KEY en .env");
         }
@@ -73,7 +73,7 @@ public class ServicioIA {
         return new ServicioIA(
             base,
             EnvConfig.getAnthropicApiKey(),
-            "claude-3-haiku-20240307"
+            "claude-haiku-4-5"
         );
     }
 

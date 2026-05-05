@@ -16,7 +16,7 @@ import java.time.Duration;
 public class MultiProviderChat {
 
     private static final String OPENAI_MODEL = "gpt-3.5-turbo";
-    private static final String ANTHROPIC_MODEL = "claude-3-haiku-20240307";
+    private static final String ANTHROPIC_MODEL = "claude-haiku-4-5";
     private static final String GEMINI_MODEL = "gemini-2.5-flash";
 
     private final String provider;
@@ -40,7 +40,7 @@ public class MultiProviderChat {
     public String getProviderName() {
         return switch (provider.toLowerCase()) {
             case "openai" -> "OpenAI (GPT-3.5)";
-            case "anthropic" -> "Anthropic (Claude 3 Haiku)";
+            case "anthropic" -> "Anthropic (Claude Haiku 4.5)";
             case "gemini" -> "Google Gemini 2.5 Flash";
             default -> provider;
         };

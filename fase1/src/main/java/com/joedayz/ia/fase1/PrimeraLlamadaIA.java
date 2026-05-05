@@ -27,7 +27,7 @@ import java.time.Duration;
 public class PrimeraLlamadaIA {
 
     private static final String OPENAI_MODEL = "gpt-3.5-turbo";
-    private static final String ANTHROPIC_MODEL = "claude-3-haiku-20240307";
+    private static final String ANTHROPIC_MODEL = "claude-haiku-4-5";
     private static final String GEMINI_MODEL = "gemini-2.5-flash";
 
     public static void main(String[] args) throws Exception {
