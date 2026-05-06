@@ -1,6 +1,9 @@
 package com.carmanagement.agentic.agents;
 
+import org.eclipse.microprofile.faulttolerance.Retry;
+
 import com.carmanagement.model.CarInfo;
+
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
@@ -25,6 +28,7 @@ public interface CarConditionFeedbackAgent {
             
             Feedback: {feedback}
             """)
+    @Retry(maxRetries = 3, delay = 500)  // Reintenta ante fallos transitorios del LLM (rate limit, timeout)
     @Agent(outputKey = "carCondition",
             description = "Car condition analyzer. Determines the current condition of a car based on feedback.")
     String analyzeForCondition(

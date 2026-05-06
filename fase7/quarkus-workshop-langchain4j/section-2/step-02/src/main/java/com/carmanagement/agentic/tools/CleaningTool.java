@@ -1,11 +1,13 @@
 package com.carmanagement.agentic.tools;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.transaction.Transactional;
+import org.eclipse.microprofile.faulttolerance.Retry;
 
 import com.carmanagement.model.CarInfo;
 import com.carmanagement.model.CarStatus;
+
 import dev.langchain4j.agent.tool.Tool;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 
 /**
  * Tool for requesting cleaning operations.
@@ -28,6 +30,7 @@ public class CleaningTool {
      * @return A summary of the cleaning request
      */
     @Tool("Requests a cleaning with the specified options")
+    @Retry(maxRetries = 3, delay = 200)  // Reintenta ante fallos transitorios de BD o servicio externo
     @Transactional    
     public String requestCleaning(
             Integer carNumber,

@@ -1,12 +1,14 @@
 package com.carmanagement.agentic.agents;
 
-import io.quarkiverse.langchain4j.ToolBox;
+import org.eclipse.microprofile.faulttolerance.Retry;
 
 import com.carmanagement.agentic.tools.CleaningTool;
 import com.carmanagement.model.CarInfo;
+
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
+import io.quarkiverse.langchain4j.ToolBox;
 
 /**
  * Agent that determines what cleaning services to request.
@@ -31,6 +33,7 @@ public interface CleaningAgent {
         
         Feedback: {feedback}
         """)
+    @Retry(maxRetries = 3, delay = 500)  // Reintenta ante fallos transitorios del LLM (rate limit, timeout)
     @Agent(outputKey = "cleaningAgentResult",
             description = "Cleaning specialist. Determines what cleaning services are needed.")
     @ToolBox(CleaningTool.class)
