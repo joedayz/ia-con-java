@@ -1,9 +1,10 @@
 package com.carmanagement.agentic.workflow;
 
 import com.carmanagement.agentic.agents.CarConditionFeedbackAgent;
-import com.carmanagement.model.CarConditions;
 import com.carmanagement.model.CarAssignment;
+import com.carmanagement.model.CarConditions;
 import com.carmanagement.model.CarInfo;
+
 import dev.langchain4j.agentic.declarative.Output;
 import dev.langchain4j.agentic.declarative.SequenceAgent;
 
@@ -39,7 +40,9 @@ public interface CarProcessingWorkflow {
     }
 
     private static boolean isRequired(String value) {
-        return value != null && !value.isEmpty() && !value.toUpperCase().contains("NOT_REQUIRED");
+        if (value == null || value.isEmpty()) return false;
+        String upper = value.toUpperCase();
+        return !upper.contains("NOT_REQUIRED") && !upper.contains("NOT REQUIRED");
     }
 }
 

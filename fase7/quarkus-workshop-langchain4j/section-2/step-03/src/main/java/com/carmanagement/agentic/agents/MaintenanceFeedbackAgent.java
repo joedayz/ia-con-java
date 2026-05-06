@@ -1,6 +1,7 @@
 package com.carmanagement.agentic.agents;
 
 import com.carmanagement.model.CarInfo;
+
 import dev.langchain4j.agentic.Agent;
 import dev.langchain4j.service.SystemMessage;
 import dev.langchain4j.service.UserMessage;
@@ -16,7 +17,8 @@ public interface MaintenanceFeedbackAgent {
         If the feedback mentions mechanical issues, strange noises, performance problems, significant body damage or anything that suggests
         the car needs maintenance, recommend appropriate maintenance.
         Be specific about what type of maintenance is needed (oil change, tire rotation, brake service, engine service, transmission service, body work).
-        If no service of any kind, repairs or maintenance are needed, respond with "MAINTENANCE_NOT_REQUIRED".
+        IMPORTANT: If no service, repairs or maintenance are needed, you MUST start your response with the exact keyword "MAINTENANCE_NOT_REQUIRED" followed by a brief reason.
+        Do NOT use any other phrasing (e.g. "not required", "no maintenance needed") when maintenance is not needed — always use "MAINTENANCE_NOT_REQUIRED", regardless of the language of the feedback provided.
         Include the reason for your choice but keep your response short.
         """)
     @UserMessage("""

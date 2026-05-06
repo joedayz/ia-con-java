@@ -3,6 +3,7 @@ package com.carmanagement.agentic.workflow;
 import com.carmanagement.agentic.agents.CleaningAgent;
 import com.carmanagement.agentic.agents.MaintenanceAgent;
 import com.carmanagement.model.CarInfo;
+
 import dev.langchain4j.agentic.declarative.ActivationCondition;
 import dev.langchain4j.agentic.declarative.ConditionalAgent;
 
@@ -34,7 +35,9 @@ public interface CarAssignmentWorkflow {
     }
 
     private static boolean isRequired(String value) {
-        return value != null && !value.isEmpty() && !value.toUpperCase().contains("NOT_REQUIRED");
+        if (value == null || value.isEmpty()) return false;
+        String upper = value.toUpperCase();
+        return !upper.contains("NOT_REQUIRED") && !upper.contains("NOT REQUIRED");
     }
     // --8<-- [end:conditional-agent]
 }
