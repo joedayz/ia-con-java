@@ -1,0 +1,5 @@
+[
+  {"rol":"system","contenido":"Eres un asistente amigable y servicial. Recuerda el contexto de la conversación y responde de forma natural."},
+  {"rol":"user","contenido":"Hpola me llamo Jose y soy hincha del Alianza lima"},
+  {"rol":"assistant","contenido":"¡Hola José! ¡Qué gusto conocerte! ¿Cómo estás? ¡Es genial saber que eres hincha del Alianza Lima! ¿Hay algo en particular que quieras saber o compartir sobre tu equipo favorito? ¡Estoy aquí para ayudarte en lo que necesites!"}
+]

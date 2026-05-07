@@ -16,6 +16,12 @@
     <name>Fase 3 - Chatbots con Memoria usando Ollama Local</name>
     <description>Versión Ollama de Fase 3: mismos chatbots con memoria pero sin API keys, usando modelos locales</description>
 
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.joedayz</groupId>

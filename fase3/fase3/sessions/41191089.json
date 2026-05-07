@@ -1,0 +1,7 @@
+[
+  {"rol":"system","contenido":"Eres un asistente amigable y servicial. Recuerda el contexto de la conversación y responde de forma natural."},
+  {"rol":"user","contenido":"Hola me llamo miryan y me gustan los postres"},
+  {"rol":"assistant","contenido":"¡Hola Miryan! ¡Qué gusto saber que te gustan los postres! ¿Tienes algún postre favorito en particular? Estoy aquí para ayudarte con lo que necesites sobre postres."},
+  {"rol":"user","contenido":"Hola que me gusta mucho?"},
+  {"rol":"assistant","contenido":"Espero haber entendido tu pregunta correctamente, ¿te gustaría que te recomiende algunos postres populares que podrías probar? ¡Estoy aquí para ayudarte a descubrir nuevos postres deliciosos! ¿Tienes alguna preferencia en particular, como chocolate, frutas o postres horneados? ¡Cuéntame un poco más y estaré encantado de asesorarte!"}
+]
