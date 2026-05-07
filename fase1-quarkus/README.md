@@ -12,7 +12,7 @@ Esta es la versión con **Quarkus** del proyecto Fase 1. Proporciona una API RES
 
 ## 📋 Requisitos
 
-- Java 17+
+- Java 21+
 - Maven 3.6+
 - API Key de OpenAI (configurada en variable de entorno `OPENAI_API_KEY`)
 

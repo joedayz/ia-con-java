@@ -19,7 +19,7 @@ echo "3. POST con system prompt..."
 curl -s -X POST http://localhost:8080/api/chat \
   -H "Content-Type: application/json" \
   -d '{
-    "message": "Explica qué es un LLM en una frase simple",
+    "message": "Explica qué es un Large Language Model (LLM) en una frase simple",
     "system_prompt": "Eres un profesor que explica conceptos complejos de forma muy simple"
   }'
 echo -e "\n"
