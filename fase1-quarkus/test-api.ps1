@@ -65,8 +65,18 @@ Write-Host " Fase 1 Quarkus API Tests"
 Write-Host "================================================="
 
 if (-not $SkipServerCheck) {
-    $healthCheck = Invoke-Api -Method GET -Url "$BaseUrl/api/chat/health"
-    if (-not $healthCheck.Success) {
+    $uri = [System.Uri]$BaseUrl
+    $serverReachable = $false
+    try {
+        $tcp = New-Object System.Net.Sockets.TcpClient
+        $tcp.Connect($uri.Host, $uri.Port)
+        $tcp.Close()
+        $serverReachable = $true
+    } catch {
+        $serverReachable = $false
+    }
+
+    if (-not $serverReachable) {
         Write-Host "Server not reachable at $BaseUrl" -ForegroundColor Red
         Write-Host "Start with: mvn quarkus:dev"
         exit 1
