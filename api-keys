@@ -1,5 +1,20 @@
-Get-Content "$env:USERPROFILE\.api-keys" | ForEach-Object {
-    if ($_ -match '^([^#][^=]+)=(.*)$') {
-        [System.Environment]::SetEnvironmentVariable($matches[1].Trim(), $matches[2].Trim(), 'Process')
-    }
-}
+# =============================================
+# API Keys - Variables de entorno
+# =============================================
+# IMPORTANTE: No subir este archivo a Git
+# =============================================
+
+# OpenAI
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Ollama (local - generalmente no necesita key)
+OLLAMA_BASE_URL=http://localhost:11434
+
+# Anthropic (Claude)
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Google Gemini
+GOOGLE_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Hugging Face
+HUGGINGFACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
