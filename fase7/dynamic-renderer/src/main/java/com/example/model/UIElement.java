@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = TextElement.class, name = "text"),
         @JsonSubTypes.Type(value = BookElement.class, name = "book"),
         @JsonSubTypes.Type(value = PodcastElement.class, name = "podcast"),
+    @JsonSubTypes.Type(value = Article.class, name = "article"),
         @JsonSubTypes.Type(value = ListElement.class, name = "list"),
         @JsonSubTypes.Type(value = WebsiteElement.class, name = "website")
 })

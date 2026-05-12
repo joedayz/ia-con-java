@@ -53,6 +53,14 @@
         </div>
       `;
 
+    const Article = ({ title, url }) => html`
+        <div class="fade-in" style="margin-bottom: 1rem;">
+          <a href="${url}" target="_blank" rel="noopener noreferrer">
+            🔗 ${title}
+          </a>
+        </div>
+      `;
+
     const UnsupportedRender = ({ renderHint, data }) => html`
         <div class="fade-in" style="margin-bottom: 1rem;">
           <h3>${renderHint}</h3>
@@ -74,6 +82,8 @@
           return html`<${Book} ...${data} />`;
         case "podcast":
           return html`<${Podcast} ...${data} />`;
+        case "article":
+          return html`<${Article} ...${data} />`;
         default:
           return html`<${UnsupportedRender} renderHint=${renderHint} data=${data} />`;
       }

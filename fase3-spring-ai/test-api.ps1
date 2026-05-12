@@ -5,6 +5,8 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$SupportsSkipHttpErrorCheck = ($PSVersionTable.PSVersion.Major -ge 7)
+
 function Write-TestResult {
     param(
         [string]$Name,
@@ -36,9 +38,16 @@ function Invoke-Api {
     )
 
     $requestParams = @{
-        Uri                = $Url
-        Method             = $Method
-        SkipHttpErrorCheck = $true
+        Uri    = $Url
+        Method = $Method
+    }
+
+    if ($PSVersionTable.PSEdition -eq "Desktop") {
+        $requestParams.UseBasicParsing = $true
+    }
+
+    if ($SupportsSkipHttpErrorCheck) {
+        $requestParams.SkipHttpErrorCheck = $true
     }
 
     if ($null -ne $Body) {
@@ -46,7 +55,40 @@ function Invoke-Api {
         $requestParams.Body = $Body | ConvertTo-Json -Depth 10 -Compress
     }
 
-    $response = Invoke-WebRequest @requestParams
+    try {
+        $response = Invoke-WebRequest @requestParams
+    }
+    catch {
+        if ($null -eq $_.Exception.Response) {
+            throw
+        }
+
+        $errorResponse = $_.Exception.Response
+        $statusCode = [int]$errorResponse.StatusCode
+        $content = ""
+
+        if ($null -ne $errorResponse.GetResponseStream()) {
+            $reader = New-Object System.IO.StreamReader($errorResponse.GetResponseStream())
+            $content = $reader.ReadToEnd()
+            $reader.Close()
+        }
+
+        $parsed = $null
+        try {
+            $parsed = $content | ConvertFrom-Json
+        }
+        catch {
+            # Response is not JSON; keep raw content.
+        }
+
+        return [pscustomobject]@{
+            Success    = ($statusCode -ge 200 -and $statusCode -lt 300)
+            StatusCode = $statusCode
+            Content    = [string]$content
+            Data       = $parsed
+        }
+    }
+
     $parsed = $null
     try {
         $parsed = $response.Content | ConvertFrom-Json
@@ -92,19 +134,21 @@ Write-Host "============================================================"
 Write-Host ""
 
 Write-Host "Checking server at $BaseUrl ..."
+$health = $null
 try {
-    $health = Invoke-WebRequest -Uri "$BaseUrl/actuator/health" -Method GET -TimeoutSec 5 -SkipHttpErrorCheck
-    if ($health.StatusCode -ge 200 -and $health.StatusCode -lt 300) {
-        Write-Host "[OK] Server is running" -ForegroundColor Green
-    }
-    else {
-        Write-Host "[FAIL] Health endpoint returned status $($health.StatusCode)" -ForegroundColor Red
-        exit 1
-    }
+    $health = Invoke-Api -Method GET -Url "$BaseUrl/actuator/health"
 }
 catch {
     Write-Host "[FAIL] Server is not running at $BaseUrl" -ForegroundColor Red
     Write-Host "Start it with: mvn spring-boot:run"
+    exit 1
+}
+
+if ($health.Success) {
+    Write-Host "[OK] Server is running" -ForegroundColor Green
+}
+else {
+    Write-Host "[FAIL] Health endpoint returned status $($health.StatusCode)" -ForegroundColor Red
     exit 1
 }
 
@@ -158,7 +202,7 @@ Write-TestResult -Name "Search returns cosine-related result" -Passed ($search.S
 
 Write-Section "Test 5: Basic RAG"
 
-$rag = Invoke-Api -Method POST -Url "$BaseUrl/api/rag" -Body @{ question = "Explica la relacion entre embeddings y similitud coseno"; topK = 4 }
+$rag = Invoke-Api -Method POST -Url "$BaseUrl/api/rag" -Body @{ query = "Explica la relacion entre embeddings y similitud coseno"; topK = 4 }
 $ragText = To-CompactString -Value $rag
 Write-Host "RAG: $ragText"
 Write-TestResult -Name "RAG endpoint returns answer" -Passed ($rag.Success -and $ragText -match "(?i)answer")
