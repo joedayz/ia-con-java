@@ -15,6 +15,9 @@
         <option value="$PROJECT_DIR$/fase1-springboot/pom.xml" />
         <option value="$PROJECT_DIR$/spring-ai-demos/spring-ai-zero-to-hero/components/patterns/02-retrieval-augmented-generation/pom.xml" />
         <option value="$PROJECT_DIR$/fase6-spring-ai-voice-and-pictures/pom.xml" />
+        <option value="$PROJECT_DIR$/fase7/quarkus-workshop-langchain4j/section-2/step-06/pom.xml" />
+        <option value="$PROJECT_DIR$/fase7/quarkus-workshop-langchain4j/section-2/step-07/multi-agent-system/pom.xml" />
+        <option value="$PROJECT_DIR$/fase7/quarkus-workshop-langchain4j/section-2/step-07/remote-a2a-agent/pom.xml" />
       </list>
     </option>
   </component>
