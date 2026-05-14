@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.joedayz</groupId>
-    <artifactId>fase5-mcp</artifactId>
+    <artifactId>fase6-mcp</artifactId>
     <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>Fase 5 MCP</name>

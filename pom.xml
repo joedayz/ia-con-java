@@ -25,10 +25,10 @@
         <module>fase3-spring-ai-ollama</module>
         <module>fase4-spring-ai-ollama-pgvector</module>
         <module>fase4-spring-ai-openai-pgvector</module>
-        <module>fase4-spring-ai-tool-calling</module>
-        <module>fase4-langchain4j-tool-calling</module>
-        <module>fase5-mcp</module>
-        <module>fase7/dynamic-renderer</module>
+        <module>fase5-spring-ai-tool-calling</module>
+        <module>fase5-langchain4j-tool-calling</module>
+        <module>fase6-mcp</module>
+        <module>fase8/dynamic-renderer</module>
     </modules>
 
     <properties>

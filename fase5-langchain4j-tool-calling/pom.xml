@@ -12,15 +12,14 @@
     </parent>
 
     <groupId>com.joedayz</groupId>
-    <artifactId>fase6-spring-ai-voice-and-pictures</artifactId>
+    <artifactId>fase5-langchain4j-tool-calling</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>Fase 6 - Spring AI Voice and Pictures</name>
-    <description>Demo de generación de voz (TTS/STT) e imágenes (DALL-E / Vision) con Spring AI</description>
+    <name>Fase 4 LangChain4j Tool Calling - @Tool con LangChain4j y Ollama</name>
 
     <properties>
         <java.version>21</java.version>
-        <spring-ai.version>1.0.5</spring-ai.version>
+        <langchain4j.version>0.36.2</langchain4j.version>
     </properties>
 
     <dependencies>
@@ -30,21 +29,34 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring AI - OpenAI (chat, TTS, Whisper, DALL-E, Vision) -->
+        <!-- LangChain4j Ollama Spring Boot Starter (auto-configura ChatLanguageModel) -->
         <dependency>
-            <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-openai</artifactId>
-            <version>${spring-ai.version}</version>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j-ollama-spring-boot-starter</artifactId>
+            <version>${langchain4j.version}</version>
         </dependency>
 
-        <!-- Swagger UI -->
+        <!-- LangChain4j Core (AiServices, @Tool, etc.) -->
+        <dependency>
+            <groupId>dev.langchain4j</groupId>
+            <artifactId>langchain4j</artifactId>
+            <version>${langchain4j.version}</version>
+        </dependency>
+
+        <!-- Spring Boot Actuator -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Swagger UI / OpenAPI Documentation -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
 
-        <!-- Tests -->
+        <!-- Spring Boot Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

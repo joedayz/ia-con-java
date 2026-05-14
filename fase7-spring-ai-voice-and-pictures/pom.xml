@@ -12,10 +12,11 @@
     </parent>
 
     <groupId>com.joedayz</groupId>
-    <artifactId>fase4-spring-ai-tool-calling</artifactId>
+    <artifactId>fase7-spring-ai-voice-and-pictures</artifactId>
     <version>1.0.0</version>
     <packaging>jar</packaging>
-    <name>Fase 4 Spring AI Tool Calling - Function Calling con Spring AI y Ollama</name>
+    <name>Fase 6 - Spring AI Voice and Pictures</name>
+    <description>Demo de generación de voz (TTS/STT) e imágenes (DALL-E / Vision) con Spring AI</description>
 
     <properties>
         <java.version>21</java.version>
@@ -29,45 +30,27 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- Spring AI Ollama (chat + tool calling) -->
+        <!-- Spring AI - OpenAI (chat, TTS, Whisper, DALL-E, Vision) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-ollama</artifactId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
             <version>${spring-ai.version}</version>
         </dependency>
 
-        <!-- Spring Boot Actuator -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
-        </dependency>
-
-        <!-- Swagger UI / OpenAPI Documentation -->
+        <!-- Swagger UI -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
             <version>2.5.0</version>
         </dependency>
 
-        <!-- Spring Boot Test -->
+        <!-- Tests -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.ai</groupId>
-                <artifactId>spring-ai-bom</artifactId>
-                <version>${spring-ai.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
@@ -77,15 +60,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <repositories>
-        <repository>
-            <id>spring-milestones</id>
-            <name>Spring Milestones</name>
-            <url>https://repo.spring.io/milestone</url>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
 </project>
