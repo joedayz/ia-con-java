@@ -1,0 +1,16 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: springai-workshop-weather-mcp-server
+  ai:
+    mcp:
+      server:
+        name: weather-service
+        version: 1.0.0
+        type: SYNC
+
+logging:
+  level:
+    io.modelcontextprotocol: INFO
