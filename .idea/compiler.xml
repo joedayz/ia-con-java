@@ -47,6 +47,9 @@
       <module name="board-game-buddy" options="-parameters" />
       <module name="board-game-buddy.main" options="-parameters" />
       <module name="board-game-buddy.test" options="-parameters" />
+      <module name="board-game-buddy_1.board-game-buddy" options="-parameters" />
+      <module name="board-game-buddy_1.board-game-buddy.main" options="-parameters" />
+      <module name="board-game-buddy_1.board-game-buddy.test" options="-parameters" />
       <module name="com.example.board-game-buddy" options="-parameters" />
       <module name="com.example.board-game-buddy.main" options="-parameters" />
       <module name="com.example.board-game-buddy.test" options="-parameters" />

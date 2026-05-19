@@ -10,6 +10,7 @@ spring:
       chat:
         options:
           model: llama3.2:3b
+          format: ""
     mcp:
       client:
         sse:

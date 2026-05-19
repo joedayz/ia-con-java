@@ -24,27 +24,32 @@ public class OpenAiImageService implements ImageService {
     @Override
     public String generateImageUrl(String prompt) {
         LOG.info("Generando imagen (URL) para prompt: {}", prompt);
-        return generate(prompt, "url")
-                .getResult()
-                .getOutput()
-                .getUrl();
+        var output = generate(prompt).getResult().getOutput();
+        // gpt-image-1 devuelve base64; construimos data URI para el caller
+        if (output.getUrl() != null && !output.getUrl().isBlank()) {
+            return output.getUrl();
+        }
+        return "data:image/png;base64," + output.getB64Json();
     }
 
     @Override
     public byte[] generateImageBytes(String prompt) {
         LOG.info("Generando imagen (bytes) para prompt: {}", prompt);
-        String b64 = generate(prompt, "b64_json")
-                .getResult()
-                .getOutput()
-                .getB64Json();
-        return Base64.getDecoder().decode(b64);
+        var output = generate(prompt).getResult().getOutput();
+        if (output.getB64Json() != null && !output.getB64Json().isBlank()) {
+            return Base64.getDecoder().decode(output.getB64Json());
+        }
+        try {
+            return new java.net.URI(output.getUrl()).toURL().openStream().readAllBytes();
+        } catch (Exception e) {
+            throw new RuntimeException("Error descargando imagen desde URL: " + e.getMessage(), e);
+        }
     }
 
-    private ImageResponse generate(String prompt, String responseFormat) {
+    private ImageResponse generate(String prompt) {
         var options = ImageOptionsBuilder.builder()
                 .width(1024)
                 .height(1024)
-                .responseFormat(responseFormat)
                 .build();
         return imageModel.call(new ImagePrompt(prompt, options));
     }

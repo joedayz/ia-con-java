@@ -1,21 +1,25 @@
 package com.joedayz.ia.fase5.mcp.consumer.service;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.modelcontextprotocol.client.McpClient;
 import io.modelcontextprotocol.client.McpSyncClient;
 import io.modelcontextprotocol.client.transport.HttpClientSseClientTransport;
 import io.modelcontextprotocol.spec.McpSchema.CallToolRequest;
 import io.modelcontextprotocol.spec.McpSchema.CallToolResult;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.tool.ToolCallbackProvider;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
+import io.modelcontextprotocol.spec.McpSchema.TextContent;
 
 @Service
 public class McpGatewayService {
@@ -130,7 +134,10 @@ public class McpGatewayService {
             client = McpClient.sync(HttpClientSseClientTransport.builder(mcpServerUrl).build()).build();
             client.initialize();
             CallToolResult result = client.callTool(new CallToolRequest(toolName, args));
-            return result.toString();
+            return result.content().stream()
+                .filter(c -> c instanceof TextContent)
+                .map(c -> ((TextContent) c).text())
+                .collect(java.util.stream.Collectors.joining("\n"));
         } catch (Exception ex) {
             return null;
         } finally {

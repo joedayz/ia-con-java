@@ -11,8 +11,8 @@
     <name>Fase 5 MCP</name>
 
     <modules>
-        <module>fase5-mcp-provider</module>
-        <module>fase5-mcp-consumer</module>
+        <module>fase6-mcp-provider</module>
+        <module>fase6-mcp-consumer</module>
     </modules>
 </project>
 

@@ -1,4 +1,4 @@
-# Fase 5 - MCP con proveedor y consumidor
+# Fase 6 - MCP con proveedor y consumidor
 
 Esta demo agrega una fase de MCP con dos apps:
 
