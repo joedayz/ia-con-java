@@ -7,16 +7,16 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="fase2-ollama" />
-        <module name="fase5-mcp-provider" />
         <module name="fase1-ollama" />
         <module name="fase1-quarkus-ollama" />
         <module name="fase3-ollama" />
-        <module name="fase5-mcp-consumer" />
+        <module name="fase6-mcp-consumer" />
         <module name="02-retrieval-augmented-generation" />
         <module name="fase3" />
         <module name="fase2" />
         <module name="fase4-spring-ai-openai-pgvector" />
         <module name="fase1" />
+        <module name="fase6-mcp-provider" />
         <module name="fase1-quarkus" />
         <module name="fase5-langchain4j-tool-calling" />
         <module name="fase1-springboot" />
@@ -60,9 +60,9 @@
       <module name="fase4-spring-ai-ollama-pgvector" options="-parameters" />
       <module name="fase4-spring-ai-openai-pgvector" options="-parameters" />
       <module name="fase5-langchain4j-tool-calling" options="-parameters" />
-      <module name="fase5-mcp-consumer" options="-parameters" />
-      <module name="fase5-mcp-provider" options="-parameters" />
       <module name="fase5-spring-ai-tool-calling" options="-parameters" />
+      <module name="fase6-mcp-consumer" options="-parameters" />
+      <module name="fase6-mcp-provider" options="-parameters" />
       <module name="fase7-spring-ai-voice-and-pictures" options="-parameters" />
       <module name="mcp-client" options="-parameters" />
       <module name="mcp-client.main" options="-parameters" />
