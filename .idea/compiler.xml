@@ -10,22 +10,42 @@
         <module name="fase1-ollama" />
         <module name="fase1-quarkus-ollama" />
         <module name="fase3-ollama" />
+        <module name="springai-workshop-step-10" />
+        <module name="springai-workshop-step-11" />
         <module name="fase6-mcp-consumer" />
-        <module name="02-retrieval-augmented-generation" />
+        <module name="springai-workshop-section2-step-07-remote-pricing" />
         <module name="fase3" />
         <module name="fase2" />
-        <module name="fase4-spring-ai-openai-pgvector" />
         <module name="fase1" />
         <module name="fase6-mcp-provider" />
-        <module name="fase1-quarkus" />
         <module name="fase5-langchain4j-tool-calling" />
+        <module name="springai-workshop-section2-step-02" />
+        <module name="springai-workshop-section2-step-01" />
         <module name="fase1-springboot" />
-        <module name="fase3-spring-ai" />
+        <module name="springai-workshop-section2-step-04" />
         <module name="dynamic-renderer" />
+        <module name="springai-workshop-section2-step-03" />
         <module name="common" />
+        <module name="springai-workshop-section2-step-06" />
+        <module name="springai-workshop-section2-step-05" />
+        <module name="springai-workshop-section2-step-07" />
         <module name="fase5-spring-ai-tool-calling" />
+        <module name="springai-workshop-step-03" />
+        <module name="springai-workshop-step-04" />
+        <module name="springai-workshop-step-01" />
+        <module name="springai-workshop-step-02" />
+        <module name="02-retrieval-augmented-generation" />
+        <module name="springai-workshop-step-09" />
+        <module name="springai-workshop-step-07" />
+        <module name="springai-workshop-step-08" />
+        <module name="fase4-spring-ai-openai-pgvector" />
+        <module name="springai-workshop-step-05" />
+        <module name="springai-workshop-step-06" />
+        <module name="fase1-quarkus" />
+        <module name="fase3-spring-ai" />
         <module name="fase3-spring-ai-ollama" />
         <module name="fase4-spring-ai-ollama-pgvector" />
+        <module name="springai-workshop-step-08-mcp-server" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -82,6 +102,26 @@
       <module name="simple-functions" options="-parameters" />
       <module name="simple-functions.main" options="-parameters" />
       <module name="simple-functions.test" options="-parameters" />
+      <module name="springai-workshop-section2-step-01" options="-parameters" />
+      <module name="springai-workshop-section2-step-02" options="-parameters" />
+      <module name="springai-workshop-section2-step-03" options="-parameters" />
+      <module name="springai-workshop-section2-step-04" options="-parameters" />
+      <module name="springai-workshop-section2-step-05" options="-parameters" />
+      <module name="springai-workshop-section2-step-06" options="-parameters" />
+      <module name="springai-workshop-section2-step-07" options="-parameters" />
+      <module name="springai-workshop-section2-step-07-remote-pricing" options="-parameters" />
+      <module name="springai-workshop-step-01" options="-parameters" />
+      <module name="springai-workshop-step-02" options="-parameters" />
+      <module name="springai-workshop-step-03" options="-parameters" />
+      <module name="springai-workshop-step-04" options="-parameters" />
+      <module name="springai-workshop-step-05" options="-parameters" />
+      <module name="springai-workshop-step-06" options="-parameters" />
+      <module name="springai-workshop-step-07" options="-parameters" />
+      <module name="springai-workshop-step-08" options="-parameters" />
+      <module name="springai-workshop-step-08-mcp-server" options="-parameters" />
+      <module name="springai-workshop-step-09" options="-parameters" />
+      <module name="springai-workshop-step-10" options="-parameters" />
+      <module name="springai-workshop-step-11" options="-parameters" />
     </option>
   </component>
 </project>
