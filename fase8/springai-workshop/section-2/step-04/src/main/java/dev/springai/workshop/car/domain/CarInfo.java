@@ -26,7 +26,9 @@ public class CarInfo {
     @Column(name = "car_year", nullable = false)
     private Integer year;
 
-    @Column(name = "vehicle_condition", length = 255)
+    private static final int MAX_CONDITION_LENGTH = 1024;
+
+    @Column(name = "vehicle_condition", length = MAX_CONDITION_LENGTH)
     private String condition;
 
     @Enumerated(EnumType.STRING)
@@ -70,7 +72,13 @@ public class CarInfo {
     }
 
     public void setCondition(String condition) {
-        this.condition = condition;
+        if (condition == null) {
+            this.condition = null;
+        } else if (condition.length() <= MAX_CONDITION_LENGTH) {
+            this.condition = condition;
+        } else {
+            this.condition = condition.substring(0, MAX_CONDITION_LENGTH - 3) + "...";
+        }
     }
 
     public CarStatus getStatus() {
