@@ -28,7 +28,7 @@ export class DemoTitle extends LitElement {
         return html`
             <div class="title">
                 <h2>Miles of Smiles</h2>
-                <p style="text-align:center;color:#666;font-size:14px;">Spring AI · Step 10 · Observability</p>
+                <p style="text-align:center;color:#666;font-size:14px;">Spring AI · Step 11 · Local LLM + guardrails</p>
             </div>
             <div class="explanation">
                 <p>Welcome to Miles of Smiles!</p>
