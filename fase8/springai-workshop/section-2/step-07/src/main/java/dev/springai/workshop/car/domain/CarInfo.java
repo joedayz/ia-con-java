@@ -23,10 +23,10 @@ public class CarInfo {
     @Column(nullable = false)
     private String model;
 
-    @Column(nullable = false)
+    @Column(name = "car_year", nullable = false)
     private Integer year;
 
-    @Column(length = 255)
+    @Column(name = "vehicle_condition", length = 255)
     private String condition;
 
     @Enumerated(EnumType.STRING)

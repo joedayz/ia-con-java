@@ -23,7 +23,7 @@ public class CarInfo {
     @Column(nullable = false)
     private String model;
 
-    @Column(nullable = false)
+    @Column(name = "car_year", nullable = false)
     private Integer year;
 
     @Enumerated(EnumType.STRING)
