@@ -1,4 +1,13 @@
-import { LitElement, html, css } from 'lit';
+import {LitElement, html, css} from 'lit';
+import '@vaadin/icon';
+import '@vaadin/button';
+import '@vaadin/text-field';
+import '@vaadin/text-area';
+import '@vaadin/form-layout';
+import '@vaadin/progress-bar';
+import '@vaadin/checkbox';
+import '@vaadin/grid';
+import '@vaadin/grid/vaadin-grid-sort-column.js';
 
 export class DemoTitle extends LitElement {
 
@@ -6,15 +15,19 @@ export class DemoTitle extends LitElement {
       h2 {
         font-family: "Red Hat Mono", monospace;
         font-size: 60px;
+        font-style: normal;
+        font-variant: normal;
         font-weight: 700;
         line-height: 26.4px;
-        color: var(--main-highlight-text-color, rgba(237, 98, 128));
+        color: var(--main-highlight-text-color);
       }
+
       .title {
         text-align: center;
         padding: 1em;
-        background: var(--main-bg-color, rgb(246, 242, 242));
+        background: var(--main-bg-color);
       }
+      
       .explanation {
         margin-left: auto;
         margin-right: auto;
@@ -22,20 +35,29 @@ export class DemoTitle extends LitElement {
         text-align: justify;
         font-size: 20px;
       }
-    `;
+      
+      .explanation img {
+        max-width: 60%;
+        display: block;
+        float:left;
+        margin-right: 2em;
+        margin-top: 1em;
+      }
+    `
 
     render() {
         return html`
             <div class="title">
                 <h2>Miles of Smiles</h2>
-                <p style="text-align:center;color:#666;font-size:14px;">Spring AI · Anthropic Claude</p>
             </div>
             <div class="explanation">
                 <p>Welcome to Miles of Smiles!</p>
-                <p>Click the button on the bottom right to talk to the LLM-powered customer support agent.</p>
+                <p>Please click the button on the bottom right to start the conversation 
+                with an LLM-powered customer support agent.</p>
             </div>
-        `;
+        `
     }
+
 }
 
 customElements.define('demo-title', DemoTitle);
