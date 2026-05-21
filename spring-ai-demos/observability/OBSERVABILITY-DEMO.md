@@ -210,6 +210,8 @@ Invoke-WebRequest -Uri "http://localhost:8080/burgerBattleArt?burger=Classic" `
   -OutFile "burger.png"
 ```
 
+> **Error `Unknown parameter: response_format`**: los modelos `gpt-image-1` no admiten ese parámetro. El proyecto usa `gpt-image-1`, `OpenAiImageModelConfig` (defaults sin `response_format`) y `SpringAiImageService` (no lo envía). Si falla, revisa que no tengas `SPRING_AI_OPENAI_IMAGE_OPTIONS_RESPONSE_FORMAT` en el entorno. Recompila: `./gradlew clean bootRun`.
+
 ---
 
 ## 6) Actuator (validar que hay métricas y encontrar nombres “reales”)
