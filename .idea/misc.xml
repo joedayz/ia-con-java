@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/guardrails/board-game-buddy_1" />
     <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-client" />
     <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/mcp/boardgamedb-mcp-stdio/mcp-server" />
     <file type="web" url="file://$PROJECT_DIR$/spring-ai-demos/mcp/mcp-filesystem-client" />

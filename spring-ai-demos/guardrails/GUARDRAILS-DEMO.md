@@ -210,6 +210,7 @@ Con la app corriendo, abre:
 
 ## Troubleshooting rápido
 
+- **`UNAVAILABLE: io exception` / `vectorStore` (Qdrant)**: Qdrant no está corriendo en `localhost:6334`. En `board-game-buddy_1` (y `_2`/`_3`): `docker compose up -d qdrant` o `./gradlew bootRun` con Docker Compose habilitado. Comprueba con `docker ps`.
 - **401 Unauthorized**: faltó `-a user:password` en la petición.
 - **No encuentra documentos RAG**: confirma que `game-rules-loader` cargó docs y que ambos usan la misma colección:
   - `spring.ai.vectorstore.qdrant.collection-name=board-game-buddy`

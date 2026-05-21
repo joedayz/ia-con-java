@@ -23,7 +23,6 @@
         <module name="springai-workshop-section2-step-01" />
         <module name="fase1-springboot" />
         <module name="springai-workshop-section2-step-04" />
-        <module name="dynamic-renderer" />
         <module name="springai-workshop-section2-step-03" />
         <module name="common" />
         <module name="springai-workshop-section2-step-06" />
@@ -49,6 +48,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
+      <module name="dynamic-renderer" target="21" />
       <module name="fase1-ollama-start" target="21" />
       <module name="fase1-quarkus-start" target="21" />
       <module name="fase1-springboot-start" target="21" />
@@ -87,6 +87,9 @@
       <module name="fase6-mcp-consumer" options="-parameters" />
       <module name="fase6-mcp-provider" options="-parameters" />
       <module name="fase7-spring-ai-voice-and-pictures" options="-parameters" />
+      <module name="guardrails.board-game-buddy_1.board-game-buddy" options="-parameters" />
+      <module name="guardrails.board-game-buddy_1.board-game-buddy.main" options="-parameters" />
+      <module name="guardrails.board-game-buddy_1.board-game-buddy.test" options="-parameters" />
       <module name="mcp-client" options="-parameters" />
       <module name="mcp-client.main" options="-parameters" />
       <module name="mcp-client.test" options="-parameters" />

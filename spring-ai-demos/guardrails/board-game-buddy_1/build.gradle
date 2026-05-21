@@ -27,9 +27,9 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.springframework.security:spring-security-test'
 
-    // Docker compose
-    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
-    developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
+    // Docker compose: levanta Qdrant + Jaeger al hacer bootRun
+    //developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+    //developmentOnly 'org.springframework.ai:spring-ai-spring-boot-docker-compose'
 
     // persistence
     implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'

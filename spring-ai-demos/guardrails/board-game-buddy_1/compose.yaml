@@ -1,8 +1,9 @@
 services:
   qdrant:
-    image: 'qdrant/qdrant:latest'
+    image: 'qdrant/qdrant:v1.14.1'
     ports:
-      - '6334'
+      - '6334:6334'   # gRPC (Spring AI QdrantVectorStore)
+      - '6333:6333'   # REST / dashboard
   jaeger:
     image: jaegertracing/all-in-one:1.51 # At least 1.35 if you want to have enabled collector
     container_name: jaeger
