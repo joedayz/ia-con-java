@@ -29,7 +29,13 @@ public class ApprovalController {
 
     @GetMapping("/pending")
     public List<ApprovalProposal> getPendingProposals() {
-        return approvalService.getPendingProposals();
+        List<ApprovalProposal> proposals = approvalService.getPendingProposals();
+        if (!proposals.isEmpty()) {
+            log.info("GET /api/approvals/pending → {} pending proposal(s)", proposals.size());
+        } else if (log.isDebugEnabled()) {
+            log.debug("GET /api/approvals/pending → 0 proposals");
+        }
+        return proposals;
     }
 
     @GetMapping("/{proposalId}")

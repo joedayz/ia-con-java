@@ -141,11 +141,22 @@ td form {
 }
 
 .status-pill-disposition {
-    background-color: #9c27b0; /* Purple */
+    background-color: #7b1fa2; /* Purple — darker for contrast on highlight rows */
+}
+
+.status-pill-unknown {
+    background-color: #616161; /* Gray fallback */
 }
 
 .status-pill-available {
     background-color: #4caf50; /* Green */
+}
+
+/* Keep disposition pill visible when the row is highlighted after return */
+tr.highlight-row .status-pill-disposition,
+tr[data-status="PENDING_DISPOSITION"] .status-pill {
+    background-color: #7b1fa2 !important;
+    color: #ffffff !important;
 }
 
 /* Section background colors matching status colors */
@@ -159,6 +170,10 @@ td form {
 
 #maintenance-section {
     border-left: 5px solid #ffb3b3;
+}
+
+#disposition-section {
+    border-left: 5px solid #e1bee7;
 }
 
 /* Tabs styling */

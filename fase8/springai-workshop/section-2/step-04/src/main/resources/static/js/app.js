@@ -93,8 +93,8 @@ function sortCars() {
 
         // Handle special case for status which needs to be displayed text
         if (currentSortColumn === 'status') {
-            valueA = getStatusDisplay(a.status);
-            valueB = getStatusDisplay(b.status);
+            valueA = getStatusDisplay(normalizeStatus(a.status));
+            valueB = getStatusDisplay(normalizeStatus(b.status));
         } else {
             valueA = a[currentSortColumn];
             valueB = b[currentSortColumn];
@@ -133,7 +133,7 @@ function filterCars() {
 
             // Handle special case for status which needs to be displayed text
             if (currentFilterField === 'status') {
-                fieldValue = getStatusDisplay(fieldValue);
+                fieldValue = getStatusDisplay(normalizeStatus(fieldValue));
             }
 
             // Convert to string and check if it contains the filter text
@@ -147,7 +147,7 @@ function filterCars() {
             car.model.toLowerCase().includes(filterText) ||
             String(car.year).toLowerCase().includes(filterText) ||
             (car.condition && car.condition.toLowerCase().includes(filterText)) ||
-            getStatusDisplay(car.status).toLowerCase().includes(filterText)
+            getStatusDisplay(normalizeStatus(car.status)).toLowerCase().includes(filterText)
         );
     });
 }
@@ -177,15 +177,17 @@ function populateFleetStatusTable(cars) {
             }, 3000);
         }
 
+        const statusKey = normalizeStatus(car.status);
+
         // Get status pill class based on car status
-        const statusPillClass = getStatusPillClass(car.status);
+        const statusPillClass = getStatusPillClass(statusKey);
 
         // Build action cell based on status
         let actionCell = '';
-        if (car.status === 'RENTED' || car.status === 'AT_CLEANING' || car.status === 'IN_MAINTENANCE') {
+        if (statusKey === 'RENTED' || statusKey === 'AT_CLEANING' || statusKey === 'IN_MAINTENANCE') {
             actionCell = `
                 <td>
-                    <form onsubmit="processFeedback(event, ${car.id}, '${car.status}')">
+                    <form onsubmit="processFeedback(event, ${car.id}, '${statusKey}')">
                         <input type="text" class="feedback-input" id="feedback-${car.id}" placeholder="Enter feedback">
                         <button type="submit" class="return-button">Return</button>
                     </form>
@@ -194,13 +196,15 @@ function populateFleetStatusTable(cars) {
             actionCell = `<td></td>`;
         }
 
+        row.dataset.status = statusKey;
+
         row.innerHTML = `
             <td>${car.id}</td>
             <td>${car.make}</td>
             <td>${car.model}</td>
             <td>${car.year}</td>
             <td>${car.condition || 'N/A'}</td>
-            <td><span class="status-pill ${statusPillClass}">${getStatusDisplay(car.status)}</span></td>
+            <td><span class="status-pill ${statusPillClass}">${getStatusDisplay(statusKey)}</span></td>
             ${actionCell}
         `;
 
@@ -244,9 +248,19 @@ function processFeedback(event, carId, status) {
     });
 }
 
+function normalizeStatus(status) {
+    if (status == null) {
+        return '';
+    }
+    if (typeof status === 'object' && status.name) {
+        return String(status.name).trim().toUpperCase();
+    }
+    return String(status).trim().toUpperCase().replace(/\s+/g, '_');
+}
+
 // Helper function to get CSS class based on car status
 function getStatusClass(status) {
-    switch(status) {
+    switch (normalizeStatus(status)) {
         case 'RENTED':
             return 'status-rented';
         case 'AT_CLEANING':
@@ -264,7 +278,8 @@ function getStatusClass(status) {
 
 // Helper function to get status pill class based on car status
 function getStatusPillClass(status) {
-    switch(status) {
+    const key = normalizeStatus(status);
+    switch (key) {
         case 'RENTED':
             return 'status-pill-rented';
         case 'AT_CLEANING':
@@ -276,13 +291,17 @@ function getStatusPillClass(status) {
         case 'PENDING_DISPOSITION':
             return 'status-pill-disposition';
         default:
-            return '';
+            if (key.includes('DISPOSITION')) {
+                return 'status-pill-disposition';
+            }
+            return 'status-pill-unknown';
     }
 }
 
 // Helper function to get display text for car status
 function getStatusDisplay(status) {
-    switch(status) {
+    const key = normalizeStatus(status);
+    switch (key) {
         case 'RENTED':
             return 'Rented';
         case 'AT_CLEANING':
@@ -294,7 +313,10 @@ function getStatusDisplay(status) {
         case 'PENDING_DISPOSITION':
             return 'Pending Disposition';
         default:
-            return status;
+            if (key.includes('DISPOSITION')) {
+                return 'Pending Disposition';
+            }
+            return key || String(status);
     }
 }
 

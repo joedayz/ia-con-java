@@ -220,6 +220,7 @@ function processFeedback(event, carId, status) {
     button.classList.add('loading');
     const originalText = button.textContent;
     button.textContent = 'Processing...';
+    showNotification('Processing return… approval dialog will open if human review is required.');
 
     const statusLabels = {
         'RENTED': 'rental',
@@ -227,15 +228,31 @@ function processFeedback(event, carId, status) {
         'IN_MAINTENANCE': 'maintenance'
     };
 
+    userDismissedApprovalModal = false;
+
     fetch(`/car-management/return/${carId}?feedback=${encodeURIComponent(feedback)}`, { method: 'POST' })
     .then(response => {
+        if (response.status === 202) {
+            return response.json().then(body => ({ async: true, body }));
+        }
         if (!response.ok) throw new Error('Network response was not ok');
-        return response.text();
+        return response.text().then(text => ({ async: false, text }));
     })
-    .then(data => {
+    .then(result => {
+        if (result.async) {
+            button.textContent = 'Awaiting approval…';
+            button.classList.remove('loading');
+            showNotification(result.body.message || 'Processing — complete approval in the dialog.');
+            waitForReturnCompletion(carId, button, originalText, statusLabels[status]);
+            return;
+        }
         lastUpdatedCarId = carId;
         showNotification(`Car successfully returned from ${statusLabels[status]}`);
         loadAllCars();
+        button.disabled = false;
+        button.classList.remove('loading');
+        button.textContent = originalText;
+        stopFastApprovalPolling();
     })
     .catch(error => {
         console.error(`Error returning car from ${statusLabels[status]}:`, error);
@@ -243,7 +260,52 @@ function processFeedback(event, carId, status) {
         button.disabled = false;
         button.classList.remove('loading');
         button.textContent = originalText;
+        stopFastApprovalPolling();
     });
+}
+
+// Tras 202: un solo intervalo (~1.5s) hasta que el job en servidor termine
+function waitForReturnCompletion(carId, button, originalText, statusLabel) {
+    stopFastApprovalPolling();
+
+    const finish = (message) => {
+        stopFastApprovalPolling();
+        rescheduleBackgroundApprovalPoll();
+        lastUpdatedCarId = carId;
+        showNotification(message || `Car successfully returned from ${statusLabel}`);
+        loadAllCars();
+        button.disabled = false;
+        button.classList.remove('loading');
+        button.textContent = originalText;
+    };
+
+    const check = () => {
+        Promise.all([
+            fetchPendingApprovals().catch(() => []),
+            fetch(`/car-management/return/${carId}/status?_=${Date.now()}`)
+                .then(r => r.ok ? r.json() : { state: 'RUNNING' })
+                .catch(() => ({ state: 'RUNNING' }))
+        ]).then(([proposals, jobStatus]) => {
+            updateApprovalUi(proposals);
+            const state = jobStatus.state || jobStatus.State || 'RUNNING';
+            if (state === 'FAILED') {
+                displayError('Return failed: ' + (jobStatus.message || 'Unknown error'));
+                stopFastApprovalPolling();
+                rescheduleBackgroundApprovalPoll();
+                button.disabled = false;
+                button.classList.remove('loading');
+                button.textContent = originalText;
+                return;
+            }
+            if (state === 'COMPLETED') {
+                finish(`Car successfully returned from ${statusLabel}`);
+            }
+        }).catch(err => console.error('Waiting for return completion:', err));
+    };
+
+    hitlPollingActive = true;
+    check();
+    fastApprovalPollingInterval = setInterval(check, 1500);
 }
 
 // Helper function to get CSS class based on car status
@@ -381,95 +443,158 @@ function showNotification(message) {
 
 // Poll for pending approvals every 2 seconds
 let approvalPollingInterval = null;
+let fastApprovalPollingInterval = null;
+let hitlPollingActive = false;
 let lastApprovalCount = 0;
+let lastRenderedProposalKey = '';
 let isModalOpen = false;
+let userDismissedApprovalModal = false;
+
+function proposalsCacheKey(proposals) {
+    if (!proposals || proposals.length === 0) {
+        return '';
+    }
+    return proposals.map(p => p.id).join(',');
+}
 
 // ============================================================================
 // HUMAN-IN-THE-LOOP APPROVAL FUNCTIONS
 // ============================================================================
 
-// Load and display pending approvals in modal
+// XHR evita cola de fetch detrás del POST /return bloqueado en algunos navegadores
+function fetchPendingApprovals() {
+    return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', `/api/approvals/pending?_=${Date.now()}`);
+        xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                    resolve(JSON.parse(xhr.responseText));
+                } catch (e) {
+                    reject(e);
+                }
+            } else {
+                reject(new Error(`HTTP ${xhr.status}`));
+            }
+        };
+        xhr.onerror = () => reject(new Error('Network error'));
+        xhr.send();
+    });
+}
+
+// Actualiza botón flotante y modal sin re-renderizar en bucle
+function updateApprovalUi(proposals) {
+    const previousCount = lastApprovalCount;
+    const floatBtn = document.getElementById('approval-notification-btn');
+    const countBadge = floatBtn.querySelector('.approval-count-badge');
+    const newApprovalsArrived = proposals.length > previousCount;
+    const cacheKey = proposalsCacheKey(proposals);
+
+    if (proposals.length > 0) {
+        floatBtn.style.display = 'flex';
+        countBadge.textContent = proposals.length;
+    } else {
+        floatBtn.style.display = 'none';
+        if (isModalOpen) {
+            closeApprovalModal();
+        }
+    }
+
+    const shouldAutoOpen = proposals.length > 0 && !isModalOpen && !userDismissedApprovalModal
+        && (hitlPollingActive || newApprovalsArrived);
+
+    if (shouldAutoOpen) {
+        if (newApprovalsArrived) {
+            showBrowserNotification('🚨 Approval Required',
+                `${proposals.length} vehicle disposition${proposals.length > 1 ? 's' : ''} awaiting your approval`);
+        }
+        showApprovalModal(proposals);
+        lastRenderedProposalKey = cacheKey;
+    } else if (isModalOpen && proposals.length > 0 && cacheKey !== lastRenderedProposalKey) {
+        refreshApprovalModalBody(proposals);
+        lastRenderedProposalKey = cacheKey;
+    }
+
+    lastApprovalCount = proposals.length;
+    if (!hitlPollingActive) {
+        rescheduleBackgroundApprovalPoll();
+    }
+}
+
+// Load and display pending approvals
 async function loadPendingApprovals() {
     try {
-        const response = await fetch('/api/approvals/pending');
-        const proposals = await response.json();
-        
-        const floatBtn = document.getElementById('approval-notification-btn');
-        const countBadge = floatBtn.querySelector('.approval-count-badge');
-        
-        // Show browser notification if new approvals arrived
-        if (proposals.length > lastApprovalCount && lastApprovalCount >= 0) {
-            if (proposals.length > 0) {
-                showBrowserNotification('🚨 Approval Required',
-                    `${proposals.length} vehicle disposition${proposals.length > 1 ? 's' : ''} awaiting your approval`);
-            }
-        }
-        lastApprovalCount = proposals.length;
-        
-        // Update floating button
-        if (proposals.length > 0) {
-            floatBtn.style.display = 'flex';
-            countBadge.textContent = proposals.length;
-        } else {
-            floatBtn.style.display = 'none';
-            // Close modal if no more approvals
-            if (isModalOpen) {
-                closeApprovalModal();
-            }
-        }
-        
-        // Only update modal content if modal is NOT open (prevents flashing)
-        if (!isModalOpen) {
-            const modalBody = document.getElementById('approval-modal-body');
-            if (!proposals || proposals.length === 0) {
-                modalBody.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No pending approvals at this time.</p>';
-            } else {
-                modalBody.innerHTML = '';
-                proposals.forEach(proposal => {
-                    const card = createApprovalCard(proposal);
-                    modalBody.appendChild(card);
-                });
-            }
-        }
+        const proposals = hitlPollingActive
+            ? await fetchPendingApprovals()
+            : await fetch('/api/approvals/pending').then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            });
+        updateApprovalUi(proposals);
     } catch (error) {
         console.error('Error loading pending approvals:', error);
     }
 }
 
-// Open approval modal
-function openApprovalModal() {
-    isModalOpen = true;
+function refreshApprovalModalBody(proposals) {
+    const modalBody = document.getElementById('approval-modal-body');
+    if (!proposals || proposals.length === 0) {
+        modalBody.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No pending approvals at this time.</p>';
+        return;
+    }
+    modalBody.innerHTML = '';
+    proposals.forEach(proposal => {
+        modalBody.appendChild(createApprovalCard(proposal));
+    });
+}
+
+// Abre el modal y rellena el contenido de forma síncrona (evita carrera con isModalOpen)
+function showApprovalModal(proposals) {
     const modal = document.getElementById('approval-modal');
+    isModalOpen = true;
+    userDismissedApprovalModal = false;
     modal.style.display = 'flex';
-    
-    // Load content when opening
-    loadModalContent();
+    document.body.classList.add('approval-modal-open');
+    refreshApprovalModalBody(proposals);
+}
+
+// Open approval modal (botón flotante)
+function openApprovalModal() {
+    userDismissedApprovalModal = false;
+    loadModalContent().then(proposals => {
+        if (proposals && proposals.length > 0) {
+            showApprovalModal(proposals);
+        } else {
+            const modal = document.getElementById('approval-modal');
+            isModalOpen = true;
+            modal.style.display = 'flex';
+            document.body.classList.add('approval-modal-open');
+            refreshApprovalModalBody([]);
+        }
+    });
 }
 
 // Close approval modal
 function closeApprovalModal() {
     isModalOpen = false;
+    userDismissedApprovalModal = true;
     document.getElementById('approval-modal').style.display = 'none';
+    document.body.classList.remove('approval-modal-open');
 }
 
 // Load modal content (called when opening modal)
 async function loadModalContent() {
     try {
-        const response = await fetch('/api/approvals/pending');
-        const proposals = await response.json();
-        const modalBody = document.getElementById('approval-modal-body');
-        
-        if (!proposals || proposals.length === 0) {
-            modalBody.innerHTML = '<p style="text-align: center; padding: 40px; color: #666;">No pending approvals at this time.</p>';
-        } else {
-            modalBody.innerHTML = '';
-            proposals.forEach(proposal => {
-                const card = createApprovalCard(proposal);
-                modalBody.appendChild(card);
-            });
+        const proposals = hitlPollingActive
+            ? await fetchPendingApprovals()
+            : await fetch('/api/approvals/pending').then(r => r.json());
+        if (isModalOpen) {
+            refreshApprovalModalBody(proposals);
         }
+        return proposals;
     } catch (error) {
         console.error('Error loading modal content:', error);
+        return [];
     }
 }
 
@@ -590,21 +715,30 @@ async function handleProposalDecision(proposalId, decision) {
     }
 }
 
-// Start polling for pending approvals
-function startApprovalPolling() {
-    // Request notification permission on first load
-    if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
-    }
-    
-    // Load immediately
-    loadPendingApprovals();
-    
-    // Then poll every 2 seconds
+// Polling en reposo: cada 10s si no hay HITL; cada 3s si hay pendientes o return en curso
+function rescheduleBackgroundApprovalPoll() {
     if (approvalPollingInterval) {
         clearInterval(approvalPollingInterval);
     }
-    approvalPollingInterval = setInterval(loadPendingApprovals, 2000);
+    const ms = (hitlPollingActive || lastApprovalCount > 0) ? 3000 : 10000;
+    approvalPollingInterval = setInterval(loadPendingApprovals, ms);
+}
+
+function startApprovalPolling() {
+    if ("Notification" in window && Notification.permission === "default") {
+        Notification.requestPermission();
+    }
+    loadPendingApprovals();
+    rescheduleBackgroundApprovalPoll();
+}
+
+function stopFastApprovalPolling() {
+    hitlPollingActive = false;
+    if (fastApprovalPollingInterval) {
+        clearInterval(fastApprovalPollingInterval);
+        fastApprovalPollingInterval = null;
+    }
+    rescheduleBackgroundApprovalPoll();
 }
 
 // Stop polling for pending approvals
