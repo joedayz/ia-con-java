@@ -5,15 +5,11 @@ import dev.springai.workshop.car.domain.CarInfo;
 import dev.springai.workshop.car.domain.CarStatus;
 import dev.springai.workshop.car.repository.CarInfoRepository;
 import dev.springai.workshop.car.workflow.CarProcessingWorkflow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CarManagementService {
-
-    private static final Logger log = LoggerFactory.getLogger(CarManagementService.class);
 
     private final CarProcessingWorkflow carProcessingWorkflow;
     private final CarInfoRepository carInfoRepository;
@@ -41,7 +37,6 @@ public class CarManagementService {
         } else {
             carInfo.setStatus(CarStatus.AVAILABLE);
         }
-        log.info("Car #{} status → {}", carNumber, carInfo.getStatus());
 
         carInfoRepository.save(carInfo);
 

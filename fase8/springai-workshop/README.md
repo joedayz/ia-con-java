@@ -69,9 +69,13 @@ Escenario distinto: **gestión de flota** de Miles of Smiles (devoluciones de al
 | `@A2AClientAgent` | `RemotePricingAgent` + `step-07-remote-pricing` (step-07) |
 | `@ParallelMapperAgent` | `FeedbackAnalysisWorkflow` + `FeedbackTask` (step-04) |
 | `@SupervisorAgent` | Supervisor con `ChatClient` (steps 04+) |
-| OpenAI + PostgreSQL Dev Services | Anthropic + H2 en memoria |
+| OpenAI + PostgreSQL Dev Services | OpenAI + H2 en memoria |
+
+**Section 2** usa **OpenAI** (`OPENAI_API_KEY`, modelo `gpt-4o-mini`). La section 1 sigue con Anthropic.
 
 ```bash
+export OPENAI_API_KEY=sk-...
+
 cd section-2/step-01
 ./mvnw spring-boot:run
 ```
@@ -133,7 +137,7 @@ cd section-2/step-06
 ./mvnw spring-boot:run
 ```
 
-En el formulario **Return** puedes adjuntar una foto del coche. `CarImageAnalysisAgent` (Claude vision) fusiona texto + imagen en un único feedback enriquecido antes del resto del workflow.
+En el formulario **Return** puedes adjuntar una foto del coche. `CarImageAnalysisAgent` (visión con `gpt-4o-mini`) fusiona texto + imagen en un único feedback enriquecido antes del resto del workflow.
 
 Imagen de ejemplo en el workshop: `src/main/resources/static/samples/q4-tree.png` (árbol sobre el capó — prueba disposición).
 
