@@ -2,6 +2,7 @@ package dev.springai.workshop.agent;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class CustomerSupportAgent {
         this.chatMemory = chatMemory;
         this.chatClient = ChatClient.builder(chatModel)
                 .defaultSystem(SYSTEM_MESSAGE)
+                .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
     }
 

@@ -3,6 +3,7 @@ package dev.springai.workshop.agent;
 import dev.springai.workshop.rag.RagRetriever;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class CustomerSupportAgent {
         this.ragRetriever = ragRetriever;
         this.chatClient = ChatClient.builder(chatModel)
                 .defaultSystem(SYSTEM_MESSAGE)
+                .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
     }
 

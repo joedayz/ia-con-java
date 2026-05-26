@@ -1,6 +1,6 @@
 # springai-workshop
 
-Workshop para construir aplicaciones con IA usando **Spring Boot** y **Spring AI**, con **Anthropic (Claude)** como proveedor por defecto.
+Workshop para construir aplicaciones con IA usando **Spring Boot** y **Spring AI**, con **OpenAI** como proveedor por defecto en section-1.
 
 Es el equivalente en Spring del workshop [quarkus-workshop-langchain4j](../quarkus-workshop-langchain4j/): mismo dominio (Miles of Smiles, agente de soporte al cliente) y progresión por pasos.
 
@@ -8,11 +8,11 @@ Es el equivalente en Spring del workshop [quarkus-workshop-langchain4j](../quark
 
 - Java 21+
 - Maven 3.8+
-- `ANTHROPIC_API_KEY` configurada en el entorno
+- `OPENAI_API_KEY` configurada en el entorno
 - **Step 05+**: [Ollama](https://ollama.com/) en marcha con el modelo de embeddings `nomic-embed-text`
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+export OPENAI_API_KEY=sk-...
 ollama pull nomic-embed-text
 ```
 
@@ -71,7 +71,7 @@ Escenario distinto: **gestión de flota** de Miles of Smiles (devoluciones de al
 | `@SupervisorAgent` | Supervisor con `ChatClient` (steps 04+) |
 | OpenAI + PostgreSQL Dev Services | OpenAI + H2 en memoria |
 
-**Section 2** usa **OpenAI** (`OPENAI_API_KEY`, modelo `gpt-4o-mini`). La section 1 sigue con Anthropic.
+**Section 1 y 2** usan **OpenAI** (`OPENAI_API_KEY`; section-1 con `gpt-4o`, section-2 con `gpt-4o-mini`).
 
 ```bash
 export OPENAI_API_KEY=sk-...
@@ -200,7 +200,7 @@ Los modelos pequeños suelen devolver texto junto al score numérico del detecto
 
 - Métricas: [http://localhost:8080/actuator/prometheus](http://localhost:8080/actuator/prometheus)
 - Health: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
-- Para probar fallback, descomenta en `application.properties`: `spring.ai.anthropic.base-url=https://api.example.com`
+- Para probar fallback, descomenta en `application.properties`: `spring.ai.openai.base-url=https://api.example.com`
 
 ### Step 08 — dos procesos
 

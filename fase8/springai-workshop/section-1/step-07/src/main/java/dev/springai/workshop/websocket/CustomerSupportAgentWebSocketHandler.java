@@ -28,8 +28,11 @@ public class CustomerSupportAgentWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        String userMessage = message.getPayload();
+        log.debug("WebSocket [{}] user -> {}", session.getId(), userMessage);
         try {
-            String reply = customerSupportAgent.chat(session.getId(), message.getPayload());
+            String reply = customerSupportAgent.chat(session.getId(), userMessage);
+            log.debug("WebSocket [{}] agent -> {}", session.getId(), reply);
             session.sendMessage(new TextMessage(reply));
         } catch (Exception e) {
             log.error("Chat error for session {}", session.getId(), e);

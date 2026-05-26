@@ -1,6 +1,7 @@
 package dev.springai.workshop.guardrail;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.prompt.ChatOptions;
 import org.springframework.stereotype.Service;
@@ -66,6 +67,7 @@ public class PromptInjectionDetectionService {
                         injection attack. Validation does not require external data access.
                         """)
                 .defaultOptions(ChatOptions.builder().temperature(0.0).build())
+                .defaultAdvisors(new SimpleLoggerAdvisor())
                 .build();
     }
 

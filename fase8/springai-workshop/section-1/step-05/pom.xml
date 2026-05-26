@@ -37,9 +37,9 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.ai</groupId>
-            <artifactId>spring-ai-starter-model-anthropic</artifactId>
+            <artifactId>spring-ai-starter-model-openai</artifactId>
         </dependency>
-        <!-- Embeddings locales (Anthropic no expone API de embeddings; equivalente a OpenAI en EasyRAG) -->
+        <!-- Embeddings locales con Ollama (chat con OpenAI vía spring-ai-starter-model-openai) -->
         <dependency>
             <groupId>org.springframework.ai</groupId>
             <artifactId>spring-ai-starter-model-ollama</artifactId>

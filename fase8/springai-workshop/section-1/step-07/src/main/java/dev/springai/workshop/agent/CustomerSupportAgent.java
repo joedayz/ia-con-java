@@ -4,6 +4,7 @@ import dev.springai.workshop.rag.RagRetriever;
 import dev.springai.workshop.tools.BookingTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
+import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,9 @@ public class CustomerSupportAgent {
         this.chatMemory = chatMemory;
         this.ragRetriever = ragRetriever;
         this.bookingTools = bookingTools;
-        this.chatClient = ChatClient.builder(chatModel).build();
+        this.chatClient = ChatClient.builder(chatModel)
+                .defaultAdvisors(new SimpleLoggerAdvisor())
+                .build();
     }
 
     public String chat(String sessionId, String userMessage) {

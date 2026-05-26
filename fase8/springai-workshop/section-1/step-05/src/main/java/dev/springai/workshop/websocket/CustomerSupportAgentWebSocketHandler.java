@@ -31,6 +31,7 @@ public class CustomerSupportAgentWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
+        log.debug("WebSocket [{}] user -> {}", session.getId(), message.getPayload());
         customerSupportAgent.chatStream(session.getId(), message.getPayload())
                 .subscribe(
                         chunk -> sendChunk(session, chunk),
