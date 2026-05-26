@@ -292,8 +292,8 @@ td form {
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    transition: all 0.3s ease;
-    animation: slideIn 0.4s ease-out;
+    transition: box-shadow 0.3s ease;
+    color: #212121;
 }
 
 @keyframes slideIn {
@@ -526,6 +526,10 @@ td form {
     font-size: 1em;
 }
 
+body.approval-modal-open {
+    overflow: hidden;
+}
+
 /* Modal overlay */
 .approval-modal {
     position: fixed;
@@ -533,8 +537,8 @@ td form {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 2000;
+    background-color: rgba(0, 0, 0, 0.75);
+    z-index: 10000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -547,14 +551,14 @@ td form {
 }
 
 .approval-modal-content {
-    background-color: white;
+    background-color: #ffffff;
+    color: #212121;
     border-radius: 16px;
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    animation: slideUp 0.4s ease;
 }
 
 @keyframes slideUp {
@@ -610,4 +614,14 @@ td form {
     padding: 24px;
     max-height: calc(90vh - 120px);
     overflow-y: auto;
+    background-color: #ffffff;
+    color: #212121;
+}
+
+.approval-modal-body .damage-text {
+    color: #333333;
+}
+
+.approval-modal-body .action-reason {
+    color: #444444;
 }

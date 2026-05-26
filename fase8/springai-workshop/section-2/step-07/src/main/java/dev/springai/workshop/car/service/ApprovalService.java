@@ -123,6 +123,7 @@ public class ApprovalService {
         return proposal;
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public List<ApprovalProposal> getPendingProposals() {
         return approvalProposalRepository.findByStatus(ApprovalStatus.PENDING);
     }
