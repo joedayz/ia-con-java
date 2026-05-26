@@ -186,7 +186,7 @@ cd section-2/step-07
 
 ### Step 11 — LLM local y sanitización de salida
 
-Por defecto sigue usando **Anthropic** para el chat. Para probar un modelo local (equivalente a Jlama en el workshop Quarkus):
+Por defecto usa **OpenAI** para el chat. Para probar un modelo local (equivalente a Jlama en el workshop Quarkus):
 
 ```bash
 ollama pull llama3.2
