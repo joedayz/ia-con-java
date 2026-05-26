@@ -14,6 +14,15 @@ Es el equivalente en Spring del workshop [quarkus-workshop-langchain4j](../quark
 export OPENAI_API_KEY=sk-...
 ```
 
+**Step 06:** levanta Postgres con pgvector antes de la app:
+
+```bash
+cd section-1/step-06
+docker compose up -d
+```
+
+(Puerto host **5436** → contenedor 5432; ver `application.properties` para `POSTGRES_*` opcionales.)
+
 ## Ejecutar un paso
 
 ```bash
@@ -29,12 +38,12 @@ Abre [http://localhost:8080](http://localhost:8080) y usa el chat en la esquina 
 
 | Directorio | Descripción |
 |------------|-------------|
-| `section-1/step-01` | Integración básica con Claude + WebSocket + UI de chat |
+| `section-1/step-01` | Integración básica con OpenAI + WebSocket + UI de chat |
 | `section-1/step-02` | Configuración del LLM: temperature, max-tokens, top-p |
 | `section-1/step-03` | Streaming de respuestas token a token por WebSocket |
 | `section-1/step-04` | System message: rol y alcance del agente Miles of Smiles |
 | `section-1/step-05` | RAG (EasyRAG): ingesta + `QuestionAnswerAdvisor` |
-| `section-1/step-06` | RAG manual: `RagIngestion` + `RagRetriever` + augmentation custom |
+| `section-1/step-06` | RAG manual + **PgVector** (PostgreSQL en Docker) + `RagIngestion` / `RagRetriever` |
 | `section-1/step-07` | Tools / function calling: reservas con JPA + H2 |
 | `section-1/step-08` | Cliente MCP + tools locales |
 | `section-1/step-08-mcp-server` | Servidor MCP de clima (puerto 8081) |
@@ -170,7 +179,7 @@ cd section-2/step-07
 | EasyRAG | `EasyRagIngestor` + `QuestionAnswerAdvisor` + `SimpleVectorStore` |
 | `RagIngestion` / `RagRetriever` | `RagIngestion` + `RagRetriever.augmentUserMessage()` |
 | `bge-small-en-q` (ONNX) | OpenAI `text-embedding-3-small` (embeddings) |
-| PgVector | `SimpleVectorStore` en memoria (sin Docker; reinicio = re-ingesta) |
+| PgVector | **Step 06:** `spring-ai-starter-vector-store-pgvector` + Docker Compose. Steps 05 y 07–11: `SimpleVectorStore` en memoria (sin Docker) |
 | `@Tool` / `@ToolBox` | `@Tool` en `BookingTools` + `ChatClient.tools(...)` |
 | Panache + PostgreSQL | Spring Data JPA + H2 en memoria |
 | `@McpToolBox("weather")` | `spring-ai-starter-mcp-client` + `ToolCallbackProvider` |
