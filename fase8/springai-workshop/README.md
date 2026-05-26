@@ -9,11 +9,9 @@ Es el equivalente en Spring del workshop [quarkus-workshop-langchain4j](../quark
 - Java 21+
 - Maven 3.8+
 - `OPENAI_API_KEY` configurada en el entorno
-- **Step 05+**: [Ollama](https://ollama.com/) en marcha con el modelo de embeddings `nomic-embed-text`
 
 ```bash
 export OPENAI_API_KEY=sk-...
-ollama pull nomic-embed-text
 ```
 
 ## Ejecutar un paso
@@ -171,7 +169,7 @@ cd section-2/step-07
 | `@SystemMessage` | `ChatClient.defaultSystem(...)` |
 | EasyRAG | `EasyRagIngestor` + `QuestionAnswerAdvisor` + `SimpleVectorStore` |
 | `RagIngestion` / `RagRetriever` | `RagIngestion` + `RagRetriever.augmentUserMessage()` |
-| `bge-small-en-q` (ONNX) | Ollama `nomic-embed-text` (embeddings locales explícitos) |
+| `bge-small-en-q` (ONNX) | OpenAI `text-embedding-3-small` (embeddings) |
 | PgVector | `SimpleVectorStore` en memoria (sin Docker; reinicio = re-ingesta) |
 | `@Tool` / `@ToolBox` | `@Tool` en `BookingTools` + `ChatClient.tools(...)` |
 | Panache + PostgreSQL | Spring Data JPA + H2 en memoria |
