@@ -1,0 +1,26 @@
+# PostgreSQL + extensión pgvector (paridad con Quarkus step-06).
+# Arranque: docker compose up -d
+# Puerto 5436 en el host para reducir conflictos con otros Postgres locales.
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: springai-workshop-step-06-pgvector
+    environment:
+      POSTGRES_DB: miles_rag
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - springai_step06_pgvector:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d miles_rag"]
+      interval: 5s
+      timeout: 5s
+      retries: 8
+    restart: unless-stopped
+
+volumes:
+  springai_step06_pgvector:
+    driver: local

@@ -44,7 +44,7 @@ Abre [http://localhost:8080](http://localhost:8080) y usa el chat en la esquina 
 | `section-1/step-04` | System message: rol y alcance del agente Miles of Smiles |
 | `section-1/step-05` | RAG (EasyRAG): ingesta + `QuestionAnswerAdvisor` |
 | `section-1/step-06` | RAG manual + **PgVector** (PostgreSQL en Docker) + `RagIngestion` / `RagRetriever` |
-| `section-1/step-07` | Tools / function calling: reservas con JPA + H2 |
+| `section-1/step-07` | Tools / function calling: reservas con JPA + PostgreSQL |
 | `section-1/step-08` | Cliente MCP + tools locales |
 | `section-1/step-08-mcp-server` | Servidor MCP de clima (puerto 8081) |
 | `section-1/step-09` | Input guardrails: detección de prompt injection |
@@ -181,7 +181,7 @@ cd section-2/step-07
 | `bge-small-en-q` (ONNX) | OpenAI `text-embedding-3-small` (embeddings) |
 | PgVector | **Step 06:** `spring-ai-starter-vector-store-pgvector` + Docker Compose. Steps 05 y 07–11: `SimpleVectorStore` en memoria (sin Docker) |
 | `@Tool` / `@ToolBox` | `@Tool` en `BookingTools` + `ChatClient.tools(...)` |
-| Panache + PostgreSQL | Spring Data JPA + H2 en memoria |
+| Panache + PostgreSQL | Spring Data JPA + PostgreSQL (docker compose de step-06) |
 | `@McpToolBox("weather")` | `spring-ai-starter-mcp-client` + `ToolCallbackProvider` |
 | `@InputGuardrails` | `PromptInjectionGuard` + `PromptInjectionDetectionService` |
 | `log-requests` / `log-responses` | `logging.level.org.springframework.ai.*=DEBUG` |
