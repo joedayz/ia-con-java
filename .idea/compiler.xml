@@ -11,7 +11,6 @@
         <module name="fase1-quarkus-ollama" />
         <module name="fase3-ollama" />
         <module name="springai-workshop-step-10" />
-        <module name="springai-workshop-step-11" />
         <module name="fase6-mcp-consumer" />
         <module name="springai-workshop-section2-step-07-remote-pricing" />
         <module name="fase3" />
@@ -59,6 +58,7 @@
       <module name="quarkus-workshop-langchain4j-2-06" target="21" />
       <module name="quarkus-workshop-langchain4j-2-07-multi-agent-system" target="21" />
       <module name="quarkus-workshop-langchain4j-2-07-remote-a2a-agent" target="21" />
+      <module name="springai-workshop-step-11" target="21" />
     </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">

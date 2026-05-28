@@ -59,8 +59,10 @@ public class CustomerSupportAgent {
     }
 
     public String chat(String sessionId, String userMessage) {
-        promptInjectionGuard.validate(userMessage);
-        return resilientLlmInvoker.invoke(() -> invokeLlm(sessionId, userMessage));
+        return resilientLlmInvoker.invoke(() -> {
+            promptInjectionGuard.validate(userMessage);
+            return invokeLlm(sessionId, userMessage);
+        });
     }
 
     private String invokeLlm(String sessionId, String userMessage) {

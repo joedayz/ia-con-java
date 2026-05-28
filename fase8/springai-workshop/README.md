@@ -49,7 +49,6 @@ Abre [http://localhost:8080](http://localhost:8080) y usa el chat en la esquina 
 | `section-1/step-08-mcp-server` | Servidor MCP de clima (puerto 8081) |
 | `section-1/step-09` | Input guardrails: detección de prompt injection |
 | `section-1/step-10` | Observabilidad + fault tolerance (Resilience4j) |
-| `section-1/step-11` | LLM local (Ollama) + output guardrail numérico |
 | `section-2/step-01` | Primer agente autónomo: flota de coches + `CleaningAgent` |
 | `section-2/step-02` | Workflow paralelo: limpieza + condición del coche |
 | `section-2/step-03` | Workflows secuencial + paralelo + condicional (mantenimiento/limpieza) |
@@ -179,7 +178,7 @@ cd section-2/step-07
 | EasyRAG | `EasyRagIngestor` + `QuestionAnswerAdvisor` + `SimpleVectorStore` |
 | `RagIngestion` / `RagRetriever` | `RagIngestion` + `RagRetriever.augmentUserMessage()` |
 | `bge-small-en-q` (ONNX) | OpenAI `text-embedding-3-small` (embeddings) |
-| PgVector | **Step 06:** `spring-ai-starter-vector-store-pgvector` + Docker Compose. Steps 05 y 07–11: `SimpleVectorStore` en memoria (sin Docker) |
+| PgVector | **Step 06:** `spring-ai-starter-vector-store-pgvector` + Docker Compose. Steps 05 y 07–10: `SimpleVectorStore` en memoria (sin Docker) |
 | `@Tool` / `@ToolBox` | `@Tool` en `BookingTools` + `ChatClient.tools(...)` |
 | Panache + PostgreSQL | Spring Data JPA + PostgreSQL (docker compose de step-06) |
 | `@McpToolBox("weather")` | `spring-ai-starter-mcp-client` + `ToolCallbackProvider` |
@@ -187,27 +186,13 @@ cd section-2/step-07
 | `log-requests` / `log-responses` | `logging.level.org.springframework.ai.*=DEBUG` |
 | Micrometer / OpenTelemetry | Actuator + Prometheus + OTLP tracing |
 | `@Timeout` / `@Retry` / `@Fallback` | `ResilientLlmInvoker` (Resilience4j) |
-| Jlama (inferencia Java embebida) | Perfil `ollama-local` con Ollama (`llama3.2`) |
-| `@OutputGuardrails` | `NumericOutputSanitizer` en `PromptInjectionDetectionService` |
 | `@Agent` / `@ToolBox` | `CleaningAgent` + `CleaningTool` (`section-2`) |
-
-### Step 11 — LLM local y sanitización de salida
-
-Por defecto usa **OpenAI** para el chat. Para probar un modelo local (equivalente a Jlama en el workshop Quarkus):
-
-```bash
-ollama pull llama3.2
-cd section-1/step-11
-./mvnw spring-boot:run -Dspring-boot.run.profiles=ollama-local
-```
-
-Los modelos pequeños suelen devolver texto junto al score numérico del detector de injection; `NumericOutputSanitizer` extrae el número antes de evaluar el umbral.
 
 ### Step 10 — métricas y chaos testing
 
 - Métricas: [http://localhost:8080/actuator/prometheus](http://localhost:8080/actuator/prometheus)
 - Health: [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
-- Para probar fallback, descomenta en `application.properties`: `spring.ai.openai.base-url=https://api.example.com`
+- Para probar fallback, descomenta en `application.properties`: `spring.ai.openai.chat.base-url=https://api.example.com` (no uses `spring.ai.openai.base-url`: rompe embeddings/RAG al arranque)
 
 ### Step 08 — dos procesos
 
