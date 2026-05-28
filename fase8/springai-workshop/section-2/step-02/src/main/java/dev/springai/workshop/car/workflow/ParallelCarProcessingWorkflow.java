@@ -1,0 +1,54 @@
+package dev.springai.workshop.car.workflow;
+
+import dev.springai.workshop.car.agent.CarConditionFeedbackAgent;
+import dev.springai.workshop.car.agent.CleaningAgent;
+import dev.springai.workshop.car.domain.CarConditions;
+import dev.springai.workshop.car.domain.CarInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.stereotype.Service;
+
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * Workflow paralelo (equiv. {@code @ParallelAgent} Quarkus step-02).
+ * Activar con {@code app.car-workflow.parallel=true}.
+ */
+@Service
+@ConditionalOnProperty(name = "app.car-workflow.parallel", havingValue = "true")
+public class ParallelCarProcessingWorkflow implements CarProcessingWorkflow {
+
+    private static final Logger log = LoggerFactory.getLogger(ParallelCarProcessingWorkflow.class);
+
+    private final CleaningAgent cleaningAgent;
+    private final CarConditionFeedbackAgent carConditionFeedbackAgent;
+    private final ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
+
+    public ParallelCarProcessingWorkflow(CleaningAgent cleaningAgent,
+                                           CarConditionFeedbackAgent carConditionFeedbackAgent) {
+        this.cleaningAgent = cleaningAgent;
+        this.carConditionFeedbackAgent = carConditionFeedbackAgent;
+    }
+
+    @Override
+    public CarConditions processCarReturn(CarInfo carInfo, Integer carNumber, String feedback) {
+        log.info("Starting parallel workflow: CleaningAgent + CarConditionFeedbackAgent (car #{})", carNumber);
+
+        CompletableFuture<String> cleaningFuture = CompletableFuture.supplyAsync(
+                () -> cleaningAgent.processCleaning(carInfo, carNumber, feedback), executor);
+        CompletableFuture<String> conditionFuture = CompletableFuture.supplyAsync(
+                () -> carConditionFeedbackAgent.analyzeForCondition(carInfo, carNumber, feedback), executor);
+
+        CompletableFuture.allOf(cleaningFuture, conditionFuture).join();
+
+        String cleaningAgentResult = cleaningFuture.join();
+        String carCondition = conditionFuture.join();
+        log.info("[CarConditionFeedbackAgent response]: {}", carCondition);
+        log.debug("CleaningAgent result: {}", cleaningAgentResult);
+
+        return SequentialCarProcessingWorkflow.toCarConditions(carCondition, cleaningAgentResult);
+    }
+}

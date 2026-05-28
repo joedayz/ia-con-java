@@ -50,7 +50,7 @@ Abre [http://localhost:8080](http://localhost:8080) y usa el chat en la esquina 
 | `section-1/step-09` | Input guardrails: detección de prompt injection |
 | `section-1/step-10` | Observabilidad + fault tolerance (Resilience4j) |
 | `section-2/step-01` | Primer agente autónomo: flota de coches + `CleaningAgent` |
-| `section-2/step-02` | Workflow paralelo: limpieza + condición del coche |
+| `section-2/step-02` | Workflow secuencial o paralelo: limpieza + condición del coche (`app.car-workflow.parallel`) |
 | `section-2/step-03` | Workflows secuencial + paralelo + condicional (mantenimiento/limpieza) |
 | `section-2/step-04` | Patrón supervisor + análisis de disposición |
 | `section-2/step-05` | Human-in-the-loop: aprobación humana para disposición |
@@ -93,7 +93,7 @@ cd section-2/step-02
 ./mvnw spring-boot:run
 ```
 
-Tras un **Return**, la columna **Condition** se actualiza; dos agentes corren en paralelo (`CleaningAgent` + `CarConditionFeedbackAgent`).
+Tras un **Return**, la columna **Condition** se actualiza. Por defecto el workflow es **secuencial** (`CleaningAgent` → `CarConditionFeedbackAgent`). Para el modo **paralelo** (equiv. `@ParallelAgent` Quarkus), en `application.properties`: `app.car-workflow.parallel=true` y reinicia la app.
 
 ### Step 03 — tres patrones de workflow
 
