@@ -46,7 +46,7 @@ public class CarProcessingWorkflow {
         return toCarConditions(carCondition, feedbackResult.cleaningRequest(), feedbackResult.maintenanceRequest());
     }
 
-    private static CarConditions toCarConditions(String carCondition, String maintenanceRequest, String cleaningRequest) {
+    private static CarConditions toCarConditions(String carCondition, String cleaningRequest, String maintenanceRequest) {
         CarAssignment assignment;
         if (ActionRequired.isRequired(maintenanceRequest)) {
             assignment = CarAssignment.MAINTENANCE;
