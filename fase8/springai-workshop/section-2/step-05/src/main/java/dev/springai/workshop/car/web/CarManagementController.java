@@ -46,6 +46,15 @@ public class CarManagementController {
     public ResponseEntity<Map<String, Object>> processReturn(
             @PathVariable Integer carNumber,
             @RequestParam(required = false) String feedback) {
+        ReturnJobTracker.Status current = returnJobTracker.get(carNumber);
+        if (current.state() == ReturnJobTracker.State.RUNNING) {
+            log.warn("Return already in progress for car #{}", carNumber);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+                    "status", "CONFLICT",
+                    "carNumber", carNumber,
+                    "message", "Return already processing for this car. Complete approval in the dialog."));
+        }
+
         String safeFeedback = feedback != null ? feedback : "";
 
         returnJobTracker.started(carNumber);

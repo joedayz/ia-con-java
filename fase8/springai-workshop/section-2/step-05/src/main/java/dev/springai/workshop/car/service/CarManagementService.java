@@ -1,34 +1,33 @@
 package dev.springai.workshop.car.service;
 
-import dev.springai.workshop.car.domain.CarAssignment;
 import dev.springai.workshop.car.domain.CarConditions;
 import dev.springai.workshop.car.domain.CarInfo;
-import dev.springai.workshop.car.domain.CarStatus;
 import dev.springai.workshop.car.domain.FeedbackTask;
 import dev.springai.workshop.car.repository.CarInfoRepository;
 import dev.springai.workshop.car.workflow.CarProcessingWorkflow;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 public class CarManagementService {
 
-    private static final Logger log = LoggerFactory.getLogger(CarManagementService.class);
-
     private final CarProcessingWorkflow carProcessingWorkflow;
     private final CarInfoRepository carInfoRepository;
+    private final CarReturnTxService carReturnTxService;
 
     public CarManagementService(CarProcessingWorkflow carProcessingWorkflow,
-                                CarInfoRepository carInfoRepository) {
+                                CarInfoRepository carInfoRepository,
+                                CarReturnTxService carReturnTxService) {
         this.carProcessingWorkflow = carProcessingWorkflow;
         this.carInfoRepository = carInfoRepository;
+        this.carReturnTxService = carReturnTxService;
     }
 
-    @Transactional
+    /**
+     * Sin transacción durante el workflow: HITL puede tardar minutos y las propuestas
+     * deben ser visibles en otras peticiones HTTP antes de que termine este método.
+     */
     public String processCarReturn(Integer carNumber, String feedback) {
         CarInfo carInfo = carInfoRepository.findById(carNumber.longValue())
                 .orElse(null);
@@ -44,20 +43,7 @@ public class CarManagementService {
         CarConditions carConditions = carProcessingWorkflow.processCarReturn(
                 tasks, carInfo, carNumber, feedback);
 
-        carInfo.setCondition(carConditions.generalCondition());
-
-        switch (carConditions.carAssignment()) {
-            case DISPOSITION -> {
-                carInfo.setStatus(CarStatus.PENDING_DISPOSITION);
-                log.info("Car marked for disposition - awaiting final decision");
-            }
-            case MAINTENANCE -> carInfo.setStatus(CarStatus.IN_MAINTENANCE);
-            case CLEANING -> carInfo.setStatus(CarStatus.AT_CLEANING);
-            case NONE -> carInfo.setStatus(CarStatus.AVAILABLE);
-        }
-
-        carInfoRepository.save(carInfo);
-
+        carReturnTxService.persistReturnResult(carNumber, carConditions);
         return carConditions.generalCondition();
     }
 }

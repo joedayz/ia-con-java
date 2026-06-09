@@ -1,0 +1,151 @@
+- generic [active] [ref=e1]:
+  - heading "Car Management System" [level=1] [ref=e2]
+  - button "Refresh Data" [ref=e3] [cursor=pointer]
+  - button "Generate Report" [ref=e4] [cursor=pointer]
+  - generic [ref=e5]:
+    - heading "Fleet Status" [level=2] [ref=e6]
+    - generic [ref=e7]:
+      - textbox "Filter cars..." [ref=e8]
+      - combobox [ref=e9]:
+        - option "All Fields" [selected]
+        - option "Car Number"
+        - option "Make"
+        - option "Model"
+        - option "Year"
+        - option "Condition"
+        - option "Status"
+      - button "Clear" [ref=e10] [cursor=pointer]
+    - table [ref=e11]:
+      - rowgroup [ref=e12]:
+        - row "Car Number ↕ Make ↕ Model ↕ Year ↕ Condition Status ↕ Action" [ref=e13]:
+          - columnheader "Car Number ↕" [ref=e14] [cursor=pointer]
+          - columnheader "Make ↕" [ref=e15] [cursor=pointer]
+          - columnheader "Model ↕" [ref=e16] [cursor=pointer]
+          - columnheader "Year ↕" [ref=e17] [cursor=pointer]
+          - columnheader "Condition" [ref=e18]
+          - columnheader "Status ↕" [ref=e19] [cursor=pointer]
+          - columnheader "Action" [ref=e20]
+      - rowgroup [ref=e21]:
+        - row "1 Mercedes-Benz C-Class 2023 Minor dent on passenger door Pending Disposition Awaiting human approval" [ref=e22]:
+          - cell "1" [ref=e23]
+          - cell "Mercedes-Benz" [ref=e24]
+          - cell "C-Class" [ref=e25]
+          - cell "2023" [ref=e26]
+          - cell "Minor dent on passenger door" [ref=e27]
+          - cell "Pending Disposition" [ref=e28]:
+            - generic [ref=e29]: Pending Disposition
+          - cell "Awaiting human approval" [ref=e30]:
+            - emphasis [ref=e31]: Awaiting human approval
+        - row "2 BMW X5 2024 Recently serviced, excellent condition In Maintenance Return" [ref=e32]:
+          - cell "2" [ref=e33]
+          - cell "BMW" [ref=e34]
+          - cell "X5" [ref=e35]
+          - cell "2024" [ref=e36]
+          - cell "Recently serviced, excellent condition" [ref=e37]
+          - cell "In Maintenance" [ref=e38]:
+            - generic [ref=e39]: In Maintenance
+          - cell "Return" [ref=e40]:
+            - generic [ref=e41]:
+              - textbox "Enter feedback" [ref=e42]
+              - button "Return" [ref=e43] [cursor=pointer]
+        - row "3 Audi Q4 2024 Brake pads recently replaced Rented Return" [ref=e44]:
+          - cell "3" [ref=e45]
+          - cell "Audi" [ref=e46]
+          - cell "Q4" [ref=e47]
+          - cell "2024" [ref=e48]
+          - cell "Brake pads recently replaced" [ref=e49]
+          - cell "Rented" [ref=e50]:
+            - generic [ref=e51]: Rented
+          - cell "Return" [ref=e52]:
+            - generic [ref=e53]:
+              - textbox "Enter feedback" [ref=e54]
+              - button "Return" [ref=e55] [cursor=pointer]
+        - row "4 Nissan Altima 2017 Interior needs cleaning At Cleaning Return" [ref=e56]:
+          - cell "4" [ref=e57]
+          - cell "Nissan" [ref=e58]
+          - cell "Altima" [ref=e59]
+          - cell "2017" [ref=e60]
+          - cell "Interior needs cleaning" [ref=e61]
+          - cell "At Cleaning" [ref=e62]:
+            - generic [ref=e63]: At Cleaning
+          - cell "Return" [ref=e64]:
+            - generic [ref=e65]:
+              - textbox "Enter feedback" [ref=e66]
+              - button "Return" [ref=e67] [cursor=pointer]
+        - row "5 Ford Focus 2013 High mileage, engine issues Rented Return" [ref=e68]:
+          - cell "5" [ref=e69]
+          - cell "Ford" [ref=e70]
+          - cell "Focus" [ref=e71]
+          - cell "2013" [ref=e72]
+          - cell "High mileage, engine issues" [ref=e73]
+          - cell "Rented" [ref=e74]:
+            - generic [ref=e75]: Rented
+          - cell "Return" [ref=e76]:
+            - generic [ref=e77]:
+              - textbox "Enter feedback" [ref=e78]
+              - button "Return" [ref=e79] [cursor=pointer]
+        - row "6 Toyota Corolla 2022 Like new, no issues Rented Return" [ref=e80]:
+          - cell "6" [ref=e81]
+          - cell "Toyota" [ref=e82]
+          - cell "Corolla" [ref=e83]
+          - cell "2022" [ref=e84]
+          - cell "Like new, no issues" [ref=e85]
+          - cell "Rented" [ref=e86]:
+            - generic [ref=e87]: Rented
+          - cell "Return" [ref=e88]:
+            - generic [ref=e89]:
+              - textbox "Enter feedback" [ref=e90]
+              - button "Return" [ref=e91] [cursor=pointer]
+        - row "7 Honda Civic 2021 Good condition, minor wear and tear Rented Return" [ref=e92]:
+          - cell "7" [ref=e93]
+          - cell "Honda" [ref=e94]
+          - cell "Civic" [ref=e95]
+          - cell "2021" [ref=e96]
+          - cell "Good condition, minor wear and tear" [ref=e97]
+          - cell "Rented" [ref=e98]:
+            - generic [ref=e99]: Rented
+          - cell "Return" [ref=e100]:
+            - generic [ref=e101]:
+              - textbox "Enter feedback" [ref=e102]
+              - button "Return" [ref=e103] [cursor=pointer]
+        - row "8 Ford F-150 2023 Small scratch on rear bumper In Maintenance Return" [ref=e104]:
+          - cell "8" [ref=e105]
+          - cell "Ford" [ref=e106]
+          - cell "F-150" [ref=e107]
+          - cell "2023" [ref=e108]
+          - cell "Small scratch on rear bumper" [ref=e109]
+          - cell "In Maintenance" [ref=e110]:
+            - generic [ref=e111]: In Maintenance
+          - cell "Return" [ref=e112]:
+            - generic [ref=e113]:
+              - textbox "Enter feedback" [ref=e114]
+              - button "Return" [ref=e115] [cursor=pointer]
+  - button "⏸️ 1 Approval Needed" [ref=e116] [cursor=pointer]:
+    - generic [ref=e117]: ⏸️
+    - generic [ref=e118]: "1"
+    - generic [ref=e119]: Approval Needed
+  - generic [ref=e121]:
+    - generic [ref=e122]:
+      - heading "🚨 Human Approval Required" [level=2] [ref=e123]
+      - button "×" [ref=e124] [cursor=pointer]
+    - generic [ref=e126]:
+      - generic [ref=e127]:
+        - generic [ref=e128]:
+          - generic [ref=e129]: 🚗
+          - heading "2023 Mercedes-Benz C-Class" [level=3] [ref=e130]
+        - generic [ref=e131]: $44,000
+      - generic [ref=e132]:
+        - generic [ref=e133]:
+          - generic [ref=e134]: "Car #1"
+          - generic [ref=e135]: "Condition: Minor dent on passenger door"
+        - generic [ref=e136]:
+          - generic [ref=e137]: Damage Report
+          - generic [ref=e138]: Totaled in a major collision with severe frame and structural damage, not drivable and unsafe.
+        - generic [ref=e139]:
+          - generic [ref=e140]: AI Recommendation
+          - generic [ref=e141]:
+            - generic [ref=e142]: Totaled in a major collision with severe frame and
+            - generic [ref=e143]: Totaled in a major collision with severe frame and structural damage, not drivable and unsafe.
+      - generic [ref=e144]:
+        - button "✅ Keep & Repair" [ref=e145] [cursor=pointer]
+        - button "🗑️ Dispose" [ref=e146] [cursor=pointer]

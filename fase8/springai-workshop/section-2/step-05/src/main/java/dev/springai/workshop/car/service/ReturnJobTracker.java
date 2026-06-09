@@ -11,6 +11,7 @@ public class ReturnJobTracker {
     public enum State {
         IDLE,
         RUNNING,
+        AWAITING_APPROVAL,
         COMPLETED,
         FAILED
     }
@@ -22,6 +23,10 @@ public class ReturnJobTracker {
 
     public void started(int carNumber) {
         jobs.put(carNumber, new Status(State.RUNNING, "Processing return"));
+    }
+
+    public void awaitingApproval(int carNumber) {
+        jobs.put(carNumber, new Status(State.AWAITING_APPROVAL, "Waiting for human approval"));
     }
 
     public void completed(int carNumber, String message) {

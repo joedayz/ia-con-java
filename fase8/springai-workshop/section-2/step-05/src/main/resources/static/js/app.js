@@ -192,6 +192,8 @@ function populateFleetStatusTable(cars) {
                         <button type="submit" class="return-button">Return</button>
                     </form>
                 </td>`;
+        } else if (car.status === 'PENDING_DISPOSITION') {
+            actionCell = `<td><em>Awaiting human approval</em></td>`;
         } else {
             actionCell = `<td></td>`;
         }
@@ -235,10 +237,21 @@ function processFeedback(event, carId, status) {
         if (response.status === 202) {
             return response.json().then(body => ({ async: true, body }));
         }
+        if (response.status === 409) {
+            return response.json().then(body => ({ conflict: true, body }));
+        }
         if (!response.ok) throw new Error('Network response was not ok');
         return response.text().then(text => ({ async: false, text }));
     })
     .then(result => {
+        if (result.conflict) {
+            button.disabled = false;
+            button.classList.remove('loading');
+            button.textContent = originalText;
+            showNotification(result.body.message || 'Return already in progress.');
+            waitForReturnCompletion(carId, button, originalText, statusLabels[status]);
+            return;
+        }
         if (result.async) {
             button.textContent = 'Awaiting approval…';
             button.classList.remove('loading');
@@ -286,8 +299,14 @@ function waitForReturnCompletion(carId, button, originalText, statusLabel) {
                 .then(r => r.ok ? r.json() : { state: 'RUNNING' })
                 .catch(() => ({ state: 'RUNNING' }))
         ]).then(([proposals, jobStatus]) => {
-            updateApprovalUi(proposals);
             const state = jobStatus.state || jobStatus.State || 'RUNNING';
+            const carPending = proposals.filter(p => Number(p.carNumber) === Number(carId));
+            if (carPending.length > 0) {
+                userDismissedApprovalModal = false;
+                showApprovalModal(proposals);
+                loadAllCars();
+            }
+            updateApprovalUi(proposals, { forceModal: carPending.length > 0 });
             if (state === 'FAILED') {
                 displayError('Return failed: ' + (jobStatus.message || 'Unknown error'));
                 stopFastApprovalPolling();
@@ -296,6 +315,9 @@ function waitForReturnCompletion(carId, button, originalText, statusLabel) {
                 button.classList.remove('loading');
                 button.textContent = originalText;
                 return;
+            }
+            if (state === 'AWAITING_APPROVAL') {
+                button.textContent = 'Awaiting approval…';
             }
             if (state === 'COMPLETED') {
                 finish(`Car successfully returned from ${statusLabel}`);
@@ -483,7 +505,7 @@ function fetchPendingApprovals() {
 }
 
 // Actualiza botón flotante y modal sin re-renderizar en bucle
-function updateApprovalUi(proposals) {
+function updateApprovalUi(proposals, options = {}) {
     const previousCount = lastApprovalCount;
     const floatBtn = document.getElementById('approval-notification-btn');
     const countBadge = floatBtn.querySelector('.approval-count-badge');
@@ -501,7 +523,7 @@ function updateApprovalUi(proposals) {
     }
 
     const shouldAutoOpen = proposals.length > 0 && !isModalOpen && !userDismissedApprovalModal
-        && (hitlPollingActive || newApprovalsArrived);
+        && (options.forceModal || hitlPollingActive || newApprovalsArrived);
 
     if (shouldAutoOpen) {
         if (newApprovalsArrived) {
