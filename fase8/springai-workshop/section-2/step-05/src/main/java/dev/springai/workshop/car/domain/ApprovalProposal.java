@@ -25,9 +25,10 @@ public class ApprovalProposal {
     private String carMake;
     private String carModel;
     private Integer carYear;
+    @Column(length = 64)
     private String carValue;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String proposedDisposition;
 
     @Column(length = 2000)
