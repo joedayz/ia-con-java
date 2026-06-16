@@ -37,11 +37,15 @@ public class CarManagementService {
         // Update the car's condition with the result from CarConditionFeedbackAgent
         carInfo.condition = carConditions.generalCondition();
 
-        // If cleaning was not required, make the car available to rent
-        if (!carConditions.cleaningRequired()) {
+        // Set the status explicitly here. The CleaningTool runs on a separate
+        // (parallel) thread/transaction, so any status it writes would be
+        // overwritten when this transaction flushes the stale carInfo entity.
+        if (carConditions.cleaningRequired()) {
+            carInfo.status = CarStatus.AT_CLEANING;
+        } else {
             carInfo.status = CarStatus.AVAILABLE;
         }
-        
+
         carInfo.persist();
 
         return carConditions.generalCondition();

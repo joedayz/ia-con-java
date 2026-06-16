@@ -10,39 +10,59 @@
         <module name="fase1-ollama" />
         <module name="fase1-quarkus-ollama" />
         <module name="fase3-ollama" />
-        <module name="springai-workshop-step-10" />
-        <module name="fase6-mcp-consumer" />
         <module name="springai-workshop-section2-step-07-remote-pricing" />
+        <module name="fase5-langchain4j-tool-calling" />
+        <module name="fase1-springboot" />
+        <module name="fase5-spring-ai-tool-calling" />
+        <module name="springai-workshop-step-03" />
+        <module name="springai-workshop-step-04" />
+        <module name="springai-workshop-step-01" />
+        <module name="springai-workshop-step-02" />
+        <module name="quarkus-workshop-langchain4j-2-05" />
+        <module name="quarkus-workshop-langchain4j-2-04" />
+        <module name="quarkus-workshop-langchain4j-2-06" />
+        <module name="02-retrieval-augmented-generation" />
+        <module name="springai-workshop-step-09" />
+        <module name="springai-workshop-step-07" />
+        <module name="springai-workshop-step-08" />
+        <module name="springai-workshop-step-05" />
+        <module name="springai-workshop-step-06" />
+        <module name="fase1-quarkus" />
+        <module name="quarkus-workshop-langchain4j-08-mcp-server" />
+        <module name="quarkus-workshop-langchain4j-2-01" />
+        <module name="quarkus-workshop-langchain4j-2-03" />
+        <module name="quarkus-workshop-langchain4j-2-02" />
+        <module name="fase3-spring-ai-ollama" />
+        <module name="fase4-spring-ai-ollama-pgvector" />
+        <module name="springai-workshop-step-10" />
+        <module name="quarkus-workshop-langchain4j-08" />
+        <module name="quarkus-workshop-langchain4j-07" />
+        <module name="fase6-mcp-consumer" />
+        <module name="quarkus-workshop-langchain4j-09" />
+        <module name="quarkus-workshop-langchain4j-04" />
+        <module name="quarkus-workshop-langchain4j-03" />
+        <module name="quarkus-workshop-langchain4j-06" />
+        <module name="quarkus-workshop-langchain4j-05" />
         <module name="fase3" />
         <module name="fase2" />
+        <module name="quarkus-workshop-langchain4j-02" />
         <module name="fase1" />
         <module name="fase6-mcp-provider" />
-        <module name="fase5-langchain4j-tool-calling" />
+        <module name="quarkus-workshop-langchain4j-01" />
         <module name="springai-workshop-section2-step-02" />
         <module name="springai-workshop-section2-step-01" />
-        <module name="fase1-springboot" />
         <module name="springai-workshop-section2-step-04" />
         <module name="springai-workshop-section2-step-03" />
         <module name="common" />
         <module name="springai-workshop-section2-step-06" />
         <module name="springai-workshop-section2-step-05" />
         <module name="springai-workshop-section2-step-07" />
-        <module name="fase5-spring-ai-tool-calling" />
-        <module name="springai-workshop-step-03" />
-        <module name="springai-workshop-step-04" />
-        <module name="springai-workshop-step-01" />
-        <module name="springai-workshop-step-02" />
-        <module name="02-retrieval-augmented-generation" />
-        <module name="springai-workshop-step-09" />
-        <module name="springai-workshop-step-07" />
-        <module name="springai-workshop-step-08" />
+        <module name="quarkus-workshop-langchain4j-2-07-multi-agent-system" />
+        <module name="quarkus-workshop-langchain4j-11" />
+        <module name="quarkus-workshop-langchain4j-2-07-remote-a2a-agent" />
+        <module name="quarkus-workshop-langchain4j-10" />
         <module name="fase4-spring-ai-openai-pgvector" />
-        <module name="springai-workshop-step-05" />
-        <module name="springai-workshop-step-06" />
-        <module name="fase1-quarkus" />
         <module name="fase3-spring-ai" />
-        <module name="fase3-spring-ai-ollama" />
-        <module name="fase4-spring-ai-ollama-pgvector" />
         <module name="springai-workshop-step-08-mcp-server" />
       </profile>
     </annotationProcessing>
@@ -55,9 +75,6 @@
       <module name="fase3-spring-ai-start" target="21" />
       <module name="fase4" target="21" />
       <module name="fase7-spring-ai-voice-and-pictures" target="21" />
-      <module name="quarkus-workshop-langchain4j-2-06" target="21" />
-      <module name="quarkus-workshop-langchain4j-2-07-multi-agent-system" target="21" />
-      <module name="quarkus-workshop-langchain4j-2-07-remote-a2a-agent" target="21" />
       <module name="springai-workshop-step-11" target="21" />
     </bytecodeTargetLevel>
   </component>
@@ -102,6 +119,23 @@
       <module name="mcp-server" options="-parameters" />
       <module name="mcp-server.main" options="-parameters" />
       <module name="mcp-server.test" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-01" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-02" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-03" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-04" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-05" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-06" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-07" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-08" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-08-mcp-server" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-09" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-10" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-11" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-01" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-02" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-03" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-04" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-05" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-06" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-07-multi-agent-system" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-07-remote-a2a-agent" options="-parameters" />
