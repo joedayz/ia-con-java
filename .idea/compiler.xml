@@ -17,8 +17,8 @@
         <module name="springai-workshop-step-03" />
         <module name="springai-workshop-step-04" />
         <module name="springai-workshop-step-01" />
+        <module name="quarkus-workshop-langchain4j-2-05 (1)" />
         <module name="springai-workshop-step-02" />
-        <module name="quarkus-workshop-langchain4j-2-05" />
         <module name="quarkus-workshop-langchain4j-2-04" />
         <module name="quarkus-workshop-langchain4j-2-06" />
         <module name="02-retrieval-augmented-generation" />
@@ -34,6 +34,7 @@
         <module name="quarkus-workshop-langchain4j-2-02" />
         <module name="fase3-spring-ai-ollama" />
         <module name="fase4-spring-ai-ollama-pgvector" />
+        <module name="quarkus-workshop-langchain4j-2-05 (2)" />
         <module name="springai-workshop-step-10" />
         <module name="quarkus-workshop-langchain4j-08" />
         <module name="quarkus-workshop-langchain4j-07" />
@@ -75,6 +76,7 @@
       <module name="fase3-spring-ai-start" target="21" />
       <module name="fase4" target="21" />
       <module name="fase7-spring-ai-voice-and-pictures" target="21" />
+      <module name="quarkus-workshop-langchain4j-2-05" target="21" />
       <module name="springai-workshop-step-11" target="21" />
     </bytecodeTargetLevel>
   </component>
@@ -136,6 +138,8 @@
       <module name="quarkus-workshop-langchain4j-2-03" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-04" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-05" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-05 (1)" options="-parameters" />
+      <module name="quarkus-workshop-langchain4j-2-05 (2)" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-06" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-07-multi-agent-system" options="-parameters" />
       <module name="quarkus-workshop-langchain4j-2-07-remote-a2a-agent" options="-parameters" />
