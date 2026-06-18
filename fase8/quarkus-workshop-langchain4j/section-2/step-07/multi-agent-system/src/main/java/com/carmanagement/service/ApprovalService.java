@@ -110,14 +110,14 @@ public class ApprovalService {
         // Create new proposal
         ApprovalProposal proposal = new ApprovalProposal();
         proposal.carNumber = carNumber;
-        proposal.carMake = carMake;
-        proposal.carModel = carModel;
+        proposal.carMake = truncate(carMake, 255);
+        proposal.carModel = truncate(carModel, 255);
         proposal.carYear = carYear;
-        proposal.carValue = carValue;
-        proposal.proposedDisposition = proposedDisposition;
-        proposal.dispositionReason = dispositionReason;
-        proposal.carCondition = carCondition;
-        proposal.rentalFeedback = rentalFeedback;
+        proposal.carValue = truncate(carValue, 255);
+        proposal.proposedDisposition = truncate(proposedDisposition, 255);
+        proposal.dispositionReason = truncate(dispositionReason, 2000);
+        proposal.carCondition = truncate(carCondition, 1000);
+        proposal.rentalFeedback = truncate(rentalFeedback, 2000);
         proposal.status = ApprovalStatus.PENDING;
         proposal.createdAt = LocalDateTime.now();
 
@@ -192,6 +192,13 @@ public class ApprovalService {
      */
     public ApprovalProposal getPendingProposalForCar(Integer carNumber) {
         return ApprovalProposal.findPendingByCarNumber(carNumber);
+    }
+
+    private static String truncate(String value, int maxLength) {
+        if (value == null) {
+            return null;
+        }
+        return value.length() <= maxLength ? value : value.substring(0, maxLength);
     }
 }
 

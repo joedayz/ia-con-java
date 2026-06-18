@@ -8,6 +8,8 @@ import jakarta.inject.Inject;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Service implementing Human-in-the-Loop approval logic.
@@ -15,6 +17,11 @@ import java.util.concurrent.TimeoutException;
  */
 @ApplicationScoped
 public class HumanApprovalService {
+
+    private static final Pattern ESTIMATED_VALUE_PATTERN =
+            Pattern.compile("(?i)Estimated Value:\\s*(\\$?\\s*[0-9][0-9,]*(?:\\.[0-9]+)?)");
+    private static final Pattern ANY_DOLLAR_PATTERN =
+            Pattern.compile("\\$\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)");
 
     @Inject
     ApprovalService approvalService;
@@ -30,6 +37,8 @@ public class HumanApprovalService {
             String feedback) {
 
         String dispositionReason = extractReasoning(dispositionProposal);
+        String proposedAction = extractProposedAction(dispositionProposal);
+        String summarizedValue = summarizeCarValue(carValue);
 
         Log.infof("🛑 HITL Tool: Creating approval proposal for car %d - %s %s %s",
                 carNumber, carYear, carMake, carModel);
@@ -38,8 +47,8 @@ public class HumanApprovalService {
         try {
             CompletableFuture<ApprovalProposal> approvalFuture =
                     approvalService.createProposalAndWaitForDecision(
-                            carNumber, carMake, carModel, carYear, carValue,
-                            dispositionProposal, dispositionReason, carCondition, feedback);
+                            carNumber, carMake, carModel, carYear, summarizedValue,
+                            proposedAction, dispositionReason, carCondition, feedback);
 
             ApprovalProposal result = approvalFuture.get(5, TimeUnit.MINUTES);
 
@@ -75,10 +84,51 @@ public class HumanApprovalService {
     }
 
     private static String extractReasoning(String dispositionProposal) {
+        if (dispositionProposal == null || dispositionProposal.isBlank()) {
+            return "";
+        }
         int idx = dispositionProposal.indexOf("Reasoning:");
         if (idx >= 0) {
             return dispositionProposal.substring(idx + "Reasoning:".length()).trim();
         }
         return dispositionProposal;
+    }
+
+    private static String extractProposedAction(String dispositionProposal) {
+        if (dispositionProposal == null || dispositionProposal.isBlank()) {
+            return "UNKNOWN";
+        }
+        String upper = dispositionProposal.toUpperCase();
+        if (upper.contains("__SCRAP__")) {
+            return "SCRAP";
+        }
+        if (upper.contains("__SELL__")) {
+            return "SELL";
+        }
+        if (upper.contains("__DONATE__")) {
+            return "DONATE";
+        }
+        if (upper.contains("__KEEP__")) {
+            return "KEEP";
+        }
+        return dispositionProposal.lines()
+                .findFirst()
+                .orElse("UNKNOWN")
+                .trim();
+    }
+
+    private static String summarizeCarValue(String carValue) {
+        if (carValue == null || carValue.isBlank()) {
+            return "$0";
+        }
+        Matcher labeled = ESTIMATED_VALUE_PATTERN.matcher(carValue);
+        if (labeled.find()) {
+            return labeled.group(1).trim();
+        }
+        Matcher anyDollar = ANY_DOLLAR_PATTERN.matcher(carValue);
+        if (anyDollar.find()) {
+            return "$" + anyDollar.group(1);
+        }
+        return carValue.length() > 255 ? carValue.substring(0, 252) + "..." : carValue;
     }
 }
