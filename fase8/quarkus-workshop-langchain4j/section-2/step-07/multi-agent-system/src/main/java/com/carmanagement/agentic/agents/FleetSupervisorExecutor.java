@@ -2,9 +2,8 @@ package com.carmanagement.agentic.agents;
 
 import com.carmanagement.model.CarInfo;
 import com.carmanagement.model.FeedbackAnalysisResults;
-import com.carmanagement.service.FleetSupervisorCoordinationService;
+import com.carmanagement.service.FleetSupervisorCoordinationBridge;
 import dev.langchain4j.agentic.Agent;
-import io.quarkus.arc.Arc;
 
 /**
  * Deterministic fleet orchestration executor invoked by the supervisor.
@@ -24,7 +23,7 @@ public final class FleetSupervisorExecutor {
             String feedback,
             FeedbackAnalysisResults feedbackAnalysisResults) {
 
-        return Arc.container().instance(FleetSupervisorCoordinationService.class).get()
-                .supervise(carInfo, carNumber, feedback, feedbackAnalysisResults);
+        return FleetSupervisorCoordinationBridge.supervise(
+                carInfo, carNumber, feedback, feedbackAnalysisResults);
     }
 }

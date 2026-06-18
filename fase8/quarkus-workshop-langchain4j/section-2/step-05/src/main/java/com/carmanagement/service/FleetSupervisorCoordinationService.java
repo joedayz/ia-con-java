@@ -9,16 +9,26 @@ import com.carmanagement.agentic.agents.PricingAgent;
 import com.carmanagement.model.CarInfo;
 import com.carmanagement.model.FeedbackAnalysisResults;
 import io.quarkus.logging.Log;
+import io.quarkus.runtime.Startup;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Deterministic fleet orchestration for value-based routing and Human-in-the-Loop approval.
  * High-value vehicles always pause for human approval before maintenance or disposition actions.
  */
+@Startup
 @ApplicationScoped
 public class FleetSupervisorCoordinationService {
+
+    private static final Pattern ESTIMATED_VALUE_PATTERN =
+            Pattern.compile("(?i)Estimated Value:\\s*\\$?\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)");
+    private static final Pattern ANY_DOLLAR_PATTERN =
+            Pattern.compile("\\$\\s*([0-9][0-9,]*(?:\\.[0-9]+)?)");
 
     @Inject
     PricingAgent pricingAgent;
@@ -222,10 +232,25 @@ public class FleetSupervisorCoordinationService {
     }
 
     private static int parseValue(String carValue) {
-        if (carValue == null) {
+        if (carValue == null || carValue.isBlank()) {
             return 0;
         }
-        String digits = carValue.replaceAll("[^0-9]", "");
-        return digits.isEmpty() ? 0 : Integer.parseInt(digits);
+        Matcher labeled = ESTIMATED_VALUE_PATTERN.matcher(carValue);
+        if (labeled.find()) {
+            return toInt(labeled.group(1));
+        }
+        Matcher anyDollar = ANY_DOLLAR_PATTERN.matcher(carValue);
+        if (anyDollar.find()) {
+            return toInt(anyDollar.group(1));
+        }
+        return 0;
+    }
+
+    private static int toInt(String raw) {
+        try {
+            return (int) Math.round(Double.parseDouble(raw.replace(",", "")));
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 }
