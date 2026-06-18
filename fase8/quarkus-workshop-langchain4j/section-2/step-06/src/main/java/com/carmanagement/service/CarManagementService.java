@@ -29,9 +29,6 @@ public class CarManagementService {
     CarProcessingWorkflow carProcessingWorkflow;
 
     @Inject
-    FleetSupervisorCoordinationBridge fleetSupervisorCoordinationBridge;
-
-    @Inject
     CarManagementService self;
 
     /**
